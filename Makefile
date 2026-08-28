@@ -1,4 +1,4 @@
-.PHONY: setup up down reset-db build
+.PHONY: setup up down reset-db test-backend build
 
 setup:
 	@test -f .env || cp .env.example .env
@@ -17,6 +17,9 @@ down:
 
 reset-db:
 	docker compose exec app php artisan migrate:fresh --seed
+
+test-backend:
+	docker compose --profile test run --rm app-test php artisan test
 
 build:
 	docker compose run --rm vite pnpm build
