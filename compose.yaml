@@ -1,0 +1,67 @@
+name: mantenedor-usuarios
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - vite_build:/var/www/html/public/build
+    environment:
+      APP_ENV: local
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: usuarios
+      DB_USERNAME: usuarios
+      DB_PASSWORD: usuarios
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/up"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+
+  vite:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    working_dir: /var/www/html
+    command: sh -c "pnpm install --frozen-lockfile && pnpm dev"
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+      - vite_build:/var/www/html/public/build
+    ports:
+      - "5173:5173"
+    depends_on:
+      - app
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: usuarios
+      POSTGRES_USER: usuarios
+      POSTGRES_PASSWORD: usuarios
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usuarios -d usuarios"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  node_modules:
+  postgres_data:
+  vite_build:
