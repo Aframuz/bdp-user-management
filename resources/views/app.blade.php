@@ -3,7 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#3454d1">
+        <meta name="theme-color" content="#62ab52">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <title inertia>{{ config('app.name', 'Mantenedor de Usuarios') }}</title>
         @viteReactRefresh
         @vite('resources/js/app.tsx')
