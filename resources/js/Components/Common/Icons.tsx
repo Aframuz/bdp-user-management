@@ -8,7 +8,9 @@ import {
     IconIdBadge2,
     IconInbox,
     IconMapPin,
+    IconMoon,
     IconSearch,
+    IconSun,
     IconTrash,
     IconUserPlus,
     IconX,
@@ -40,7 +42,9 @@ export const EyeIcon = withInheritedSize(IconEye, 'EyeIcon');
 export const FilterIcon = withInheritedSize(IconFilter, 'FilterIcon');
 export const InboxIcon = withInheritedSize(IconInbox, 'InboxIcon');
 export const MapPinIcon = withInheritedSize(IconMapPin, 'MapPinIcon');
+export const MoonIcon = withInheritedSize(IconMoon, 'MoonIcon');
 export const SearchIcon = withInheritedSize(IconSearch, 'SearchIcon');
+export const SunIcon = withInheritedSize(IconSun, 'SunIcon');
 export const TrashIcon = withInheritedSize(IconTrash, 'TrashIcon');
 export const UserBadgeIcon = withInheritedSize(IconIdBadge2, 'UserBadgeIcon');
 export const UserPlusIcon = withInheritedSize(IconUserPlus, 'UserPlusIcon');

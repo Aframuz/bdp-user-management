@@ -79,6 +79,7 @@
    --surface: var(--white);
    --surface-subtle: #f6f8f5;
    --line: #e2e7de;
+   --control-border: #cdd3c9;
    --radius: 0.9rem;
    --shadow: 0 12px 35px rgba(51, 51, 51, .08);
    --motion-fast: 180ms;
@@ -133,6 +134,31 @@
    --bs-link-hover-color: var(--brand-800);
    --bs-link-hover-color-rgb: 61, 107, 52;
    --bs-focus-ring-color: rgba(var(--brand-rgb), .25);
+}
+
+[data-bs-theme='dark'] {
+   --brand-50: #243421;
+   --brand-100: #35502f;
+   --brand-700: #8dca80;
+   --brand-800: #a7d69d;
+   --ink-900: #f1f5ef;
+   --ink-700: #c1cbc0;
+   --ink-500: #9aa697;
+   --surface: #222822;
+   --surface-subtle: #171b17;
+   --line: #3a4438;
+   --control-border: #566153;
+   --shadow: 0 12px 35px rgba(0, 0, 0, .28);
+
+   --bs-body-color: var(--ink-900);
+   --bs-body-color-rgb: 241, 245, 239;
+   --bs-body-bg: var(--surface-subtle);
+   --bs-body-bg-rgb: 23, 27, 23;
+   --bs-emphasis-color: var(--ink-900);
+   --bs-heading-color: var(--ink-900);
+   --bs-border-color: var(--line);
+   --bs-secondary-bg: var(--surface);
+   --bs-tertiary-bg: #2a312a;
 }
 
 html {
@@ -200,14 +226,25 @@ textarea {
 
 .btn-outline-secondary {
    --bs-btn-color: var(--secondary);
-   --bs-btn-border-color: #cdd3c9;
+   --bs-btn-border-color: var(--control-border);
    --bs-btn-hover-bg: var(--secondary);
    --bs-btn-hover-border-color: var(--secondary);
    --bs-btn-active-bg: var(--secondary);
    --bs-btn-active-border-color: var(--secondary);
    --bs-btn-disabled-color: var(--ink-500);
-   --bs-btn-disabled-border-color: #cdd3c9;
+   --bs-btn-disabled-border-color: var(--control-border);
    --bs-btn-focus-shadow-rgb: 51, 51, 51;
+}
+
+[data-bs-theme='dark'] .btn-outline-secondary {
+   --bs-btn-color: var(--ink-700);
+   --bs-btn-border-color: var(--control-border);
+   --bs-btn-hover-color: var(--white);
+   --bs-btn-hover-bg: #465044;
+   --bs-btn-hover-border-color: #5a6757;
+   --bs-btn-active-color: var(--white);
+   --bs-btn-active-bg: #536150;
+   --bs-btn-active-border-color: #657461;
 }
 
 .dropdown-menu {
@@ -249,8 +286,9 @@ textarea {
 }
 
 .app-header {
-   background: rgba(255, 255, 255, .96);
-   border-bottom: 1px solid var(--line);
+   background: var(--primary);
+   border-bottom: 1px solid rgba(51, 51, 51, .16);
+   box-shadow: 0 5px 18px rgba(51, 51, 51, .12);
    position: sticky;
    top: 0;
    z-index: 100;
@@ -258,22 +296,27 @@ textarea {
 
 .brand {
    align-items: center;
-   color: var(--ink-900);
+   color: var(--white);
    display: inline-flex;
    gap: .75rem;
    text-decoration: none;
 }
 
 .brand__mark {
-   align-items: center;
-   background: var(--brand-600);
-   border-radius: .7rem;
-   color: var(--white);
-   display: inline-flex;
-   font-size: 1.25rem;
-   height: 2.5rem;
-   justify-content: center;
-   width: 2.5rem;
+   display: block;
+   flex: 0 0 auto;
+   height: 2.75rem;
+   overflow: hidden;
+   width: 2.75rem;
+}
+
+/* El SVG trae isotipo y wordmark; este recorte deja el isotipo junto al título
+   HTML, que continúa siendo nítido, adaptable y accesible. */
+.brand__logo {
+   display: block;
+   height: 2.75rem;
+   max-width: none;
+   width: 6.1875rem;
 }
 
 .brand strong,
@@ -283,19 +326,35 @@ textarea {
 }
 
 .brand small {
-   color: var(--ink-500);
+   color: rgba(255, 255, 255, .78);
    font-size: .72rem;
    margin-top: .15rem;
 }
 
-.environment-label {
-   background: var(--brand-50);
-   border: 1px solid var(--brand-100);
-   border-radius: 100px;
-   color: var(--brand-700);
-   font-size: .78rem;
-   font-weight: 700;
-   padding: .4rem .7rem;
+.theme-toggle {
+   align-items: center;
+   background: rgba(255, 255, 255, .12);
+   border: 1px solid rgba(255, 255, 255, .42);
+   border-radius: 50%;
+   color: var(--white);
+   display: inline-flex;
+   flex: 0 0 auto;
+   font-size: 1.25rem;
+   height: 2.75rem;
+   justify-content: center;
+   padding: 0;
+   width: 2.75rem;
+}
+
+.theme-toggle:hover {
+   background: rgba(255, 255, 255, .22);
+   border-color: var(--white);
+   transform: translateY(-1px);
+}
+
+.theme-toggle:active {
+   background: rgba(255, 255, 255, .28);
+   transform: translateY(0);
 }
 
 .page-content {
@@ -379,7 +438,7 @@ textarea {
 
 .form-control,
 .form-select {
-   border-color: #cdd3c9;
+   border-color: var(--control-border);
    min-height: 2.75rem;
 }
 
@@ -582,6 +641,12 @@ textarea.form-control {
    font-weight: 650;
    gap: .38rem;
    padding: .48em .68em;
+   min-width: 70px;
+}
+
+[data-bs-theme='dark'] .status-badge--inactive {
+   background-color: #e7e7e7 !important;
+   color: var(--bs-secondary) !important;
 }
 
 .status-dot {
@@ -603,7 +668,7 @@ textarea.form-control {
 }
 
 .dt-processing {
-   background: var(--white) !important;
+   background: var(--surface) !important;
    border: 1px solid var(--line) !important;
    border-radius: .7rem !important;
    box-shadow: var(--shadow);
@@ -809,10 +874,6 @@ textarea.form-control {
 }
 
 @media (max-width: 767.98px) {
-   .environment-label {
-      display: none;
-   }
-
    .page-content {
       padding-top: 2rem;
    }
