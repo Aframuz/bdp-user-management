@@ -14,7 +14,7 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@inertiajs/react": "^2.3.27",
+        "@inertiajs/react": "^3.7.0",
         "@tabler/icons-react": "^3.46.0",
         "bootstrap": "^5.3.8",
         "datatables.net-bs5": "^2.3.8",

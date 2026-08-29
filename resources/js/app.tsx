@@ -1,4 +1,4 @@
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -16,8 +16,14 @@ createInertiaApp({
     defaults: {
         visitOptions: (_href, options) => ({ viewTransition: !options.prefetch }),
     },
+    // Inertia 3 estrechó el tipo de `resolve`: ya no admite `Promise<{ default }>`,
+    // solo el componente. En runtime sigue haciendo `module.default || module`, pero
+    // desenvolvemos aquí para que el tipo cuadre sin castear.
     resolve: (name) =>
-        resolvePageComponent(`./Pages/${name}.tsx`, import.meta.glob('./Pages/**/*.tsx')),
+        resolvePageComponent<{ default: ResolvedComponent }>(
+            `./Pages/${name}.tsx`,
+            import.meta.glob<{ default: ResolvedComponent }>('./Pages/**/*.tsx'),
+        ).then((module) => module.default),
     setup({ el, App, props }) {
         createRoot(el).render(<App {...props} />);
     },

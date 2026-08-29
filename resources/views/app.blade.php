@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#62ab52">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <title inertia>{{ config('app.name', 'Mantenedor de Usuarios') }}</title>
+        <title data-inertia>{{ config('app.name', 'Mantenedor de Usuarios') }}</title>
         @viteReactRefresh
         @vite('resources/js/app.tsx')
         @inertiaHead
@@ -97,7 +97,12 @@
         </style>
     </head>
     <body>
-        <div id="app" data-page="{{ json_encode($page) }}">
+        {{-- Inertia 3 entrega la página inicial en un <script type="application/json">;
+             el atributo data-page del contenedor ya no se lee. No usamos la directiva
+             blade de Inertia porque emite su <div id="app"> vacío y aquí el loader vive
+             dentro: React lo descarta al montar, en el mismo commit y sin parpadeo. --}}
+        <script data-page="app" type="application/json">{!! json_encode($page) !!}</script>
+        <div id="app">
             <div id="loader-main">
                 <div id="logocontainer">
                     <div id="logo-bpc-loader">
