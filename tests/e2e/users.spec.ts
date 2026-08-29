@@ -11,12 +11,17 @@ test('lists, searches and filters users with server-side pagination', async ({ p
 
     await page.getByLabel('Buscar usuarios').fill('Ana Demo');
     await expect(page.getByRole('cell', { exact: true, name: 'Ana Demo' })).toBeVisible();
+    // La búsqueda va con debounce y "Ana Demo" también aparece en el listado sin
+    // filtrar, así que hay que esperar a que la tabla quede reducida antes de tocar
+    // los filtros: si no, ambos `draw()` se solapan y la tabla pasa por el listado
+    // completo mientras se evalúa la aserción siguiente.
+    await expect(page.getByRole('row')).toHaveCount(2);
 
     await page.getByRole('button', { name: /^Filtros/ }).click();
     await page.getByLabel('Rol', { exact: true }).selectOption({ label: 'Admin' });
     await page.getByLabel('Estado', { exact: true }).selectOption('activo');
     await page.getByRole('button', { name: 'Aplicar' }).click();
-    await expect(page.getByRole('cell', { name: 'Admin' })).toBeVisible();
+    await expect(page.getByRole('cell', { exact: true, name: 'Admin' })).toBeVisible();
 
     await page.getByRole('button', { name: /^Filtros/ }).click();
     await page.getByRole('button', { name: 'Limpiar', exact: true }).click();
@@ -35,6 +40,7 @@ test('downloads all users or only the current filtered result as csv', async ({ 
 
     await page.getByLabel('Buscar usuarios').fill('Ana Demo');
     await expect(page.getByRole('cell', { exact: true, name: 'Ana Demo' })).toBeVisible();
+    await expect(page.getByRole('row')).toHaveCount(2);
     await page.getByRole('button', { name: /^Filtros/ }).click();
     await page.getByLabel('Rol', { exact: true }).selectOption({ label: 'Admin' });
     await page.getByLabel('Estado', { exact: true }).selectOption('activo');
@@ -151,6 +157,8 @@ test('keeps search and filters after deleting, and toasts every deletion', async
 
     await page.goto('/usuarios');
     await page.getByLabel('Buscar usuarios').fill(stamp);
+    // Cabecera + los dos usuarios recién creados: confirma que el debounce ya pasó.
+    await expect(page.getByRole('row')).toHaveCount(3);
     await page.getByRole('button', { name: /^Filtros/ }).click();
     await page.getByLabel('Estado', { exact: true }).selectOption('activo');
     await page.getByRole('button', { name: 'Aplicar' }).click();
