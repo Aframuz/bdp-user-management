@@ -108,6 +108,25 @@ services:
       retries: 30
       start_period: 15s
 
+  e2e:
+    build:
+      context: .
+      dockerfile: docker/e2e/Dockerfile
+    profiles: ["test"]
+    working_dir: /var/www/html
+    command: sh -c "pnpm install --frozen-lockfile && pnpm build && pnpm test:e2e"
+    ipc: host
+    environment:
+      E2E_BASE_URL: http://app-test:8000
+      DD_TRACE_ENABLED: "false"
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+      - e2e_build:/var/www/html/public/build
+    depends_on:
+      app-test:
+        condition: service_healthy
+
 volumes:
   e2e_build:
   node_modules:
