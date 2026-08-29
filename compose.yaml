@@ -1,0 +1,134 @@
+name: mantenedor-usuarios
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - vite_build:/var/www/html/public/build
+    environment:
+      APP_ENV: local
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: usuarios
+      DB_USERNAME: usuarios
+      DB_PASSWORD: usuarios
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/up"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+
+  vite:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    working_dir: /var/www/html
+    command: sh -c "pnpm install --frozen-lockfile && pnpm dev"
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+      - vite_build:/var/www/html/public/build
+    ports:
+      - "5173:5173"
+    depends_on:
+      - app
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: usuarios
+      POSTGRES_USER: usuarios
+      POSTGRES_PASSWORD: usuarios
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usuarios -d usuarios"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  db-test:
+    image: postgres:16-alpine
+    profiles: ["test"]
+    environment:
+      POSTGRES_DB: usuarios_test
+      POSTGRES_USER: usuarios
+      POSTGRES_PASSWORD: usuarios
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usuarios -d usuarios_test"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app-test:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    profiles: ["test"]
+    working_dir: /var/www/html
+    command: sh -c "php artisan migrate:fresh --seed --force && php artisan serve --host=0.0.0.0 --port=8000"
+    volumes:
+      - .:/var/www/html
+      - e2e_build:/var/www/html/public/build
+    environment:
+      APP_ENV: testing
+      APP_KEY: base64:K2H8fSoKvaDg7fjH5HkbQhZ2B2eI4f8Z5f0xWlJ6FRE=
+      APP_DEBUG: "false"
+      APP_URL: http://app-test:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: db-test
+      DB_PORT: 5432
+      DB_DATABASE: usuarios_test
+      DB_USERNAME: usuarios
+      DB_PASSWORD: usuarios
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: file
+    depends_on:
+      db-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/up"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 15s
+
+  e2e:
+    build:
+      context: .
+      dockerfile: docker/e2e/Dockerfile
+    profiles: ["test"]
+    working_dir: /var/www/html
+    command: sh -c "pnpm install --frozen-lockfile && pnpm build && pnpm test:e2e"
+    ipc: host
+    environment:
+      E2E_BASE_URL: http://app-test:8000
+      DD_TRACE_ENABLED: "false"
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+      - e2e_build:/var/www/html/public/build
+    depends_on:
+      app-test:
+        condition: service_healthy
+
+volumes:
+  e2e_build:
+  node_modules:
+  postgres_data:
+  vite_build:
