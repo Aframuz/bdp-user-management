@@ -24,7 +24,12 @@ test-backend:
 test-frontend:
 	docker compose run --rm vite pnpm test
 
+# `app-test` solo siembra al arrancar, y phpunit comparte esa misma base
+# (ver phpunit.xml), así que `make test-backend` la deja vacía. Se resiembra
+# antes de cada corrida para que E2E parta siempre del mismo estado.
 test-e2e:
+	docker compose --profile test up -d app-test
+	docker compose --profile test exec -T app-test php artisan migrate:fresh --seed --force
 	docker compose --profile test run --rm e2e
 
 quality:

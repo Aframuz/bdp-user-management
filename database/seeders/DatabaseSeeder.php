@@ -11,35 +11,46 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+    private const DEMO_EMAILS = [
+        'ana.demo@example.test',
+        'bruno.vacio@example.test',
+    ];
+
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
         $roles = collect(['Admin', 'Editor', 'Visualizador'])
-            ->mapWithKeys(fn (string $nombre) => [$nombre => Rol::query()->create(['nombre' => $nombre])]);
+            ->mapWithKeys(fn (string $nombre) => [$nombre => Rol::query()->firstOrCreate(['nombre' => $nombre])]);
 
-        $demo = Usuario::factory()->create([
+        $demo = Usuario::query()->updateOrCreate(['email' => self::DEMO_EMAILS[0]], [
             'rol_id' => $roles['Admin']->id,
             'nombre' => 'Ana',
             'apellido' => 'Demo',
-            'email' => 'ana.demo@example.test',
             'rut' => '12.345.678-9',
             'estado' => 'activo',
         ]);
-        Direccion::factory()->for($demo)->create(['calle' => 'Avenida Providencia 123', 'ciudad' => 'Santiago']);
-        Nota::factory()->for($demo)->create(['texto' => 'Usuario de demostración con información completa.']);
+        $demo->direccion()->updateOrCreate([], [
+            'calle' => 'Avenida Providencia 123',
+            'ciudad' => 'Santiago',
+        ]);
+        $demo->notas()->firstOrCreate(['texto' => 'Usuario de demostración con información completa.']);
 
-        Usuario::factory()->create([
+        Usuario::query()->updateOrCreate(['email' => self::DEMO_EMAILS[1]], [
             'rol_id' => $roles['Visualizador']->id,
             'nombre' => 'Bruno',
             'apellido' => 'Sin Datos',
-            'email' => 'bruno.vacio@example.test',
             'rut' => '9.876.543-2',
             'estado' => 'inactivo',
         ]);
 
-        Usuario::factory(34)->make(['rol_id' => $roles['Admin']->id])->each(function (Usuario $usuario, int $index) use ($roles) {
+        $missingUsers = max(
+            0,
+            34 - Usuario::query()->whereNotIn('email', self::DEMO_EMAILS)->count(),
+        );
+
+        Usuario::factory($missingUsers)->make(['rol_id' => $roles['Admin']->id])->each(function (Usuario $usuario, int $index) use ($roles) {
             $usuario->rol_id = $roles->values()[$index % $roles->count()]->id;
             $usuario->estado = $index % 3 === 0 ? 'inactivo' : 'activo';
             $usuario->save();

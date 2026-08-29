@@ -145,13 +145,15 @@ export function UsuariosTable({ tableRef, filtersRef, onError, onDelete, onTotal
 
         rendered[ALL_COLUMNS.length - 1] = (_value: unknown, row: UsuarioRow) => (
             <div className="row-actions">
-                <Button aria-label={`Ver detalle de ${row.nombre_completo}`} onClick={() => router.visit(usuarios.show(row.id))}
-                    size="sm" variant="link">
-                    <Eye aria-hidden="true" /> Ver detalle
+                <Button aria-label={`Ver detalle de ${row.nombre_completo}`} className="row-action"
+                    onClick={() => router.visit(usuarios.show(row.id))} variant="primary">
+                    <Eye aria-hidden="true" />
+                    <span className="row-action__label"><span>Ver detalle</span></span>
                 </Button>
-                <Button aria-label={`Eliminar a ${row.nombre_completo}`} className="text-danger"
-                    onClick={() => onDelete(row)} size="sm" variant="link">
-                    <Trash aria-hidden="true" /> Eliminar
+                <Button aria-label={`Eliminar a ${row.nombre_completo}`} className="row-action"
+                    onClick={() => onDelete(row)} variant="danger">
+                    <Trash aria-hidden="true" />
+                    <span className="row-action__label"><span>Eliminar</span></span>
                 </Button>
             </div>
         );

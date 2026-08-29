@@ -35,7 +35,12 @@ services:
       context: .
       dockerfile: docker/node/Dockerfile
     working_dir: /var/www/html
-    command: sh -c "pnpm install --frozen-lockfile && pnpm dev"
+    # Se invoca el binario de vite con `exec` (y no `pnpm dev`) para que quede
+    # como PID 1: así recibe el SIGTERM de `docker compose stop` y alcanza a
+    # borrar `public/hot`. Con pnpm de por medio la señal no llega al hijo y
+    # el hot file queda huérfano, lo que hace que `app-test` sirva los assets
+    # desde un dev server ya apagado.
+    command: sh -c "pnpm install --frozen-lockfile && exec node_modules/.bin/vite --host 0.0.0.0"
     volumes:
       - .:/var/www/html
       - node_modules:/var/www/html/node_modules
