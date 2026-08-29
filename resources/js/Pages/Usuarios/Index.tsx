@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { Alert, Badge, Button } from 'react-bootstrap';
-import { Funnel, PersonPlus, XLg } from 'react-bootstrap-icons';
 import { ConfirmDialog } from '../../Components/Common/ConfirmDialog';
+import { FilterIcon, UserPlusIcon, XIcon } from '../../Components/Common/Icons';
 import { SearchInput } from '../../Components/Common/SearchInput';
 import { UsuarioExportMenu } from '../../Components/Usuarios/UsuarioExportMenu';
 import { UsuarioFiltersPanel } from '../../Components/Usuarios/UsuarioFiltersPanel';
@@ -31,7 +31,7 @@ export default function Index({ roles, estados }: IndexProps) {
                 </div>
                 <div className="page-heading__actions">
                     <Link className="btn btn-primary" href={usuarios.create()}>
-                        <PersonPlus aria-hidden="true" className="me-2" />Registrar usuario
+                        <UserPlusIcon aria-hidden="true" className="me-2" />Registrar usuario
                     </Link>
                     <UsuarioExportMenu filters={table.appliedFilters} search={table.search} />
                 </div>
@@ -55,7 +55,7 @@ export default function Index({ roles, estados }: IndexProps) {
                             </p>
                         )}
                         <Button onClick={table.openFilters} variant="outline-primary">
-                            <Funnel aria-hidden="true" className="me-2" />Filtros
+                            <FilterIcon aria-hidden="true" className="me-2" />Filtros
                             {table.activeFilters.length > 0 && (
                                 <Badge bg="primary" className="ms-2">{table.activeFilters.length}</Badge>
                             )}
@@ -73,7 +73,7 @@ export default function Index({ roles, estados }: IndexProps) {
                                 type="button"
                             >
                                 {chip.label}
-                                <XLg aria-hidden="true" />
+                                <XIcon aria-hidden="true" />
                                 <span className="visually-hidden">Quitar filtro</span>
                             </button>
                         ))}

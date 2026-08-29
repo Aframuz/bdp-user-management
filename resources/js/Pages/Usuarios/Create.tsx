@@ -1,8 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
 import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap';
-import { ExclamationCircle } from 'react-bootstrap-icons';
 import { Breadcrumbs } from '../../Components/Common/Breadcrumbs';
 import { FormField } from '../../Components/Common/FormField';
+import { AlertCircleIcon } from '../../Components/Common/Icons';
 import { SelectField } from '../../Components/Common/SelectField';
 import { TextareaField } from '../../Components/Common/TextareaField';
 import { useUsuarioForm } from '../../Hooks/useUsuarioForm';
@@ -35,7 +35,7 @@ export default function Create({ roles, estados }: CreateProps) {
             <Form noValidate onSubmit={submit}>
                 {hasErrors && (
                     <Alert aria-live="assertive" className="d-flex align-items-center gap-2" variant="danger">
-                        <ExclamationCircle aria-hidden="true" />
+                        <AlertCircleIcon aria-hidden="true" />
                         Revisa los campos marcados antes de continuar.
                     </Alert>
                 )}

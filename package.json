@@ -15,12 +15,12 @@
     },
     "dependencies": {
         "@inertiajs/react": "^2.3.27",
+        "@tabler/icons-react": "^3.46.0",
         "bootstrap": "^5.3.8",
         "datatables.net-bs5": "^2.3.8",
         "datatables.net-react": "^1.0.2",
         "react": "^19.2.8",
         "react-bootstrap": "^2.10.10",
-        "react-bootstrap-icons": "^1.11.6",
         "react-dom": "^19.2.8"
     },
     "devDependencies": {

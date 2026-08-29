@@ -1,7 +1,7 @@
 import { Dropdown } from 'react-bootstrap';
-import { Download } from 'react-bootstrap-icons';
 import type { UsuarioFilters } from '../../Hooks/useUsuariosTable';
 import { usuarios } from '../../Utils/routes';
+import { DownloadIcon } from '../Common/Icons';
 
 interface UsuarioExportMenuProps {
     search: string;
@@ -18,7 +18,7 @@ export function UsuarioExportMenu({ search, filters }: UsuarioExportMenuProps) {
     return (
         <Dropdown align="end">
             <Dropdown.Toggle id="users-export-menu" variant="outline-primary">
-                <Download aria-hidden="true" className="me-2" />Exportar a csv
+                <DownloadIcon aria-hidden="true" className="me-2" />Exportar a csv
             </Dropdown.Toggle>
             <Dropdown.Menu>
                 <Dropdown.Item href={usuarios.exportCsv()}>Todos los usuarios</Dropdown.Item>

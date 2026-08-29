@@ -1,8 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Card, Tab, Tabs } from 'react-bootstrap';
-import { ArrowLeft } from 'react-bootstrap-icons';
 import { Breadcrumbs } from '../../Components/Common/Breadcrumbs';
+import { ArrowLeftIcon } from '../../Components/Common/Icons';
 import { StatusBadge } from '../../Components/Common/StatusBadge';
 import { DireccionesTab } from '../../Components/Usuarios/Tabs/DireccionesTab';
 import { GeneralTab } from '../../Components/Usuarios/Tabs/GeneralTab';
@@ -43,7 +43,7 @@ export default function Show({ usuario }: ShowProps) {
                     <h1>{usuario.nombre_completo}</h1>
                 </div>
                 <Link className="btn btn-outline-secondary" href={usuarios.index()}>
-                    <ArrowLeft aria-hidden="true" className="me-2" />Volver al listado
+                    <ArrowLeftIcon aria-hidden="true" className="me-2" />Volver al listado
                 </Link>
             </div>
 

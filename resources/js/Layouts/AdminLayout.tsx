@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, type ReactNode } from 'react';
 import { Container, Toast, ToastContainer } from 'react-bootstrap';
-import { PersonBadgeFill } from 'react-bootstrap-icons';
+import { UserBadgeIcon } from '../Components/Common/Icons';
 import type { SharedPageProps } from '../Types/inertia';
 import { usuarios } from '../Utils/routes';
 
@@ -17,7 +17,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
             <header className="app-header">
                 <Container className="d-flex align-items-center justify-content-between py-3">
                     <Link aria-label="Ir al listado de usuarios" className="brand" href={usuarios.index()}>
-                        <span aria-hidden="true" className="brand__mark"><PersonBadgeFill /></span>
+                        <span aria-hidden="true" className="brand__mark"><UserBadgeIcon /></span>
                         <span>
                             <strong>Usuarios</strong>
                             <small>Panel de administración</small>

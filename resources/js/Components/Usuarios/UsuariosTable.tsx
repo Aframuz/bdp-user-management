@@ -4,12 +4,12 @@ import DataTable, { type DataTableRef, type DataTableSlots } from 'datatables.ne
 import type { RefObject } from 'react';
 import { useMemo, useRef } from 'react';
 import { Button } from 'react-bootstrap';
-import { Eye, Trash } from 'react-bootstrap-icons';
 import type { UsuarioFilters } from '../../Hooks/useUsuariosTable';
 import type { UsuarioRow } from '../../Types/usuario';
 import { buildQuery } from '../../Utils/query';
 import { usuarios } from '../../Utils/routes';
 import { animateRowsIn, fadeOutRows, snapshotRowPositions, type TableRow } from '../../Utils/rowTransitions';
+import { EyeIcon, TrashIcon } from '../Common/Icons';
 import { ACCIONES_COLUMN, DEFAULT_ORDER_INDEX, usuariosColumns } from './usuariosColumns';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.css';
 
@@ -147,12 +147,12 @@ export function UsuariosTable({ tableRef, filtersRef, onError, onDelete, onTotal
             <div className="row-actions">
                 <Button aria-label={`Ver detalle de ${row.nombre_completo}`} className="row-action"
                     onClick={() => router.visit(usuarios.show(row.id))} variant="primary">
-                    <Eye aria-hidden="true" />
+                    <EyeIcon aria-hidden="true" />
                     <span className="row-action__label"><span>Ver detalle</span></span>
                 </Button>
                 <Button aria-label={`Eliminar a ${row.nombre_completo}`} className="row-action"
                     onClick={() => onDelete(row)} variant="danger">
-                    <Trash aria-hidden="true" />
+                    <TrashIcon aria-hidden="true" />
                     <span className="row-action__label"><span>Eliminar</span></span>
                 </Button>
             </div>

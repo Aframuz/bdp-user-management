@@ -8,7 +8,7 @@ Aplicación monolítica Laravel + React para listar, buscar, filtrar, registrar,
 - React 19.2 + TypeScript estricto
 - Inertia.js 2
 - PostgreSQL 16
-- Bootstrap 5.3 + React Bootstrap + Bootstrap Icons (`react-bootstrap-icons`)
+- Bootstrap 5.3 + React Bootstrap + Tabler Icons (`@tabler/icons-react`)
 - DataTables core 2.3 + adaptador oficial `datatables.net-react`
 - Vite 7.3
 - PHPUnit, Vitest, Testing Library y Playwright

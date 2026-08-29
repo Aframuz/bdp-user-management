@@ -1,5 +1,5 @@
 import { Form, InputGroup } from 'react-bootstrap';
-import { Search } from 'react-bootstrap-icons';
+import { SearchIcon } from './Icons';
 
 interface SearchInputProps {
     id: string;
@@ -14,7 +14,7 @@ export function SearchInput({ id, label, value, onChange, placeholder }: SearchI
         <Form.Group className="search-field" controlId={id}>
             <Form.Label>{label}</Form.Label>
             <InputGroup>
-                <InputGroup.Text aria-hidden="true"><Search /></InputGroup.Text>
+                <InputGroup.Text aria-hidden="true"><SearchIcon /></InputGroup.Text>
                 <Form.Control
                     onChange={(event) => onChange(event.target.value)}
                     placeholder={placeholder}
