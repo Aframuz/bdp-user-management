@@ -1,10 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useEffect, useState, type ReactNode } from 'react';
-import { Container, Toast, ToastContainer } from 'react-bootstrap';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Container } from 'react-bootstrap';
 import logoToolbar from '@Assets/logo-toolbar.svg';
 import { MoonIcon, SunIcon } from '@Components/Common/Icons';
 import type { SharedPageProps } from '@Types/inertia';
 import { usuarios } from '@Utils/routes';
+import { showToast } from '@Utils/toast';
 import styles from './AdminLayout.module.css';
 
 type Theme = 'light' | 'dark';
@@ -31,12 +32,23 @@ function getInitialTheme(): Theme {
 
 export function AdminLayout({ centered = false, children }: { centered?: boolean; children: ReactNode }) {
     const { flash } = usePage<SharedPageProps>().props;
-    const message = flash?.success ?? flash?.error;
     const [theme, setTheme] = useState<Theme>(getInitialTheme);
-    // Se descarta por id y no por texto: dos flashes iguales seguidos deben mostrarse ambos.
-    const [dismissedId, setDismissedId] = useState<string | null>(null);
-    const showToast = Boolean(message && dismissedId !== flash?.id);
+    // Se recuerda por id y no por texto: dos flashes iguales seguidos deben anunciarse ambos.
+    const shownFlashId = useRef<string | null>(null);
     const nextTheme = theme === 'light' ? 'dark' : 'light';
+
+    useEffect(() => {
+        const message = flash?.success ?? flash?.error;
+        const id = flash?.id ?? null;
+
+        // El mismo flash llega en cada render de la página; solo se lanza una vez.
+        if (!message || (id !== null && id === shownFlashId.current)) {
+            return;
+        }
+
+        shownFlashId.current = id;
+        showToast(flash.success ? 'success' : 'error', message);
+    }, [flash]);
 
     useEffect(() => {
         document.documentElement.dataset.bsTheme = theme;
@@ -104,22 +116,6 @@ export function AdminLayout({ centered = false, children }: { centered?: boolean
             >
                 <Container>{children}</Container>
             </main>
-            {message && (
-                <ToastContainer className="p-3" position="top-end">
-                    <Toast
-                        autohide
-                        bg={flash.success ? 'success' : 'danger'}
-                        delay={4500}
-                        onClose={() => setDismissedId(flash?.id ?? null)}
-                        show={showToast}
-                    >
-                        <Toast.Header closeButton closeLabel="Cerrar notificación">
-                            <strong className="me-auto">{flash.success ? 'Operación exitosa' : 'Ocurrió un error'}</strong>
-                        </Toast.Header>
-                        <Toast.Body className="text-white" role="status" aria-live="polite">{message}</Toast.Body>
-                    </Toast>
-                </ToastContainer>
-            )}
         </div>
     );
 }

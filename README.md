@@ -10,6 +10,7 @@ Aplicación monolítica Laravel + React para listar, buscar, filtrar, registrar,
 - PostgreSQL 16
 - Bootstrap 5.3 + React Bootstrap + Tabler Icons (`@tabler/icons-react`)
 - DataTables core 2.3 + adaptador oficial `datatables.net-react`
+- SweetAlert2 11 para los toasts de feedback
 - Vite 7.3
 - PHPUnit, Vitest, Testing Library y Playwright
 - Docker Compose y pnpm 11
@@ -105,7 +106,7 @@ resources/js/
 ├── Pages/Usuarios/         # composición: Index, Create y Show
 ├── Services/
 ├── Types/
-├── Utils/                  # rutas, validación y fechas
+├── Utils/                  # rutas, validación, fechas y toasts
 └── app.css                 # tokens, puente Bootstrap y estilos de documento
 tests/
 ├── Feature/                # CRUD, DataTables y tabs
@@ -142,9 +143,9 @@ tests/
 ## Personalización y accesibilidad
 
 Los tokens de marca están al inicio de `resources/js/app.css`; ese fichero se limita a fuentes,
-tokens, el puente de variables/variantes de Bootstrap, foco y transiciones de documento. Los
-estilos de componentes están aislados en CSS Modules BEM. Color, radios, sombras y duración de
-movimiento pueden cambiarse sin modificar componentes. La interfaz incluye skip link, landmarks,
+tokens, el puente de variables/variantes de Bootstrap y SweetAlert2, foco y transiciones de
+documento. Los estilos de componentes están aislados en CSS Modules BEM. Color, radios, sombras
+y duración de movimiento pueden cambiarse sin modificar componentes. La interfaz incluye skip link, landmarks,
 foco visible, labels y errores asociados, regiones vivas, modal/Offcanvas accesibles, tabs
 navegables por teclado, tablas con caption y soporte para `prefers-reduced-motion`.
 
@@ -157,7 +158,7 @@ navegables por teclado, tablas con caption y soporte para `prefers-reduced-motio
 | Panel lateral, rol/estado, Aplicar/Limpiar | Offcanvas controlado |
 | Confirmación de borrado | Modal con estados cancelar/procesando/error |
 | Formulario y validaciones frontend/backend | Hook TypeScript + Form Request |
-| Errores inline, error general y feedback de éxito | Campos accesibles + Alert + Toast |
+| Errores inline, error general y feedback de éxito | Campos accesibles + Alert + toast de SweetAlert2 |
 | Ficha con tres componentes tab | `GeneralTab`, `DireccionesTab`, `NotasTab` sobre `AsyncSection` |
 | Lazy loading y estados loading/empty/data/error | `useLazyUserTabs` con caché y reintento |
 | Modelos, migraciones, factories y seeders | PostgreSQL con relaciones/cascadas |

@@ -270,6 +270,64 @@
    --bs-pagination-active-border-color: var(--brand-solid);
    --bs-pagination-border-color: var(--line);
 }
+
+/* Toasts de SweetAlert2. La librería pinta con su propia paleta y solo distingue
+   claro/oscuro por `prefers-color-scheme`, así que aquí se reescribe con los tokens
+   de la app para que siga el tema que elige el usuario en la cabecera. */
+.app-toast.swal2-toast {
+   --app-toast-accent: var(--brand-solid);
+   --swal2-close-button-color: var(--ink-500);
+   --swal2-timer-progress-bar-background: var(--app-toast-accent);
+   width: min(24rem, calc(100vw - 2rem));
+   align-items: center;
+   padding: .75rem 1rem;
+   border: 1px solid var(--line);
+   border-inline-start: .25rem solid var(--app-toast-accent);
+   border-radius: .5rem;
+   background: var(--surface);
+   box-shadow: var(--shadow);
+   color: var(--ink-900);
+   font-family: var(--bs-body-font-family);
+}
+
+.app-toast--error.swal2-toast {
+   --app-toast-accent: var(--danger);
+}
+
+.app-toast .swal2-title {
+   margin: 0 .5rem 0 0;
+   color: inherit;
+   font-size: 1rem;
+   font-weight: 700;
+}
+
+.app-toast .swal2-html-container {
+   margin: .15rem .5rem 0 0;
+   color: var(--ink-700);
+   font-size: .9rem;
+}
+
+.app-toast .swal2-close:hover {
+   color: var(--ink-900);
+}
+
+/* El icono lo dibuja la librería con bordes y barras de color fijo: se recolorea
+   pieza por pieza con el acento de la variante. */
+.app-toast .swal2-icon.swal2-success,
+.app-toast .swal2-icon.swal2-error {
+   border-color: var(--app-toast-accent);
+   color: var(--app-toast-accent);
+}
+
+.app-toast .swal2-icon.swal2-success .swal2-success-ring {
+   border-color: rgba(var(--brand-solid-rgb), .3);
+}
+
+.app-toast .swal2-icon.swal2-success [class^='swal2-success-line'],
+.app-toast .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+   background-color: var(--app-toast-accent);
+}
+
 /* Transiciones entre páginas. Inertia se encarga de envolver el swap en
    document.startViewTransition(); aquí solo se define cómo se ve.
    El header recibe su propio view-transition-name para salir del grupo `root`:

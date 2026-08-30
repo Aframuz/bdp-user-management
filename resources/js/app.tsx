@@ -4,6 +4,7 @@ import { formatTitle } from '@Utils/meta';
 import { createRoot } from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-phone-number-input/style.css';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import './app.css';
 
 createInertiaApp({
