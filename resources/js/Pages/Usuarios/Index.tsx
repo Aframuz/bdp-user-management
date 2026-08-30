@@ -1,7 +1,8 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { Alert, Badge, Button } from 'react-bootstrap';
 import { ConfirmDialog } from '@Components/Common/ConfirmDialog';
 import { FilterIcon, UserPlusIcon, XIcon } from '@Components/Common/Icons';
+import { PageMeta } from '@Components/Common/PageMeta';
 import { SearchInput } from '@Components/Common/SearchInput';
 import { UsuarioExportMenu } from '@Components/Usuarios/UsuarioExportMenu';
 import { UsuarioFiltersPanel } from '@Components/Usuarios/UsuarioFiltersPanel';
@@ -23,7 +24,10 @@ export default function Index({ roles, estados }: IndexProps) {
 
     return (
         <AdminLayout>
-            <Head title="Usuarios" />
+            <PageMeta
+                description="Consulta, filtra y exporta el padrón de usuarios registrados en la Bolsa de Productos."
+                title="Usuarios"
+            />
             <div
                 className={`${pageStyles['page-heading']} d-flex flex-column flex-md-row align-items-stretch align-items-md-end justify-content-between gap-4`}
             >

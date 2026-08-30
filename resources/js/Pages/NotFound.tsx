@@ -1,5 +1,5 @@
-import { Head } from '@inertiajs/react';
 import { NotFoundPanel } from '@Components/Common/NotFoundPanel';
+import { PageMeta } from '@Components/Common/PageMeta';
 import { AdminLayout } from '@Layouts/AdminLayout';
 import type { SharedPageProps } from '@Types/inertia';
 
@@ -11,7 +11,10 @@ interface NotFoundProps extends SharedPageProps {
 export default function NotFound({ ruta }: NotFoundProps) {
     return (
         <AdminLayout centered>
-            <Head title="Página no encontrada" />
+            <PageMeta
+                description="La dirección solicitada no existe o fue movida. Vuelve al listado de usuarios del mantenedor."
+                title="Página no encontrada"
+            />
             <NotFoundPanel ruta={ruta} />
         </AdminLayout>
     );

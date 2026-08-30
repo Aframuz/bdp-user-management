@@ -1,11 +1,12 @@
 import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { formatTitle } from '@Utils/meta';
 import { createRoot } from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 
 createInertiaApp({
-    title: (title) => (title ? `${title} · Mantenedor` : 'Mantenedor de Usuarios'),
+    title: formatTitle,
     // Inertia envuelve su swap de componente en document.startViewTransition() cuando
     // la visita lleva `viewTransition`. Se activa para todas menos los prefetch, que
     // solo llenan la caché y no pintan nada. No sirve mirar `options.viewTransition`

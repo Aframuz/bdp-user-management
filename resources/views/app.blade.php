@@ -4,6 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#62ab52">
+        {{-- Estáticas: viven aquí y no en <Head> para estar en el primer pintado,
+             antes de que monte React. Las que cambian por página (descripción,
+             Open Graph, canonical) las pone el componente PageMeta. --}}
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <title data-inertia>{{ config('app.name', 'Mantenedor de Usuarios') }}</title>
         @viteReactRefresh

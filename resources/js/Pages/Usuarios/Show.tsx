@@ -1,9 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Card, Tab, Tabs } from 'react-bootstrap';
 import { Breadcrumbs } from '@Components/Common/Breadcrumbs';
 import { ArrowLeftIcon } from '@Components/Common/Icons';
 import pageStyles from '@Components/Common/Page.module.css';
+import { PageMeta } from '@Components/Common/PageMeta';
 import { StatusBadge } from '@Components/Common/StatusBadge';
 import { DireccionesTab } from '@Components/Usuarios/Tabs/DireccionesTab';
 import { GeneralTab } from '@Components/Usuarios/Tabs/GeneralTab';
@@ -37,7 +38,10 @@ export default function Show({ usuario }: ShowProps) {
 
     return (
         <AdminLayout>
-            <Head title={usuario.nombre_completo} />
+            <PageMeta
+                description={`Ficha de ${usuario.nombre_completo}: datos generales, direcciones registradas y notas internas.`}
+                title={usuario.nombre_completo}
+            />
             <Breadcrumbs items={[{ label: 'Usuarios', href: usuarios.index() }, { label: usuario.nombre_completo }]} />
             <div
                 className={`${pageStyles['page-heading']} d-flex flex-column flex-md-row align-items-stretch align-items-md-end justify-content-between gap-4`}
