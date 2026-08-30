@@ -667,12 +667,54 @@ textarea.form-control {
    margin-bottom: 0;
 }
 
-.dt-processing {
+/* DataTables crea este indicador fuera del árbol de React. Se acota a usuarios
+   para que su spinner y dimensiones no se filtren a otras tablas. */
+.usuarios-table .dt-processing {
    background: var(--surface) !important;
-   border: 1px solid var(--line) !important;
-   border-radius: .7rem !important;
-   box-shadow: var(--shadow);
+   border: 1px solid var(--brand-100) !important;
+   border-radius: 100px !important;
+   box-shadow: 0 .7rem 1.8rem rgba(51, 51, 51, .14);
    color: var(--ink-700);
+   font-size: .88rem;
+   font-weight: 700;
+   left: 50%;
+   letter-spacing: .01em;
+   margin: 0 !important;
+   padding: .72rem 1rem .72rem 2.85rem !important;
+   text-align: left;
+   transform: translate(-50%, -50%);
+   white-space: nowrap;
+   width: auto !important;
+}
+
+/* Sustituye los cuatro puntos azules de DataTables por un aro de la marca. */
+.usuarios-table .dt-processing>div:last-child {
+   animation: usuarios-loader-spin .75s linear infinite;
+   border: 2px solid var(--brand-100);
+   border-radius: 50%;
+   border-top-color: var(--brand-700);
+   height: 1.15rem;
+   left: 1rem;
+   margin: -.575rem 0 0;
+   position: absolute;
+   top: 50%;
+   width: 1.15rem;
+}
+
+.usuarios-table .dt-processing>div:last-child>div {
+   display: none;
+}
+
+@keyframes usuarios-loader-spin {
+   to {
+      transform: rotate(1turn);
+   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+   .usuarios-table .dt-processing>div:last-child {
+      animation: none;
+   }
 }
 
 .profile-summary .card-body {

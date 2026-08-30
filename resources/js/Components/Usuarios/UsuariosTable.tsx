@@ -162,7 +162,7 @@ export function UsuariosTable({ tableRef, filtersRef, onError, onDelete, onTotal
     }, [onDelete]);
 
     return (
-        <div className="table-responsive px-4 pb-4">
+        <div className="usuarios-table table-responsive px-4 pb-4">
             <DataTable className="table table-hover align-middle w-100" options={options} ref={tableRef} slots={slots}>
                 <caption className="visually-hidden">Usuarios registrados, sus roles y estados</caption>
                 <thead>
