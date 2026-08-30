@@ -7,6 +7,17 @@ import { usuarioFormRules } from './usuarioFormRules';
 type UsuarioFormRef = ComponentRef<typeof Form<UsuarioFormData>>;
 
 export const RUT_INVALIDO = 'El RUT/RUN ingresado no es válido.';
+export const TELEFONO_INVALIDO = 'Ingresa un teléfono válido para el país seleccionado.';
+
+/**
+ * Campos que se validan solos: el componente sabe si su valor cuadra (dígito verificador,
+ * numeración del país) y el hook guarda qué decir cuando no, para frenar el envío.
+ * Los mismos textos y los mismos criterios viven en `App\Rules\RutValido` y
+ * `App\Rules\TelefonoValido`, que son la autoridad.
+ */
+const MENSAJES_POR_CAMPO = { rut: RUT_INVALIDO, telefono: TELEFONO_INVALIDO } as const;
+
+type CampoAutovalidado = keyof typeof MENSAJES_POR_CAMPO;
 
 export function validateUsuarioForm(data: UsuarioFormData): Record<string, string> {
     return validate(data, usuarioFormRules);
@@ -25,9 +36,13 @@ export function focusFirstError(errors: Record<string, string>): void {
  */
 export function useUsuarioForm() {
     const formRef = useRef<UsuarioFormRef>(null);
-    /** El dígito verificador lo calcula `RutField`; aquí solo se recuerda para frenar el envío. */
-    const rutValidoRef = useRef(false);
-    const setRutValido = useCallback((valido: boolean) => { rutValidoRef.current = valido; }, []);
+    // El RUT arranca inválido (aún vacío) y el teléfono válido, porque es opcional.
+    const validezRef = useRef<Record<CampoAutovalidado, boolean>>({ rut: false, telefono: true });
+    const setCampoValido = useCallback((campo: CampoAutovalidado, valido: boolean) => {
+        validezRef.current[campo] = valido;
+    }, []);
+    const setRutValido = useCallback((valido: boolean) => setCampoValido('rut', valido), [setCampoValido]);
+    const setTelefonoValido = useCallback((valido: boolean) => setCampoValido('telefono', valido), [setCampoValido]);
 
     /** Se ejecuta en `onBefore`: devolver `false` cancela la petición y deja los errores en pantalla. */
     const validateBeforeSubmit = (): boolean => {
@@ -35,7 +50,12 @@ export function useUsuarioForm() {
         if (!form) return true;
 
         const errors = validateUsuarioForm(form.getData());
-        if (!errors.rut && !rutValidoRef.current) errors.rut = RUT_INVALIDO;
+
+        // Las reglas mandan: solo se añade el aviso propio del campo si no falló ya antes.
+        for (const [campo, mensaje] of Object.entries(MENSAJES_POR_CAMPO) as [CampoAutovalidado, string][]) {
+            if (!errors[campo] && !validezRef.current[campo]) errors[campo] = mensaje;
+        }
+
         if (Object.keys(errors).length === 0) return true;
 
         form.setError(errors);
@@ -49,5 +69,5 @@ export function useUsuarioForm() {
         if (name) formRef.current?.clearErrors(name);
     };
 
-    return { formRef, validateBeforeSubmit, clearFieldError, setRutValido };
+    return { formRef, validateBeforeSubmit, clearFieldError, setRutValido, setTelefonoValido };
 }

@@ -67,7 +67,7 @@ test('validates and creates a complete user', async ({ page }) => {
     await page.getByLabel('Apellido').fill('E2E');
     await page.getByLabel('Email').fill(createdEmail);
     await page.getByLabel('RUT/RUN').fill('17.111.111-0');
-    await page.getByLabel('Teléfono').fill('912345678');
+    await page.getByLabel('Teléfono').fill('+56987654321');
     await page.getByLabel('Rol').selectOption({ label: 'Editor' });
     await page.getByLabel('Estado').selectOption('activo');
     await page.getByLabel('Calle').fill('Calle Prueba 100');

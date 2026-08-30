@@ -3,6 +3,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { formatTitle } from '@Utils/meta';
 import { createRoot } from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-phone-number-input/style.css';
 import './app.css';
 
 createInertiaApp({

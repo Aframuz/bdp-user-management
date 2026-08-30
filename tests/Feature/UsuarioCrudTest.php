@@ -6,6 +6,7 @@ use App\Models\Rol;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class UsuarioCrudTest extends TestCase
@@ -77,6 +78,35 @@ class UsuarioCrudTest extends TestCase
         $this->assertDatabaseCount('usuarios', 1);
     }
 
+    /**
+     * Los mismos criterios que aplica el formulario (use-rut y react-phone-number-input)
+     * tienen que valer en el servidor: dígito verificador y numeración real del país.
+     *
+     * @return array<string, array{string, string, string}>
+     */
+    public static function valoresQueSoloRechazanLasReglasPropias(): array
+    {
+        return [
+            'dígito verificador que no cuadra' => ['rut', '11.111.111-2', 'El RUT/RUN ingresado no es válido.'],
+            'RUT demasiado corto' => ['rut', '1-9', 'El RUT/RUN ingresado no es válido.'],
+            'teléfono inexistente para el país' => ['telefono', '56912345678', 'Ingresa un teléfono válido para el país seleccionado.'],
+            'teléfono sin país reconocible' => ['telefono', '987654321', 'Ingresa un teléfono válido para el país seleccionado.'],
+        ];
+    }
+
+    #[DataProvider('valoresQueSoloRechazanLasReglasPropias')]
+    public function test_store_rejects_values_that_pass_the_format_rules(string $campo, string $valor, string $mensaje): void
+    {
+        $rol = Rol::factory()->create();
+        $payload = array_merge($this->validPayload($rol), [$campo => $valor]);
+
+        $this->from(route('usuarios.create'))->post(route('usuarios.store'), $payload)
+            ->assertRedirect(route('usuarios.create'))
+            ->assertSessionHasErrors([$campo => $mensaje]);
+
+        $this->assertDatabaseCount('usuarios', 0);
+    }
+
     public function test_destroy_removes_user_and_related_records(): void
     {
         $usuario = Usuario::factory()->create();
@@ -99,7 +129,7 @@ class UsuarioCrudTest extends TestCase
             'apellido' => 'Soto',
             'email' => 'persona@example.test',
             'rut' => '11.111.111-1',
-            'telefono' => '987654321',
+            'telefono' => '56987654321',
             'rol_id' => $rol->id,
             'estado' => 'activo',
             'calle' => 'Calle Uno 123',

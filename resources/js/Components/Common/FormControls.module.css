@@ -11,3 +11,36 @@
 .form-control--textarea {
    min-height: 7rem;
 }
+
+/* Contenedor de `react-phone-number-input`: replica el aspecto de .form-control y
+   aloja el selector de país junto al número, que va sin bordes propios. Se queda sin
+   la clase global .form-control a propósito, para no heredar el icono de .is-invalid;
+   esa clase sí se conserva porque Bootstrap la necesita para mostrar el mensaje. */
+.phone-input {
+   display: flex;
+   align-items: center;
+   gap: .5rem;
+   min-height: 2.75rem;
+   padding: .375rem .75rem;
+   border: var(--bs-border-width) solid var(--control-border);
+   border-radius: var(--bs-border-radius);
+   background-color: var(--bs-body-bg);
+}
+
+.phone-input:focus-within {
+   border-color: var(--brand-600);
+   box-shadow: 0 0 0 .2rem rgba(var(--brand-rgb), .18);
+}
+
+.phone-input:global(.is-invalid) {
+   border-color: var(--bs-form-invalid-border-color);
+}
+
+.phone-input__number {
+   flex: 1;
+   min-width: 0;
+   border: 0;
+   background-color: transparent;
+   color: inherit;
+   outline: 0;
+}

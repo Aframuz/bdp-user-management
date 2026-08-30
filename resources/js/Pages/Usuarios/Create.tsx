@@ -6,6 +6,7 @@ import { AlertCircleIcon } from '@Components/Common/Icons';
 import { PageMeta } from '@Components/Common/PageMeta';
 import { RutField } from '@Components/Usuarios/RutField';
 import { SelectField } from '@Components/Common/SelectField';
+import { TelefonoField } from '@Components/Usuarios/TelefonoField';
 import { TextareaField } from '@Components/Common/TextareaField';
 import { focusFirstError, useUsuarioForm } from '@Hooks/useUsuarioForm';
 import { AdminLayout } from '@Layouts/AdminLayout';
@@ -20,7 +21,9 @@ interface CreateProps extends SharedPageProps {
 }
 
 export default function Create({ roles, estados }: CreateProps) {
-    const { formRef, validateBeforeSubmit, clearFieldError, setRutValido } = useUsuarioForm();
+    const {
+        formRef, validateBeforeSubmit, clearFieldError, setRutValido, setTelefonoValido,
+    } = useUsuarioForm();
     const roleOptions = roles.map((rol) => ({ value: String(rol.id), label: rol.nombre }));
 
     return (
@@ -79,8 +82,7 @@ export default function Create({ roles, estados }: CreateProps) {
                                         <RutField error={errors.rut} onValidChange={setRutValido} />
                                     </Col>
                                     <Col md={6}>
-                                        <FormField autoComplete="tel" error={errors.telefono} hint="Opcional. Solo números."
-                                            id="telefono" label="Teléfono" type="number" />
+                                        <TelefonoField error={errors.telefono} onValidChange={setTelefonoValido} />
                                     </Col>
                                     <Col md={3}>
                                         <SelectField error={errors.rol_id} id="rol_id" label="Rol"
