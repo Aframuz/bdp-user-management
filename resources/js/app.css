@@ -366,6 +366,17 @@ textarea {
    margin-bottom: 2rem;
 }
 
+/* Para páginas de una sola pieza —hoy solo la 404—, que se planta en el centro del
+   alto disponible en vez de dejar todo el hueco muerto debajo. */
+.page-content--centered {
+   align-items: center;
+   display: flex;
+}
+
+.page-content--centered>.container {
+   width: 100%;
+}
+
 .page-heading--actions {
    align-items: end;
    display: flex;
@@ -385,14 +396,16 @@ textarea {
    width: 100%;
 }
 
-.page-heading h1 {
+.page-heading h1,
+.error-page__body h1 {
    font-size: clamp(1.8rem, 4vw, 2.45rem);
    font-weight: 750;
    letter-spacing: -.035em;
    margin: 0 0 .45rem;
 }
 
-.page-heading p:not(.eyebrow) {
+.page-heading p:not(.eyebrow),
+.error-page__body p:not(.eyebrow) {
    color: var(--ink-700);
    margin: 0;
 }
@@ -858,6 +871,92 @@ textarea.form-control {
    font-weight: 750;
 }
 
+/* Página 404. El bloque tintado y la cuadrícula de granos que se sale por la esquina
+   son la única licencia gráfica; lo demás sale de los tokens de siempre. */
+.error-page {
+   align-items: center;
+   background: var(--brand-50);
+   border-radius: var(--radius);
+   display: flex;
+   gap: 4rem;
+   overflow: hidden;
+   padding: 4rem;
+   position: relative;
+}
+
+/* Sobre el tinte de marca, --brand-600 (3.05:1) y --brand-700 (3.82:1) se quedan
+   cortos para 12px en negrita; --brand-800 llega a 5.7:1 en claro y 8.1:1 en oscuro. */
+.error-page .eyebrow {
+   color: var(--brand-800);
+}
+
+.error-page__code {
+   color: var(--ink-900);
+   flex: 0 0 auto;
+   font-size: clamp(7.5rem, 14vw, 12.5rem);
+   font-weight: 750;
+   letter-spacing: -.06em;
+   line-height: .9;
+   margin: 0;
+}
+
+.error-page__body {
+   flex: 1 1 auto;
+   /* Por encima de la textura, que llega a solaparse con el texto. */
+   position: relative;
+   z-index: 1;
+}
+
+.error-page__actions {
+   display: flex;
+   gap: .75rem;
+   margin-top: 2rem;
+}
+
+.error-page__actions .btn {
+   align-items: center;
+   display: inline-flex;
+   justify-content: center;
+}
+
+/* El isotipo repetido en grande, recortado por el `overflow` del bloque. */
+.error-page__grain {
+   bottom: -4.875rem;
+   color: var(--brand-100);
+   height: 18.75rem;
+   opacity: .55;
+   position: absolute;
+   right: -4.375rem;
+   width: 18.3125rem;
+}
+
+.route-chip {
+   align-items: center;
+   background: var(--surface);
+   border: 1px solid var(--line);
+   border-radius: 100px;
+   color: var(--ink-700);
+   display: inline-flex;
+   font-size: .82rem;
+   gap: .45rem;
+   margin-top: 1.5rem;
+   max-width: 100%;
+   padding: .4rem .85rem;
+}
+
+.route-chip>svg {
+   color: var(--brand-600);
+   flex: 0 0 auto;
+}
+
+/* Una URL larga se recorta aquí; el prop ya llega acotado desde el servidor. */
+.route-chip__path {
+   font-family: var(--font-family-monospace);
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+}
+
 @keyframes tab-in {
    from {
       opacity: 0;
@@ -961,6 +1060,33 @@ textarea.form-control {
 
    .form-actions .btn {
       width: 100%;
+   }
+
+   .error-page {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding: 1.75rem;
+   }
+
+   .error-page__actions {
+      flex-direction: column;
+      gap: .55rem;
+   }
+
+   .error-page__actions .btn {
+      /* Área táctil de 44px, la misma que ya se le da a .form-control. */
+      min-height: 2.75rem;
+      width: 100%;
+   }
+
+   /* Abajo taparía los botones; arriba queda detrás del número. */
+   .error-page__grain {
+      bottom: auto;
+      height: 12.8125rem;
+      right: -4.125rem;
+      top: -2.125rem;
+      width: 12.5rem;
    }
 }
 

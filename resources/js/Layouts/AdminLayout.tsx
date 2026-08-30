@@ -28,7 +28,7 @@ function getInitialTheme(): Theme {
     return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-export function AdminLayout({ children }: { children: ReactNode }) {
+export function AdminLayout({ centered = false, children }: { centered?: boolean; children: ReactNode }) {
     const { flash } = usePage<SharedPageProps>().props;
     const message = flash?.success ?? flash?.error;
     const [theme, setTheme] = useState<Theme>(getInitialTheme);
@@ -73,7 +73,11 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                     </button>
                 </Container>
             </header>
-            <main className="page-content" id="main-content" tabIndex={-1}>
+            <main
+                className={`page-content${centered ? ' page-content--centered' : ''}`}
+                id="main-content"
+                tabIndex={-1}
+            >
                 <Container>{children}</Container>
             </main>
             {message && (

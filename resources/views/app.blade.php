@@ -101,7 +101,10 @@
              el atributo data-page del contenedor ya no se lee. No usamos la directiva
              blade de Inertia porque emite su <div id="app"> vacío y aquí el loader vive
              dentro: React lo descarta al montar, en el mismo commit y sin parpadeo. --}}
-        <script data-page="app" type="application/json">{!! json_encode($page) !!}</script>
+        {{-- JSON_HEX_TAG: desde la página 404 los props llevan la ruta pedida, es decir
+             texto que elige quien visita. Sin escapar `<`, un `</script>` en la URL
+             cerraría este bloque antes de tiempo. --}}
+        <script data-page="app" type="application/json">{!! json_encode($page, JSON_HEX_TAG) !!}</script>
         <div id="app">
             <div id="loader-main">
                 <div id="logocontainer">
