@@ -11,6 +11,16 @@
         "noEmit": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedIndexedAccess": true,
+        "paths": {
+            "@Assets/*": ["./resources/assets/*"],
+            "@Components/*": ["./resources/js/Components/*"],
+            "@Hooks/*": ["./resources/js/Hooks/*"],
+            "@Layouts/*": ["./resources/js/Layouts/*"],
+            "@Pages/*": ["./resources/js/Pages/*"],
+            "@Services/*": ["./resources/js/Services/*"],
+            "@Types/*": ["./resources/js/Types/*"],
+            "@Utils/*": ["./resources/js/Utils/*"]
+        },
         "resolveJsonModule": true,
         "skipLibCheck": true,
         "strict": true,

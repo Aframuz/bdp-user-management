@@ -1,8 +1,8 @@
 import { Table } from 'react-bootstrap';
-import type { TabState } from '../../../Hooks/useLazyUserTabs';
-import type { Nota } from '../../../Types/usuario';
-import { formatDate } from '../../../Utils/date';
-import { AsyncSection } from '../../Common/AsyncSection';
+import { AsyncSection } from '@Components/Common/AsyncSection';
+import type { TabState } from '@Hooks/useLazyUserTabs';
+import type { Nota } from '@Types/usuario';
+import { formatDate } from '@Utils/date';
 
 export function NotasTab({ state, onRetry }: { state: TabState<Nota[]>; onRetry: () => void }) {
     return (

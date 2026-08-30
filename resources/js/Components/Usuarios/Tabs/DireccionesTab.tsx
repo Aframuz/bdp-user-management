@@ -1,7 +1,7 @@
-import type { TabState } from '../../../Hooks/useLazyUserTabs';
-import type { Direccion } from '../../../Types/usuario';
-import { AsyncSection } from '../../Common/AsyncSection';
-import { MapPinIcon } from '../../Common/Icons';
+import { AsyncSection } from '@Components/Common/AsyncSection';
+import { MapPinIcon } from '@Components/Common/Icons';
+import type { TabState } from '@Hooks/useLazyUserTabs';
+import type { Direccion } from '@Types/usuario';
 
 export function DireccionesTab({ state, onRetry }: { state: TabState<Direccion[]>; onRetry: () => void }) {
     return (

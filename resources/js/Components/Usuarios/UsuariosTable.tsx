@@ -4,12 +4,12 @@ import DataTable, { type DataTableRef, type DataTableSlots } from 'datatables.ne
 import type { RefObject } from 'react';
 import { useMemo, useRef } from 'react';
 import { Button } from 'react-bootstrap';
-import type { UsuarioFilters } from '../../Hooks/useUsuariosTable';
-import type { UsuarioRow } from '../../Types/usuario';
-import { buildQuery } from '../../Utils/query';
-import { usuarios } from '../../Utils/routes';
-import { animateRowsIn, fadeOutRows, snapshotRowPositions, type TableRow } from '../../Utils/rowTransitions';
-import { EyeIcon, TrashIcon } from '../Common/Icons';
+import { EyeIcon, TrashIcon } from '@Components/Common/Icons';
+import type { UsuarioFilters } from '@Hooks/useUsuariosTable';
+import type { UsuarioRow } from '@Types/usuario';
+import { buildQuery } from '@Utils/query';
+import { usuarios } from '@Utils/routes';
+import { animateRowsIn, fadeOutRows, snapshotRowPositions, type TableRow } from '@Utils/rowTransitions';
 import { ACCIONES_COLUMN, DEFAULT_ORDER_INDEX, usuariosColumns } from './usuariosColumns';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.css';
 

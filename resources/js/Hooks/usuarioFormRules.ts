@@ -1,5 +1,5 @@
-import type { UsuarioFormData } from '../Types/usuario';
-import type { ValidationRules } from '../Utils/validation';
+import type { UsuarioFormData } from '@Types/usuario';
+import type { ValidationRules } from '@Utils/validation';
 
 /**
  * Espejo de App\Http\Requests\StoreUsuarioRequest::rules().

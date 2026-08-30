@@ -1,7 +1,7 @@
 import { Dropdown } from 'react-bootstrap';
-import type { UsuarioFilters } from '../../Hooks/useUsuariosTable';
-import { usuarios } from '../../Utils/routes';
-import { DownloadIcon } from '../Common/Icons';
+import { DownloadIcon } from '@Components/Common/Icons';
+import type { UsuarioFilters } from '@Hooks/useUsuariosTable';
+import { usuarios } from '@Utils/routes';
 
 interface UsuarioExportMenuProps {
     search: string;

@@ -1,5 +1,5 @@
-import type { Direccion, Nota, UserTab, UsuarioGeneral } from '../Types/usuario';
-import { usuarios } from '../Utils/routes';
+import type { Direccion, Nota, UserTab, UsuarioGeneral } from '@Types/usuario';
+import { usuarios } from '@Utils/routes';
 
 /** Forma del payload de cada tab, alineada con App\Http\Resources. */
 export interface UserTabPayload {

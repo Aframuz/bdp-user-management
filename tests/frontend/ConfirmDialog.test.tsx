@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { ConfirmDialog } from '../../resources/js/Components/Common/ConfirmDialog';
+import { ConfirmDialog } from '@Components/Common/ConfirmDialog';
 
 const setup = (overrides = {}) => {
     const props = {

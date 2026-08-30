@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { validateUsuarioForm } from '../../resources/js/Hooks/useUsuarioForm';
-import type { UsuarioFormData } from '../../resources/js/Types/usuario';
+import { validateUsuarioForm } from '@Hooks/useUsuarioForm';
+import type { UsuarioFormData } from '@Types/usuario';
 
 const validForm: UsuarioFormData = {
     nombre: 'Camila', apellido: 'Soto', email: 'camila@example.test', rut: '11.111.111-1',

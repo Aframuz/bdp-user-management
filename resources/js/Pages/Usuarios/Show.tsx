@@ -1,17 +1,17 @@
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Card, Tab, Tabs } from 'react-bootstrap';
-import { Breadcrumbs } from '../../Components/Common/Breadcrumbs';
-import { ArrowLeftIcon } from '../../Components/Common/Icons';
-import { StatusBadge } from '../../Components/Common/StatusBadge';
-import { DireccionesTab } from '../../Components/Usuarios/Tabs/DireccionesTab';
-import { GeneralTab } from '../../Components/Usuarios/Tabs/GeneralTab';
-import { NotasTab } from '../../Components/Usuarios/Tabs/NotasTab';
-import { useLazyUserTabs } from '../../Hooks/useLazyUserTabs';
-import { AdminLayout } from '../../Layouts/AdminLayout';
-import type { SharedPageProps } from '../../Types/inertia';
-import { USER_TABS, type UserTab, type UsuarioSummary } from '../../Types/usuario';
-import { usuarios } from '../../Utils/routes';
+import { Breadcrumbs } from '@Components/Common/Breadcrumbs';
+import { ArrowLeftIcon } from '@Components/Common/Icons';
+import { StatusBadge } from '@Components/Common/StatusBadge';
+import { DireccionesTab } from '@Components/Usuarios/Tabs/DireccionesTab';
+import { GeneralTab } from '@Components/Usuarios/Tabs/GeneralTab';
+import { NotasTab } from '@Components/Usuarios/Tabs/NotasTab';
+import { useLazyUserTabs } from '@Hooks/useLazyUserTabs';
+import { AdminLayout } from '@Layouts/AdminLayout';
+import type { SharedPageProps } from '@Types/inertia';
+import { USER_TABS, type UserTab, type UsuarioSummary } from '@Types/usuario';
+import { usuarios } from '@Utils/routes';
 
 interface ShowProps extends SharedPageProps {
     usuario: UsuarioSummary;

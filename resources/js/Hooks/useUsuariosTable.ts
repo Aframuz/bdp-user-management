@@ -1,8 +1,8 @@
 import { router } from '@inertiajs/react';
 import type { DataTableRef } from 'datatables.net-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { RoleOption, SelectOption, UsuarioRow } from '../Types/usuario';
-import { usuarios } from '../Utils/routes';
+import type { RoleOption, SelectOption, UsuarioRow } from '@Types/usuario';
+import { usuarios } from '@Utils/routes';
 
 export interface UsuarioFilters {
     rol: string;

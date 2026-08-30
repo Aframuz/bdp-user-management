@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { AsyncSection } from '../../resources/js/Components/Common/AsyncSection';
-import type { TabState } from '../../resources/js/Hooks/useLazyUserTabs';
+import { AsyncSection } from '@Components/Common/AsyncSection';
+import type { TabState } from '@Hooks/useLazyUserTabs';
 
 const renderSection = (state: TabState<string[]>, onRetry = vi.fn()) =>
     render(

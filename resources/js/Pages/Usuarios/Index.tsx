@@ -1,16 +1,16 @@
 import { Head, Link } from '@inertiajs/react';
 import { Alert, Badge, Button } from 'react-bootstrap';
-import { ConfirmDialog } from '../../Components/Common/ConfirmDialog';
-import { FilterIcon, UserPlusIcon, XIcon } from '../../Components/Common/Icons';
-import { SearchInput } from '../../Components/Common/SearchInput';
-import { UsuarioExportMenu } from '../../Components/Usuarios/UsuarioExportMenu';
-import { UsuarioFiltersPanel } from '../../Components/Usuarios/UsuarioFiltersPanel';
-import { UsuariosTable } from '../../Components/Usuarios/UsuariosTable';
-import { useUsuariosTable } from '../../Hooks/useUsuariosTable';
-import { AdminLayout } from '../../Layouts/AdminLayout';
-import type { SharedPageProps } from '../../Types/inertia';
-import type { RoleOption, SelectOption } from '../../Types/usuario';
-import { usuarios } from '../../Utils/routes';
+import { ConfirmDialog } from '@Components/Common/ConfirmDialog';
+import { FilterIcon, UserPlusIcon, XIcon } from '@Components/Common/Icons';
+import { SearchInput } from '@Components/Common/SearchInput';
+import { UsuarioExportMenu } from '@Components/Usuarios/UsuarioExportMenu';
+import { UsuarioFiltersPanel } from '@Components/Usuarios/UsuarioFiltersPanel';
+import { UsuariosTable } from '@Components/Usuarios/UsuariosTable';
+import { useUsuariosTable } from '@Hooks/useUsuariosTable';
+import { AdminLayout } from '@Layouts/AdminLayout';
+import type { SharedPageProps } from '@Types/inertia';
+import type { RoleOption, SelectOption } from '@Types/usuario';
+import { usuarios } from '@Utils/routes';
 
 interface IndexProps extends SharedPageProps {
     roles: RoleOption[];

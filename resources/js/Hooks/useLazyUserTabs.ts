@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { fetchUserTab } from '../Services/usuarios';
-import type { Direccion, Nota, UserTab, UsuarioGeneral } from '../Types/usuario';
+import { fetchUserTab } from '@Services/usuarios';
+import type { Direccion, Nota, UserTab, UsuarioGeneral } from '@Types/usuario';
 
 export interface TabState<T> {
     status: 'idle' | 'loading' | 'success' | 'error';

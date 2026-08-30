@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { usuarioFormRules } from '../../resources/js/Hooks/usuarioFormRules';
-import { validate, type ValidationRules } from '../../resources/js/Utils/validation';
+import { usuarioFormRules } from '@Hooks/usuarioFormRules';
+import { validate, type ValidationRules } from '@Utils/validation';
 
 interface Sample extends Record<string, string> {
     nombre: string;

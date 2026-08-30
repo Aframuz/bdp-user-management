@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { Breadcrumbs } from '../../resources/js/Components/Common/Breadcrumbs';
+import { Breadcrumbs } from '@Components/Common/Breadcrumbs';
 
 describe('Breadcrumbs', () => {
     it('links the intermediate crumbs and marks the last one as current', () => {

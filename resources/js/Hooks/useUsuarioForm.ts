@@ -1,8 +1,8 @@
 import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
-import type { UsuarioFormData } from '../Types/usuario';
-import { usuarios } from '../Utils/routes';
-import { validate } from '../Utils/validation';
+import type { UsuarioFormData } from '@Types/usuario';
+import { usuarios } from '@Utils/routes';
+import { validate } from '@Utils/validation';
 import { usuarioFormRules } from './usuarioFormRules';
 
 const initialData: UsuarioFormData = {

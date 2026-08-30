@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { DireccionesTab } from '../../resources/js/Components/Usuarios/Tabs/DireccionesTab';
-import { GeneralTab } from '../../resources/js/Components/Usuarios/Tabs/GeneralTab';
-import { NotasTab } from '../../resources/js/Components/Usuarios/Tabs/NotasTab';
+import { DireccionesTab } from '@Components/Usuarios/Tabs/DireccionesTab';
+import { GeneralTab } from '@Components/Usuarios/Tabs/GeneralTab';
+import { NotasTab } from '@Components/Usuarios/Tabs/NotasTab';
 
 describe('user detail tabs', () => {
     it('renders loading, empty and populated states', () => {

@@ -1,9 +1,9 @@
 import { Col, Row } from 'react-bootstrap';
-import type { TabState } from '../../../Hooks/useLazyUserTabs';
-import type { UsuarioGeneral } from '../../../Types/usuario';
-import { formatDate } from '../../../Utils/date';
-import { AsyncSection } from '../../Common/AsyncSection';
-import { StatusBadge } from '../../Common/StatusBadge';
+import { AsyncSection } from '@Components/Common/AsyncSection';
+import { StatusBadge } from '@Components/Common/StatusBadge';
+import type { TabState } from '@Hooks/useLazyUserTabs';
+import type { UsuarioGeneral } from '@Types/usuario';
+import { formatDate } from '@Utils/date';
 
 export function GeneralTab({ state, onRetry }: { state: TabState<UsuarioGeneral>; onRetry: () => void }) {
     return (

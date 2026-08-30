@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
-import { StatusBadge } from '../Common/StatusBadge';
-import type { UsuarioRow } from '../../Types/usuario';
-import { formatDate } from '../../Utils/date';
+import { StatusBadge } from '@Components/Common/StatusBadge';
+import type { UsuarioRow } from '@Types/usuario';
+import { formatDate } from '@Utils/date';
 
 export interface UsuarioColumn {
     /** Nombre lógico enviado a DataTables; el backend ordena por él, no por posición. */

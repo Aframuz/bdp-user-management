@@ -1,4 +1,4 @@
-import type { UserTab } from '../Types/usuario';
+import type { UserTab } from '@Types/usuario';
 
 /** Única fuente de verdad de las URLs del mantenedor (espejo de routes/web.php). */
 export const usuarios = {

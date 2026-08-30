@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { TabState } from '../../Hooks/useLazyUserTabs';
+import type { TabState } from '@Hooks/useLazyUserTabs';
 import { EmptyState, ErrorState, LoadingState, type SkeletonVariant } from './AsyncState';
 
 interface AsyncSectionProps<T> {

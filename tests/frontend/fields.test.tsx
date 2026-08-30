@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { FormField } from '../../resources/js/Components/Common/FormField';
-import { SelectField } from '../../resources/js/Components/Common/SelectField';
-import { TextareaField } from '../../resources/js/Components/Common/TextareaField';
+import { FormField } from '@Components/Common/FormField';
+import { SelectField } from '@Components/Common/SelectField';
+import { TextareaField } from '@Components/Common/TextareaField';
 
 describe('field primitives', () => {
     it('links the error message to the control for every field type', () => {

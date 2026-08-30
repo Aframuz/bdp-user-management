@@ -1,10 +1,10 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Container, Toast, ToastContainer } from 'react-bootstrap';
-import logoToolbar from '../../assets/logo-toolbar.svg';
-import { MoonIcon, SunIcon } from '../Components/Common/Icons';
-import type { SharedPageProps } from '../Types/inertia';
-import { usuarios } from '../Utils/routes';
+import logoToolbar from '@Assets/logo-toolbar.svg';
+import { MoonIcon, SunIcon } from '@Components/Common/Icons';
+import type { SharedPageProps } from '@Types/inertia';
+import { usuarios } from '@Utils/routes';
 
 type Theme = 'light' | 'dark';
 

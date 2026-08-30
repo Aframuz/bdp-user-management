@@ -1,6 +1,6 @@
 import { Button, Form, Offcanvas } from 'react-bootstrap';
-import type { UsuarioFilters } from '../../Hooks/useUsuariosTable';
-import type { RoleOption, SelectOption } from '../../Types/usuario';
+import type { UsuarioFilters } from '@Hooks/useUsuariosTable';
+import type { RoleOption, SelectOption } from '@Types/usuario';
 
 interface UsuarioFiltersPanelProps {
     show: boolean;

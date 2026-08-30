@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { UsuarioExportMenu } from '../../resources/js/Components/Usuarios/UsuarioExportMenu';
+import { UsuarioExportMenu } from '@Components/Usuarios/UsuarioExportMenu';
 
 describe('UsuarioExportMenu', () => {
     it('offers an unfiltered export and one with the currently applied filters', async () => {
