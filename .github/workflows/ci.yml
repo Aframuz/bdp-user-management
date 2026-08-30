@@ -1,0 +1,200 @@
+name: CI
+
+on:
+  push:
+    # `main` no está aquí a propósito: un push a esa rama dispara Deploy, que
+    # ejecuta esta misma suite vía workflow_call. Tenerla en ambos sitios
+    # duplicaría la corrida completa por cada release.
+    branches: [develop]
+  pull_request:
+    branches: [develop, main]
+  # Permite que el workflow de despliegue reutilice esta misma suite en lugar
+  # de duplicarla: así nunca se despliega algo que no pasó exactamente estos pasos.
+  workflow_call:
+
+# Un push nuevo sobre la misma rama cancela la corrida anterior. `github.workflow`
+# entra en la clave porque al invocarse desde Deploy resuelve al nombre del
+# workflow llamador: sin eso, la corrida directa y la reutilizada compartirían
+# grupo y se cancelarían entre sí.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PHP_VERSION: "8.3"
+  NODE_VERSION: "22"
+
+jobs:
+  # ---------------------------------------------------------------------
+  # 1. Estilo de código PHP (Laravel Pint)
+  # ---------------------------------------------------------------------
+  php-quality:
+    name: Pint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: bcmath, pdo_pgsql, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Cachear dependencias de Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ runner.os }}-php${{ env.PHP_VERSION }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php${{ env.PHP_VERSION }}-
+
+      - name: Instalar dependencias
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Verificar formato
+        run: vendor/bin/pint --test
+
+  # ---------------------------------------------------------------------
+  # 2. PHPUnit contra PostgreSQL real (no SQLite: el proyecto usa pgsql)
+  # ---------------------------------------------------------------------
+  php-tests:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: usuarios_test
+          POSTGRES_USER: usuarios
+          POSTGRES_PASSWORD: usuarios
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U usuarios -d usuarios_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apuntar `db-test` al servicio de PostgreSQL
+        # phpunit.xml fija DB_HOST=db-test (el nombre del servicio en
+        # compose.yaml). En el runner el contenedor está publicado en
+        # localhost, así que se resuelve el nombre por /etc/hosts en vez de
+        # sobrescribir la configuración: los tests corren con el MISMO
+        # phpunit.xml en local y en CI.
+        run: echo "127.0.0.1 db-test" | sudo tee -a /etc/hosts
+
+      - name: Instalar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: bcmath, pdo_pgsql, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Cachear dependencias de Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ runner.os }}-php${{ env.PHP_VERSION }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php${{ env.PHP_VERSION }}-
+
+      - name: Instalar dependencias
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Ejecutar PHPUnit
+        # No hace falta migrar antes: todos los tests usan RefreshDatabase, que
+        # prepara el esquema por su cuenta sobre la base ya creada por el servicio.
+        run: php artisan test
+
+  # ---------------------------------------------------------------------
+  # 3. TypeScript, ESLint y Vitest
+  # ---------------------------------------------------------------------
+  frontend:
+    name: TypeScript, ESLint y Vitest
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm debe existir antes de setup-node para que su caché funcione.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Comprobar tipos
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Tests unitarios
+        run: pnpm test
+
+      - name: Compilar assets
+        # El build entra al pipeline como control: un fallo de Vite (import
+        # circular, alias roto) no lo detectan ni vitest ni tsc.
+        run: pnpm build
+
+  # ---------------------------------------------------------------------
+  # 4. Playwright sobre el stack completo (mismo compose que en local)
+  # ---------------------------------------------------------------------
+  e2e:
+    name: Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Solo tiene sentido levantar el stack si lo barato ya pasó.
+    needs: [php-tests, frontend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir imágenes
+        run: docker compose --profile test build app-test e2e
+
+      - name: Instalar dependencias PHP dentro del contenedor
+        # `app-test` monta el repositorio como volumen y en el runner no hay
+        # vendor/. `--no-deps` evita levantar la base solo para esto.
+        run: >-
+          docker compose --profile test run --rm --no-deps app-test
+          composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Levantar la aplicación
+        run: docker compose --profile test up -d --wait app-test
+
+      - name: Sembrar datos de prueba
+        # `app-test` ya siembra al arrancar, pero se repite para que la corrida
+        # parta siempre del mismo estado (mismo motivo que en `make test-e2e`).
+        run: docker compose --profile test exec -T app-test php artisan migrate:fresh --seed --force
+
+      - name: Ejecutar Playwright
+        run: docker compose --profile test run --rm e2e
+
+      - name: Publicar el reporte
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Apagar el stack
+        if: always()
+        run: docker compose --profile test down --volumes --remove-orphans

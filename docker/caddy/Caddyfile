@@ -1,0 +1,56 @@
+{
+	# El endpoint de administración no se usa y escucha en 2019 por defecto.
+	admin off
+	email {$ACME_EMAIL}
+}
+
+{$APP_DOMAIN} {
+	root * /var/www/html/public
+	encode zstd gzip
+
+	header {
+		-Server
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	# Vite emite nombres con hash, así que el bundle es cacheable para siempre.
+	@assets path /build/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	# `php_fastcgi` ya resuelve el try_files hacia index.php del front controller.
+	php_fastcgi app:9000
+	file_server
+
+	log {
+		output stdout
+		format json
+	}
+}
+
+# Endpoint interno de salud. Recorre el mismo camino que el tráfico real
+# (Caddy -> php-fpm -> Laravel), pero sin TLS ni redirección a HTTPS, para que
+# el healthcheck de Docker no dependa del certificado ni del DNS público.
+# Este puerto no se publica en compose.prod.yaml: solo existe dentro de la red.
+:2020 {
+	root * /var/www/html/public
+
+	# Solo /up. Este listener existe para el healthcheck de Docker, no para
+	# servir el sitio: cualquier otra ruta responde 404 en vez de caer al
+	# front controller y devolver un 200 vacío. Se usan bloques `handle`
+	# (excluyentes y evaluados en orden) porque con matchers sueltos el
+	# `respond` se adelanta a `php_fastcgi` en el orden por defecto de Caddy.
+	handle /up {
+		php_fastcgi app:9000
+	}
+
+	handle {
+		respond 404
+	}
+
+	log {
+		output discard
+	}
+}

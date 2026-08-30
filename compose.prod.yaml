@@ -1,0 +1,77 @@
+# Stack de producción. Este archivo vive en el servidor (lo copia el workflow
+# de despliegue en cada corrida) y consume el `.env` que está junto a él.
+#
+#   docker compose -f compose.prod.yaml pull
+#   docker compose -f compose.prod.yaml up -d
+#
+# Las imágenes no se construyen aquí: llegan ya publicadas desde GHCR.
+
+name: bdp-user-management
+
+services:
+  web:
+    image: ${IMAGE_REPOSITORY:?falta IMAGE_REPOSITORY}/web:${IMAGE_TAG:?falta IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?falta APP_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?falta ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+      # HTTP/3. Si el Security List de OCI no abre UDP/443, Caddy sigue
+      # sirviendo por TCP sin degradación visible.
+      - "443:443/udp"
+    volumes:
+      # Certificados de Let's Encrypt. Perder este volumen implica reemitir y
+      # topar con el rate limit de ACME, así que no se borra en los redeploys.
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:2020/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  app:
+    image: ${IMAGE_REPOSITORY:?falta IMAGE_REPOSITORY}/app:${IMAGE_TAG:?falta IMAGE_TAG}
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - app_storage:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      # php-fpm no expone HTTP; basta con comprobar que acepta conexiones.
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:?falta DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME:?falta DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?falta DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Sin `ports`: la base solo se alcanza desde la red interna de compose.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  app_storage:
+  caddy_config:
+  caddy_data:
+  postgres_data:
