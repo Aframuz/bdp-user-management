@@ -19,17 +19,27 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [HandleInertiaRequests::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Un 404 de navegación se responde con la página Inertia, para que el error
-        // caiga dentro del panel y no en la pantalla en blanco de Symfony. Cubre
-        // tanto las rutas inexistentes como los binding fallidos (/usuarios/9999).
-        // Lo que espera JSON —la tabla y los tabs— sigue recibiendo el 404 pelado.
+        // Los errores de navegación se responden dentro del panel de Inertia. Además
+        // del 404, el 500 cubre fallos como un binding bigint inválido (/usuarios/asdf)
+        // sin exponer al visitante el mensaje SQL. Las solicitudes JSON conservan
+        // la respuesta original para no romper el manejo de errores de sus clientes.
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
-            if ($response->getStatusCode() !== 404 || $request->expectsJson()) {
+            if ($request->expectsJson()) {
                 return $response;
             }
 
-            return Inertia::render('NotFound', ['ruta' => Str::limit($request->getRequestUri(), 120)])
+            $page = match ($response->getStatusCode()) {
+                404 => 'NotFound',
+                500 => 'ServerError',
+                default => null,
+            };
+
+            if ($page === null) {
+                return $response;
+            }
+
+            return Inertia::render($page, ['ruta' => Str::limit($request->getRequestUri(), 120)])
                 ->toResponse($request)
-                ->setStatusCode(404);
+                ->setStatusCode($response->getStatusCode());
         });
     })->create();

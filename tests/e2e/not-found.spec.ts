@@ -29,6 +29,16 @@ test('a user id that does not exist gets the same page', async ({ page }) => {
     await expect(page.getByRole('heading', { level: 1, name: 'Aquí no hay nada que mostrar' })).toBeVisible();
 });
 
+test('an invalid user id shows a safe 500 page inside the panel', async ({ page }) => {
+    const response = await page.goto('/usuarios/asdf');
+
+    expect(response?.status()).toBe(500);
+    await expect(page.getByRole('heading', { level: 1, name: 'No pudimos completar la solicitud' })).toBeVisible();
+    await expect(page.getByText('/usuarios/asdf')).toBeVisible();
+    await expect(page.getByText(/SQLSTATE|bigint/i)).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Ir a Usuarios' })).toBeVisible();
+});
+
 test('the back button returns to where the visitor came from', async ({ page }) => {
     await page.goto('/usuarios');
     await page.goto('/informes/2024');
