@@ -1,59 +1,47 @@
-import { useForm } from '@inertiajs/react';
-import type { FormEvent } from 'react';
+import type { Form } from '@inertiajs/react';
+import { useRef, type ComponentRef, type SyntheticEvent } from 'react';
 import type { UsuarioFormData } from '@Types/usuario';
-import { usuarios } from '@Utils/routes';
 import { validate } from '@Utils/validation';
 import { usuarioFormRules } from './usuarioFormRules';
 
-const initialData: UsuarioFormData = {
-    nombre: '',
-    apellido: '',
-    email: '',
-    rut: '',
-    telefono: '',
-    rol_id: '',
-    estado: '',
-    calle: '',
-    ciudad: '',
-    codigo_postal: '',
-    nota: '',
-};
+type UsuarioFormRef = ComponentRef<typeof Form<UsuarioFormData>>;
 
 export function validateUsuarioForm(data: UsuarioFormData): Record<string, string> {
     return validate(data, usuarioFormRules);
 }
 
 /** Lleva el foco al primer campo con error para no obligar a buscarlo a mano. */
-function focusFirstError(errors: Record<string, string>): void {
+export function focusFirstError(errors: Record<string, string>): void {
     const firstField = Object.keys(errors)[0];
     if (!firstField) return;
     requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="${firstField}"]`)?.focus());
 }
 
+/**
+ * Cableado del `<Form>` de Inertia: los campos son no controlados y el componente
+ * lee sus valores del DOM, así que aquí solo queda la validación previa al envío.
+ */
 export function useUsuarioForm() {
-    const form = useForm<UsuarioFormData>(initialData);
+    const formRef = useRef<UsuarioFormRef>(null);
 
-    const setField = (field: keyof UsuarioFormData, value: string) => {
-        form.setData(field as string, value);
-        form.clearErrors(field as string);
+    /** Se ejecuta en `onBefore`: devolver `false` cancela la petición y deja los errores en pantalla. */
+    const validateBeforeSubmit = (): boolean => {
+        const form = formRef.current;
+        if (!form) return true;
+
+        const errors = validateUsuarioForm(form.getData());
+        if (Object.keys(errors).length === 0) return true;
+
+        form.setError(errors);
+        focusFirstError(errors);
+        return false;
     };
 
-    const submit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        form.clearErrors();
-        const clientErrors = validateUsuarioForm(form.data);
-
-        if (Object.keys(clientErrors).length > 0) {
-            form.setError(clientErrors);
-            focusFirstError(clientErrors);
-            return;
-        }
-
-        form.post(usuarios.index(), {
-            preserveScroll: true,
-            onError: (errors) => focusFirstError(errors as Record<string, string>),
-        });
+    /** Limpia el error del campo que el usuario acaba de corregir; el evento llega delegado desde el control. */
+    const clearFieldError = (event: SyntheticEvent<HTMLFormElement>) => {
+        const { name } = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+        if (name) formRef.current?.clearErrors(name);
     };
 
-    return { ...form, setField, submit };
+    return { formRef, validateBeforeSubmit, clearFieldError };
 }

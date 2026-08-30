@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Form } from 'react-bootstrap';
 
 export interface FieldProps {
-    /** Coincide con el nombre del campo en el backend: identifica el control y su error. */
+    /** Coincide con el nombre del campo en el backend: identifica el control, su `name` y su error. */
     id: string;
     label: string;
     error?: string;
@@ -17,6 +17,7 @@ interface FieldWrapperProps extends FieldProps {
         'aria-invalid': boolean;
         'data-field': string;
         isInvalid: boolean;
+        name: string;
         required: boolean;
     }) => ReactNode;
 }
@@ -41,6 +42,7 @@ export function FieldWrapper({ id, label, error, required = false, hint, childre
                 'aria-invalid': Boolean(error),
                 'data-field': id,
                 isInvalid: Boolean(error),
+                name: id,
                 required,
             })}
             {hint && !error && <Form.Text id={hintId}>{hint}</Form.Text>}
