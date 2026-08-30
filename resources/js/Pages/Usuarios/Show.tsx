@@ -13,6 +13,7 @@ import { useLazyUserTabs } from '@Hooks/useLazyUserTabs';
 import { AdminLayout } from '@Layouts/AdminLayout';
 import type { SharedPageProps } from '@Types/inertia';
 import { USER_TABS, type UserTab, type UsuarioSummary } from '@Types/usuario';
+import { preloadPage } from '@Utils/pageModules';
 import { usuarios } from '@Utils/routes';
 import styles from './Show.module.css';
 
@@ -50,7 +51,13 @@ export default function Show({ usuario }: ShowProps) {
                     <p className={`${pageStyles['page-heading__eyebrow']} text-uppercase text-primary`}>Ficha de usuario</p>
                     <h1 className={pageStyles['page-heading__title']}>{usuario.nombre_completo}</h1>
                 </div>
-                <Link className="btn btn-outline-secondary" href={usuarios.index()}>
+                <Link
+                    className="btn btn-outline-secondary"
+                    href={usuarios.index()}
+                    onFocus={() => void preloadPage('Usuarios/Index')}
+                    onPointerEnter={() => void preloadPage('Usuarios/Index')}
+                    prefetch="hover"
+                >
                     <ArrowLeftIcon aria-hidden="true" className="me-2" />Volver al listado
                 </Link>
             </div>

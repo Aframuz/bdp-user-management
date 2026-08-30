@@ -7,6 +7,7 @@ import { Button } from 'react-bootstrap';
 import { EyeIcon, TrashIcon } from '@Components/Common/Icons';
 import type { UsuarioFilters } from '@Hooks/useUsuariosTable';
 import type { UsuarioRow } from '@Types/usuario';
+import { preloadPage } from '@Utils/pageModules';
 import { buildQuery } from '@Utils/query';
 import { usuarios } from '@Utils/routes';
 import { animateRowsIn, fadeOutRows, snapshotRowPositions, type TableRow } from '@Utils/rowTransitions';
@@ -148,7 +149,16 @@ export function UsuariosTable({ tableRef, filtersRef, onError, onDelete, onTotal
             <div className={`${styles['users-table__actions']} d-flex gap-2 text-nowrap`}>
                 <Button aria-label={`Ver detalle de ${row.nombre_completo}`}
                     className={`${styles['users-table__action']} d-inline-flex align-items-center justify-content-center text-decoration-none`}
-                    onClick={() => router.visit(usuarios.show(row.id))} variant="primary">
+                    onClick={() => router.visit(usuarios.show(row.id))}
+                    onFocus={() => {
+                        void preloadPage('Usuarios/Show');
+                        router.prefetch(usuarios.show(row.id));
+                    }}
+                    onPointerEnter={() => {
+                        void preloadPage('Usuarios/Show');
+                        router.prefetch(usuarios.show(row.id));
+                    }}
+                    variant="primary">
                     <EyeIcon aria-hidden="true" />
                     <span className={styles['users-table__action-label']}><span>Ver detalle</span></span>
                 </Button>

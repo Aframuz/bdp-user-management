@@ -328,13 +328,12 @@
    background-color: var(--app-toast-accent);
 }
 
-/* Transiciones entre páginas. Inertia se encarga de envolver el swap en
-   document.startViewTransition(); aquí solo se define cómo se ve.
-   El header recibe su propio view-transition-name para salir del grupo `root`:
-   así queda anclado mientras el resto de la página entra y sale. */
-/* Nombrarlo lo saca del grupo `root`, pero el navegador aún lo funde de una captura
-   a la otra con `plus-lighter`. Al ser el fondo semitransparente eso se ve como un
-   parpadeo, así que se anulan las animaciones y solo queda visible la captura nueva. */
+/* La página de destino ya está precargada antes del click; esta transición solo
+   suaviza el swap y no intenta ocultar una espera de red. El header queda fijo. */
+::view-transition-group(app-header) {
+   animation: none;
+}
+
 ::view-transition-old(app-header) {
    animation: none;
    mix-blend-mode: normal;
@@ -347,25 +346,29 @@
    opacity: 1;
 }
 
+::view-transition-group(root) {
+   animation-duration: 110ms;
+}
+
 ::view-transition-old(root) {
-   animation: page-leave 180ms ease-in both;
+   animation: page-leave 70ms ease-in both;
 }
 
 ::view-transition-new(root) {
-   animation: page-enter 260ms ease-out both;
+   animation: page-enter 110ms ease-out both;
 }
 
 @keyframes page-leave {
    to {
       opacity: 0;
-      transform: translateY(-10px);
+      transform: translateY(-3px);
    }
 }
 
 @keyframes page-enter {
    from {
       opacity: 0;
-      transform: translateY(14px);
+      transform: translateY(5px);
    }
 }
 
@@ -380,14 +383,7 @@
       transition-duration: .01ms !important;
    }
 
-   /* Los pseudoelementos de view transition viven fuera del árbol, el `*` de arriba
-       no los alcanza. Van en reglas separadas porque el `*` dentro del paréntesis no
-       lo entienden todos los navegadores y descartaría la regla entera. */
-   ::view-transition-old(root),
-   ::view-transition-new(root) {
-      animation: none !important;
-   }
-
+   /* Los pseudo-elementos de View Transitions viven fuera del árbol del documento. */
    ::view-transition-group(*),
    ::view-transition-old(*),
    ::view-transition-new(*) {

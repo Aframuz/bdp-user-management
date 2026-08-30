@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 // mide longitudes y daría por bueno números que `App\Rules\TelefonoValido` rechaza.
 import PhoneInput, { isValidPhoneNumber, type Value } from 'react-phone-number-input/max';
 import es from 'react-phone-number-input/locale/es.json';
+import 'react-phone-number-input/style.css';
 import { FieldWrapper } from '@Components/Common/FieldWrapper';
 import { TELEFONO_INVALIDO } from '@Hooks/useUsuarioForm';
 import styles from '@Components/Common/FormControls.module.css';

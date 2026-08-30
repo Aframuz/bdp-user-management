@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { Alert, Badge, Button } from 'react-bootstrap';
 import { ConfirmDialog } from '@Components/Common/ConfirmDialog';
 import { FilterIcon, UserPlusIcon, XIcon } from '@Components/Common/Icons';
@@ -11,6 +12,7 @@ import { useUsuariosTable } from '@Hooks/useUsuariosTable';
 import { AdminLayout } from '@Layouts/AdminLayout';
 import type { SharedPageProps } from '@Types/inertia';
 import type { RoleOption, SelectOption } from '@Types/usuario';
+import { preloadPage, preloadPageWhenIdle } from '@Utils/pageModules';
 import { usuarios } from '@Utils/routes';
 import pageStyles from '@Components/Common/Page.module.css';
 
@@ -21,6 +23,10 @@ interface IndexProps extends SharedPageProps {
 
 export default function Index({ roles, estados }: IndexProps) {
     const table = useUsuariosTable(roles, estados);
+
+    // Es el siguiente destino más probable. Se descarga fuera del camino crítico;
+    // hover/focus también cubren a quien interactúa antes de que llegue el idle.
+    useEffect(() => preloadPageWhenIdle('Usuarios/Create'), []);
 
     return (
         <AdminLayout>
@@ -40,8 +46,12 @@ export default function Index({ roles, estados }: IndexProps) {
                 </div>
                 <div className="d-grid gap-2">
                     <Link
+                        cacheFor="5m"
                         className="btn btn-primary d-inline-flex align-items-center justify-content-center"
                         href={usuarios.create()}
+                        onFocus={() => void preloadPage('Usuarios/Create')}
+                        onPointerEnter={() => void preloadPage('Usuarios/Create')}
+                        prefetch={['mount', 'hover']}
                     >
                         <UserPlusIcon aria-hidden="true" className="me-2" />Registrar usuario
                     </Link>

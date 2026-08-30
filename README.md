@@ -6,7 +6,7 @@ Aplicación monolítica Laravel + React para listar, buscar, filtrar, registrar,
 
 - Laravel 11.56 / PHP 8.3
 - React 19.2 + TypeScript estricto
-- Inertia.js 2
+- Inertia.js 3
 - PostgreSQL 16
 - Bootstrap 5.3 + React Bootstrap + Tabler Icons (`@tabler/icons-react`)
 - DataTables core 2.3 + adaptador oficial `datatables.net-react`
@@ -143,8 +143,9 @@ tests/
 ## Personalización y accesibilidad
 
 Los tokens de marca están al inicio de `resources/js/app.css`; ese fichero se limita a fuentes,
-tokens, el puente de variables/variantes de Bootstrap y SweetAlert2, foco y transiciones de
-documento. Los estilos de componentes están aislados en CSS Modules BEM. Color, radios, sombras
+tokens, el puente de variables/variantes de Bootstrap y SweetAlert2, foco, transiciones de página
+y movimiento accesible.
+Los estilos de componentes están aislados en CSS Modules BEM. Color, radios, sombras
 y duración de movimiento pueden cambiarse sin modificar componentes. La interfaz incluye skip link, landmarks,
 foco visible, labels y errores asociados, regiones vivas, modal/Offcanvas accesibles, tabs
 navegables por teclado, tablas con caption y soporte para `prefers-reduced-motion`.

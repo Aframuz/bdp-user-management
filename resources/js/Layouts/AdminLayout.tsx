@@ -4,6 +4,7 @@ import { Container } from 'react-bootstrap';
 import logoToolbar from '@Assets/logo-toolbar.svg';
 import { MoonIcon, SunIcon } from '@Components/Common/Icons';
 import type { SharedPageProps } from '@Types/inertia';
+import { preloadPage } from '@Utils/pageModules';
 import { usuarios } from '@Utils/routes';
 import { showToast } from '@Utils/toast';
 import styles from './AdminLayout.module.css';
@@ -77,6 +78,9 @@ export function AdminLayout({ centered = false, children }: { centered?: boolean
                         aria-label="Ir al inicio de Bolsa de Productos"
                         className="d-inline-flex align-items-center gap-3 text-white text-decoration-none"
                         href={usuarios.index()}
+                        onFocus={() => void preloadPage('Usuarios/Index')}
+                        onPointerEnter={() => void preloadPage('Usuarios/Index')}
+                        prefetch="hover"
                     >
                         <span
                             aria-hidden="true"

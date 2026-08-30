@@ -12,6 +12,7 @@ import { focusFirstError, useUsuarioForm } from '@Hooks/useUsuarioForm';
 import { AdminLayout } from '@Layouts/AdminLayout';
 import type { SharedPageProps } from '@Types/inertia';
 import type { RoleOption, SelectOption } from '@Types/usuario';
+import { preloadPage } from '@Utils/pageModules';
 import { usuarios } from '@Utils/routes';
 import pageStyles from '@Components/Common/Page.module.css';
 
@@ -125,7 +126,15 @@ export default function Create({ roles, estados }: CreateProps) {
                         </Card>
 
                         <div className="d-flex flex-column-reverse flex-md-row justify-content-end gap-2">
-                            <Link className="btn btn-outline-secondary" href={usuarios.index()}>Cancelar</Link>
+                            <Link
+                                className="btn btn-outline-secondary"
+                                href={usuarios.index()}
+                                onFocus={() => void preloadPage('Usuarios/Index')}
+                                onPointerEnter={() => void preloadPage('Usuarios/Index')}
+                                prefetch="hover"
+                            >
+                                Cancelar
+                            </Link>
                             <Button disabled={processing} type="submit">
                                 {processing ? 'Guardando…' : 'Guardar usuario'}
                             </Button>
