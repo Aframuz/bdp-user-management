@@ -4,6 +4,7 @@ import { Container } from 'react-bootstrap';
 import logoToolbar from '@Assets/logo-toolbar.svg';
 import { MoonIcon, SunIcon } from '@Components/Common/Icons';
 import type { SharedPageProps } from '@Types/inertia';
+import { showDesktopNotice } from '@Utils/desktopNotice';
 import { preloadPage } from '@Utils/pageModules';
 import { usuarios } from '@Utils/routes';
 import { showToast } from '@Utils/toast';
@@ -37,6 +38,10 @@ export function AdminLayout({ centered = false, children }: { centered?: boolean
     // Se recuerda por id y no por texto: dos flashes iguales seguidos deben anunciarse ambos.
     const shownFlashId = useRef<string | null>(null);
     const nextTheme = theme === 'light' ? 'dark' : 'light';
+
+    useEffect(() => {
+        showDesktopNotice();
+    }, []);
 
     useEffect(() => {
         const message = flash?.success ?? flash?.error;

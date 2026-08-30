@@ -328,6 +328,35 @@
    background-color: var(--app-toast-accent);
 }
 
+/* Aviso de viewport: hereda el tema elegido dentro de la aplicación, no el tema
+   del sistema que SweetAlert2 detecta por defecto. */
+.app-desktop-notice.swal2-popup {
+   --swal2-width: 30rem;
+   --swal2-border: 1px solid var(--line);
+   --swal2-border-radius: var(--radius);
+   --swal2-background: var(--surface);
+   --swal2-color: var(--ink-900);
+   --swal2-confirm-button-background-color: var(--brand-solid);
+   --swal2-confirm-button-border-radius: .5rem;
+   font-family: var(--bs-body-font-family);
+   box-shadow: var(--shadow);
+}
+
+.app-desktop-notice .swal2-title {
+   font-size: 1.5rem;
+}
+
+.app-desktop-notice .swal2-html-container {
+   color: var(--ink-700);
+   font-size: 1rem;
+   line-height: 1.55;
+}
+
+.app-desktop-notice .swal2-icon.swal2-info {
+   border-color: var(--brand-solid);
+   color: var(--brand-solid);
+}
+
 /* La página de destino ya está precargada antes del click; esta transición solo
    suaviza el swap y no intenta ocultar una espera de red. El header queda fijo. */
 ::view-transition-group(app-header) {

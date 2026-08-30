@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FlashMessages } from '@Types/inertia';
 
 const flash = vi.hoisted(() => ({ current: {} as FlashMessages }));
+const showDesktopNotice = vi.hoisted(() => vi.fn());
 const showToast = vi.hoisted(() => vi.fn());
 
 vi.mock('@inertiajs/react', () => ({
@@ -12,6 +13,7 @@ vi.mock('@inertiajs/react', () => ({
 }));
 
 vi.mock('@Utils/toast', () => ({ showToast }));
+vi.mock('@Utils/desktopNotice', () => ({ showDesktopNotice }));
 
 const { AdminLayout } = await import('@Layouts/AdminLayout');
 
@@ -22,7 +24,19 @@ const renderLayout = (messages: FlashMessages) => {
 };
 
 describe('AdminLayout', () => {
-    beforeEach(() => showToast.mockClear());
+    beforeEach(() => {
+        showDesktopNotice.mockClear();
+        showToast.mockClear();
+    });
+
+    it('checks whether the desktop recommendation is needed on mount', () => {
+        const { rerender } = renderLayout({});
+
+        expect(showDesktopNotice).toHaveBeenCalledOnce();
+
+        rerender(<AdminLayout>Contenido actualizado</AdminLayout>);
+        expect(showDesktopNotice).toHaveBeenCalledOnce();
+    });
 
     it('announces a successful flash once per message', () => {
         const { rerender } = renderLayout({ success: 'Usuario creado correctamente.', id: 'flash-1' });
