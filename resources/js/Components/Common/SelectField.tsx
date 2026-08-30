@@ -1,6 +1,7 @@
 import type { ChangeEventHandler } from 'react';
 import { Form } from 'react-bootstrap';
 import { FieldWrapper, type FieldProps } from './FieldWrapper';
+import styles from './FormControls.module.css';
 
 interface SelectFieldProps extends FieldProps {
     value: string;
@@ -14,7 +15,7 @@ export function SelectField({ value, onChange, options, placeholder, ...field }:
     return (
         <FieldWrapper {...field}>
             {(controlProps) => (
-                <Form.Select {...controlProps} onChange={onChange} value={value}>
+                <Form.Select className={styles['form-control']} {...controlProps} onChange={onChange} value={value}>
                     <option value="">{placeholder}</option>
                     {options.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>

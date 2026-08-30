@@ -14,7 +14,7 @@ export function GeneralTab({ state, onRetry }: { state: TabState<UsuarioGeneral>
             state={state}
         >
             {(data) => (
-                <Row as="dl" className="detail-grid g-4">
+                <Row as="dl" className="m-0 g-4">
                     {[
                         ['Nombre', data.nombre],
                         ['Apellido', data.apellido],
@@ -25,11 +25,13 @@ export function GeneralTab({ state, onRetry }: { state: TabState<UsuarioGeneral>
                         ['Fecha de creación', formatDate(data.created_at)],
                     ].map(([label, value]) => (
                         <Col as="div" key={label} lg={4} md={6}>
-                            <dt>{label}</dt><dd>{value}</dd>
+                            <dt className="mb-1 small text-uppercase text-body-secondary">{label}</dt>
+                            <dd className="m-0 fw-semibold text-break">{value}</dd>
                         </Col>
                     ))}
                     <Col as="div" lg={4} md={6}>
-                        <dt>Estado</dt><dd><StatusBadge estado={data.estado} /></dd>
+                        <dt className="mb-1 small text-uppercase text-body-secondary">Estado</dt>
+                        <dd className="m-0 fw-semibold"><StatusBadge estado={data.estado} /></dd>
                     </Col>
                 </Row>
             )}

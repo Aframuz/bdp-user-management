@@ -1,6 +1,7 @@
 import type { ChangeEventHandler } from 'react';
 import { Form } from 'react-bootstrap';
 import { FieldWrapper, type FieldProps } from './FieldWrapper';
+import styles from './FormControls.module.css';
 
 interface FormFieldProps extends FieldProps {
     value: string;
@@ -26,6 +27,7 @@ export function FormField({
                 <Form.Control
                     {...controlProps}
                     autoComplete={autoComplete}
+                    className={styles['form-control']}
                     maxLength={maxLength}
                     onChange={onChange}
                     placeholder={placeholder}

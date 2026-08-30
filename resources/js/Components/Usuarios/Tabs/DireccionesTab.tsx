@@ -12,10 +12,12 @@ export function DireccionesTab({ state, onRetry }: { state: TabState<Direccion[]
             state={state}
         >
             {(direcciones) => (
-                <div className="address-list">
+                <div className="d-grid gap-3">
                     {direcciones.map((direccion) => (
-                        <article className="address-card" key={direccion.id}>
-                            <h3><MapPinIcon aria-hidden="true" className="me-2" />{direccion.calle}</h3>
+                        <article className="rounded-3 border bg-body-tertiary p-4" key={direccion.id}>
+                            <h3 className="d-flex align-items-center fs-6 fw-bold">
+                                <MapPinIcon aria-hidden="true" className="me-2" />{direccion.calle}
+                            </h3>
                             <p className="mb-1">{direccion.ciudad}</p>
                             <p className="text-body-secondary mb-0">
                                 Código postal: {direccion.codigo_postal || 'No informado'}

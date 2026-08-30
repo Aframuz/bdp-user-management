@@ -11,6 +11,7 @@ import { AdminLayout } from '@Layouts/AdminLayout';
 import type { SharedPageProps } from '@Types/inertia';
 import type { RoleOption, SelectOption } from '@Types/usuario';
 import { usuarios } from '@Utils/routes';
+import pageStyles from '@Components/Common/Page.module.css';
 
 interface IndexProps extends SharedPageProps {
     roles: RoleOption[];
@@ -23,24 +24,34 @@ export default function Index({ roles, estados }: IndexProps) {
     return (
         <AdminLayout>
             <Head title="Usuarios" />
-            <div className="page-heading page-heading--actions">
+            <div
+                className={`${pageStyles['page-heading']} d-flex flex-column flex-md-row align-items-stretch align-items-md-end justify-content-between gap-4`}
+            >
                 <div>
-                    <p className="eyebrow">Administración</p>
-                    <h1>Usuarios</h1>
-                    <p>Consulta y administra las personas registradas en el sistema.</p>
+                    <p className={`${pageStyles['page-heading__eyebrow']} text-uppercase text-primary`}>Administración</p>
+                    <h1 className={pageStyles['page-heading__title']}>Usuarios</h1>
+                    <p className="mb-0 text-body-secondary">
+                        Consulta y administra las personas registradas en el sistema.
+                    </p>
                 </div>
-                <div className="page-heading__actions">
-                    <Link className="btn btn-primary" href={usuarios.create()}>
+                <div className="d-grid gap-2">
+                    <Link
+                        className="btn btn-primary d-inline-flex align-items-center justify-content-center"
+                        href={usuarios.create()}
+                    >
                         <UserPlusIcon aria-hidden="true" className="me-2" />Registrar usuario
                     </Link>
                     <UsuarioExportMenu filters={table.appliedFilters} search={table.search} />
                 </div>
             </div>
 
-            <section aria-labelledby="users-table-title" className="content-card table-card">
+            <section
+                aria-labelledby="users-table-title"
+                className="overflow-hidden rounded-4 border bg-body-secondary shadow"
+            >
                 <h2 className="visually-hidden" id="users-table-title">Listado de usuarios</h2>
 
-                <div className="table-toolbar">
+                <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-end justify-content-between gap-3 p-4">
                     <SearchInput
                         id="user-search"
                         label="Buscar usuarios"
@@ -48,26 +59,30 @@ export default function Index({ roles, estados }: IndexProps) {
                         placeholder="Nombre, email, RUT o rol"
                         value={table.search}
                     />
-                    <div className="table-toolbar__actions">
+                    <div className="d-flex flex-shrink-0 align-items-center justify-content-between justify-content-md-start gap-3">
                         {table.totalRows !== null && (
-                            <p aria-live="polite" className="table-count">
+                            <p aria-live="polite" className="mb-0 text-nowrap small fw-semibold text-body-secondary">
                                 {table.totalRows === 1 ? '1 usuario' : `${table.totalRows} usuarios`}
                             </p>
                         )}
                         <Button onClick={table.openFilters} variant="outline-primary">
                             <FilterIcon aria-hidden="true" className="me-2" />Filtros
                             {table.activeFilters.length > 0 && (
-                                <Badge bg="primary" className="ms-2">{table.activeFilters.length}</Badge>
+                                <Badge bg="success" className="ms-2">{table.activeFilters.length}</Badge>
                             )}
                         </Button>
                     </div>
                 </div>
 
                 {table.activeFilters.length > 0 && (
-                    <div aria-label="Filtros aplicados" className="filter-chips" role="group">
+                    <div
+                        aria-label="Filtros aplicados"
+                        className="d-flex flex-wrap gap-2 px-3 px-md-4 pb-3"
+                        role="group"
+                    >
                         {table.activeFilters.map((chip) => (
                             <button
-                                className="filter-chip"
+                                className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2 rounded-pill"
                                 key={chip.key}
                                 onClick={() => table.removeFilter(chip.key)}
                                 type="button"
@@ -77,7 +92,11 @@ export default function Index({ roles, estados }: IndexProps) {
                                 <span className="visually-hidden">Quitar filtro</span>
                             </button>
                         ))}
-                        <button className="filter-chip filter-chip--clear" onClick={table.clearFilters} type="button">
+                        <button
+                            className="btn btn-sm btn-outline-secondary rounded-pill"
+                            onClick={table.clearFilters}
+                            type="button"
+                        >
                             Limpiar todo
                         </button>
                     </div>

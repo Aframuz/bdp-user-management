@@ -1,4 +1,5 @@
 import { Button, Form, Offcanvas } from 'react-bootstrap';
+import formStyles from '@Components/Common/FormControls.module.css';
 import type { UsuarioFilters } from '@Hooks/useUsuariosTable';
 import type { RoleOption, SelectOption } from '@Types/usuario';
 
@@ -23,15 +24,17 @@ export function UsuarioFiltersPanel({
             </Offcanvas.Header>
             <Offcanvas.Body className="d-flex flex-column">
                 <Form.Group className="mb-4" controlId="filter-role">
-                    <Form.Label>Rol</Form.Label>
-                    <Form.Select onChange={(event) => onDraftChange({ ...draft, rol: event.target.value })} value={draft.rol}>
+                    <Form.Label className="small fw-bold text-body-secondary">Rol</Form.Label>
+                    <Form.Select className={formStyles['form-control']}
+                        onChange={(event) => onDraftChange({ ...draft, rol: event.target.value })} value={draft.rol}>
                         <option value="">Todos los roles</option>
                         {roles.map((rol) => <option key={rol.id} value={rol.id}>{rol.nombre}</option>)}
                     </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-4" controlId="filter-state">
-                    <Form.Label>Estado</Form.Label>
-                    <Form.Select onChange={(event) => onDraftChange({ ...draft, estado: event.target.value })} value={draft.estado}>
+                    <Form.Label className="small fw-bold text-body-secondary">Estado</Form.Label>
+                    <Form.Select className={formStyles['form-control']}
+                        onChange={(event) => onDraftChange({ ...draft, estado: event.target.value })} value={draft.estado}>
                         <option value="">Todos los estados</option>
                         {estados.map((estado) => <option key={estado.value} value={estado.value}>{estado.label}</option>)}
                     </Form.Select>

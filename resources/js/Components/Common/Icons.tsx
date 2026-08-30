@@ -21,10 +21,10 @@ import {
 /**
  * Punto único de acceso a los iconos de la interfaz (Tabler Icons).
  *
- * Tabler dimensiona en píxeles (24 por defecto), pero `app.css` calcula el
- * tamaño de los iconos por `font-size` (`.brand__mark`, `.empty-state__icon`,
- * `.row-action > svg`) y el resto acompaña a texto. Por eso se re-exportan
- * fijando `size="1em"`, para que hereden el tamaño de su contenedor.
+ * Tabler dimensiona en píxeles (24 por defecto), pero los módulos de cada
+ * componente y las utilidades tipográficas de Bootstrap calculan el tamaño
+ * desde `font-size`. Por eso se re-exportan fijando `size="1em"`, para que
+ * hereden el tamaño de su contenedor.
  */
 function withInheritedSize(Icon: TablerIcon, displayName: string) {
     const Wrapped = (props: IconProps) => <Icon size="1em" stroke={1.75} {...props} />;

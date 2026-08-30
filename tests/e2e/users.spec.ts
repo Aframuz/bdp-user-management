@@ -118,6 +118,22 @@ test('loads each detail tab only when it is activated and shows empty states', a
     await expect(page.getByText(/no tiene notas/i)).toBeVisible();
 });
 
+test('keeps inactive status badges legible in dark theme', async ({ page }) => {
+    await page.goto('/usuarios');
+    await page.getByRole('button', { name: 'Activar tema oscuro' }).click();
+    await page.getByLabel('Buscar usuarios').fill('Bruno Sin Datos');
+
+    const brunoRow = page.getByRole('row').filter({
+        has: page.getByRole('cell', { exact: true, name: 'Bruno Sin Datos' }),
+    });
+    await expect(brunoRow).toBeVisible();
+
+    const inactiveBadge = brunoRow.getByText('Inactivo', { exact: true });
+    await expect(inactiveBadge).toBeVisible();
+    await expect(inactiveBadge).toHaveCSS('background-color', 'rgb(231, 231, 231)');
+    await expect(inactiveBadge).toHaveCSS('color', 'rgb(51, 51, 51)');
+});
+
 test('cancels and confirms deletion', async ({ page }) => {
     await page.goto('/usuarios');
     await page.getByLabel('Buscar usuarios').fill(createdEmail);

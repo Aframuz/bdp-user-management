@@ -12,6 +12,7 @@ import { usuarios } from '@Utils/routes';
 import { animateRowsIn, fadeOutRows, snapshotRowPositions, type TableRow } from '@Utils/rowTransitions';
 import { ACCIONES_COLUMN, DEFAULT_ORDER_INDEX, usuariosColumns } from './usuariosColumns';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.css';
+import styles from './UsuariosTable.module.css';
 
 // `DataTable.use` no es un hook de React; se asigna a una variable para que la regla
 // `rules-of-hooks` no lo confunda con uno por el prefijo `use`.
@@ -144,16 +145,18 @@ export function UsuariosTable({ tableRef, filtersRef, onError, onDelete, onTotal
         });
 
         rendered[ALL_COLUMNS.length - 1] = (_value: unknown, row: UsuarioRow) => (
-            <div className="row-actions">
-                <Button aria-label={`Ver detalle de ${row.nombre_completo}`} className="row-action"
+            <div className={`${styles['users-table__actions']} d-flex gap-2 text-nowrap`}>
+                <Button aria-label={`Ver detalle de ${row.nombre_completo}`}
+                    className={`${styles['users-table__action']} d-inline-flex align-items-center justify-content-center text-decoration-none`}
                     onClick={() => router.visit(usuarios.show(row.id))} variant="primary">
                     <EyeIcon aria-hidden="true" />
-                    <span className="row-action__label"><span>Ver detalle</span></span>
+                    <span className={styles['users-table__action-label']}><span>Ver detalle</span></span>
                 </Button>
-                <Button aria-label={`Eliminar a ${row.nombre_completo}`} className="row-action"
+                <Button aria-label={`Eliminar a ${row.nombre_completo}`}
+                    className={`${styles['users-table__action']} d-inline-flex align-items-center justify-content-center text-decoration-none`}
                     onClick={() => onDelete(row)} variant="danger">
                     <TrashIcon aria-hidden="true" />
-                    <span className="row-action__label"><span>Eliminar</span></span>
+                    <span className={styles['users-table__action-label']}><span>Eliminar</span></span>
                 </Button>
             </div>
         );
@@ -162,8 +165,8 @@ export function UsuariosTable({ tableRef, filtersRef, onError, onDelete, onTotal
     }, [onDelete]);
 
     return (
-        <div className="usuarios-table table-responsive px-4 pb-4">
-            <DataTable className="table table-hover align-middle w-100" options={options} ref={tableRef} slots={slots}>
+        <div className={`${styles['users-table']} table-responsive px-4 pb-4`}>
+            <DataTable className="table table-hover align-middle w-100 mb-0" options={options} ref={tableRef} slots={slots}>
                 <caption className="visually-hidden">Usuarios registrados, sus roles y estados</caption>
                 <thead>
                     <tr>{ALL_COLUMNS.map((column) => <th key={column.name}>{column.header}</th>)}</tr>

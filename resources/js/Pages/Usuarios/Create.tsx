@@ -10,6 +10,7 @@ import { AdminLayout } from '@Layouts/AdminLayout';
 import type { SharedPageProps } from '@Types/inertia';
 import type { RoleOption, SelectOption } from '@Types/usuario';
 import { usuarios } from '@Utils/routes';
+import pageStyles from '@Components/Common/Page.module.css';
 
 interface CreateProps extends SharedPageProps {
     roles: RoleOption[];
@@ -24,11 +25,13 @@ export default function Create({ roles, estados }: CreateProps) {
         <AdminLayout>
             <Head title="Registrar usuario" />
             <Breadcrumbs items={[{ label: 'Usuarios', href: usuarios.index() }, { label: 'Registrar' }]} />
-            <div className="page-heading">
+            <div className={pageStyles['page-heading']}>
                 <div>
-                    <p className="eyebrow">Usuarios</p>
-                    <h1>Registrar usuario</h1>
-                    <p>Completa la información solicitada. Los campos con asterisco son obligatorios.</p>
+                    <p className={`${pageStyles['page-heading__eyebrow']} text-uppercase text-primary`}>Usuarios</p>
+                    <h1 className={pageStyles['page-heading__title']}>Registrar usuario</h1>
+                    <p className="mb-0 text-body-secondary">
+                        Completa la información solicitada. Los campos con asterisco son obligatorios.
+                    </p>
                 </div>
             </div>
 
@@ -40,9 +43,9 @@ export default function Create({ roles, estados }: CreateProps) {
                     </Alert>
                 )}
 
-                <Card className="content-card mb-4">
-                    <Card.Body>
-                        <h2 className="section-title">Datos personales</h2>
+                <Card className="mb-4 overflow-hidden rounded-4 border shadow">
+                    <Card.Body className={pageStyles['content-card__body']}>
+                        <h2 className="mb-4 border-bottom pb-3 fs-5 fw-bold">Datos personales</h2>
                         <Row className="g-4">
                             <Col md={6}>
                                 <FormField autoComplete="given-name" error={errors.nombre} id="nombre"
@@ -88,9 +91,9 @@ export default function Create({ roles, estados }: CreateProps) {
                     </Card.Body>
                 </Card>
 
-                <Card className="content-card mb-4">
-                    <Card.Body>
-                        <h2 className="section-title">Dirección</h2>
+                <Card className="mb-4 overflow-hidden rounded-4 border shadow">
+                    <Card.Body className={pageStyles['content-card__body']}>
+                        <h2 className="mb-4 border-bottom pb-3 fs-5 fw-bold">Dirección</h2>
                         <Row className="g-4">
                             <Col md={6}>
                                 <FormField autoComplete="street-address" error={errors.calle} id="calle"
@@ -114,9 +117,9 @@ export default function Create({ roles, estados }: CreateProps) {
                     </Card.Body>
                 </Card>
 
-                <Card className="content-card mb-4">
-                    <Card.Body>
-                        <h2 className="section-title">Nota u observación</h2>
+                <Card className="mb-4 overflow-hidden rounded-4 border shadow">
+                    <Card.Body className={pageStyles['content-card__body']}>
+                        <h2 className="mb-4 border-bottom pb-3 fs-5 fw-bold">Nota u observación</h2>
                         <TextareaField error={errors.nota} id="nota" label="Nota" maxLength={1000}
                             onChange={(event) => setField('nota', event.target.value)}
                             placeholder="Registra al menos una observación sobre este usuario." required
@@ -124,7 +127,7 @@ export default function Create({ roles, estados }: CreateProps) {
                     </Card.Body>
                 </Card>
 
-                <div className="form-actions">
+                <div className="d-flex flex-column-reverse flex-md-row justify-content-end gap-2">
                     <Link className="btn btn-outline-secondary" href={usuarios.index()}>Cancelar</Link>
                     <Button disabled={processing} type="submit">
                         {processing ? 'Guardando…' : 'Guardar usuario'}

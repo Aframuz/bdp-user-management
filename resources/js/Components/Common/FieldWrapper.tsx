@@ -32,9 +32,9 @@ export function FieldWrapper({ id, label, error, required = false, hint, childre
 
     return (
         <Form.Group controlId={id}>
-            <Form.Label>
+            <Form.Label className="small fw-bold text-body-secondary">
                 {label}
-                {required && <span aria-hidden="true" className="required-mark"> *</span>}
+                {required && <span aria-hidden="true" className="text-danger"> *</span>}
             </Form.Label>
             {children({
                 'aria-describedby': describedBy,

@@ -2,6 +2,8 @@ import { Link } from '@inertiajs/react';
 import { useState, type SVGProps } from 'react';
 import { AlertCircleIcon, ArrowLeftIcon, UserBadgeIcon } from '@Components/Common/Icons';
 import { usuarios } from '@Utils/routes';
+import pageStyles from './Page.module.css';
+import styles from './NotFoundPanel.module.css';
 
 /**
  * Un grano del isotipo. El logo es esta misma forma repetida en cuadrícula, así que
@@ -43,31 +45,46 @@ export function NotFoundPanel({ ruta }: { ruta?: string }) {
     const [puedeVolver] = useState(() => typeof window !== 'undefined' && window.history.length > 1);
 
     return (
-        <section className="error-page">
-            <p aria-hidden="true" className="error-page__code">404</p>
+        <section
+            className={`${styles['not-found']} position-relative d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-4 gap-md-5 overflow-hidden rounded-4 bg-primary-subtle p-4 p-md-5`}
+            data-not-found-panel
+        >
+            <p
+                aria-hidden="true"
+                className={`${styles['not-found__code']} m-0 flex-shrink-0 text-body-emphasis`}
+            >
+                404
+            </p>
 
-            <div className="error-page__body">
-                <p className="eyebrow">Error 404</p>
-                <h1>Aquí no hay nada que mostrar</h1>
-                <p>
+            <div className="position-relative z-1 flex-grow-1">
+                <p
+                    className={`${pageStyles['page-heading__eyebrow']} text-uppercase text-primary-emphasis`}
+                >
+                    Error 404
+                </p>
+                <h1 className={styles['not-found__title']}>Aquí no hay nada que mostrar</h1>
+                <p className="mb-0 text-body-secondary">
                     La ruta que abriste no existe en el panel. Por ahora todo lo que administramos
                     vive en el listado de usuarios.
                 </p>
 
                 {ruta && (
-                    <span className="route-chip">
-                        <AlertCircleIcon aria-hidden="true" />
-                        <span className="route-chip__path">{ruta}</span>
+                    <span className="mt-4 d-inline-flex mw-100 align-items-center gap-2 rounded-pill border bg-body-secondary px-3 py-2 small text-body-secondary">
+                        <AlertCircleIcon aria-hidden="true" className="flex-shrink-0 text-primary" />
+                        <span className="text-truncate font-monospace">{ruta}</span>
                     </span>
                 )}
 
-                <div className="error-page__actions">
-                    <Link className="btn btn-primary" href={usuarios.index()}>
+                <div className="mt-4 d-flex flex-column flex-md-row gap-2">
+                    <Link
+                        className={`${styles['not-found__action']} btn btn-primary d-inline-flex align-items-center justify-content-center`}
+                        href={usuarios.index()}
+                    >
                         <UserBadgeIcon aria-hidden="true" className="me-2" />Ir a Usuarios
                     </Link>
                     {puedeVolver && (
                         <button
-                            className="btn btn-outline-secondary"
+                            className={`${styles['not-found__action']} btn btn-outline-secondary d-inline-flex align-items-center justify-content-center`}
                             onClick={() => window.history.back()}
                             type="button"
                         >
@@ -77,7 +94,7 @@ export function NotFoundPanel({ ruta }: { ruta?: string }) {
                 </div>
             </div>
 
-            <IsotipoGranos className="error-page__grain" />
+            <IsotipoGranos className={`${styles['not-found__grain']} position-absolute`} />
         </section>
     );
 }

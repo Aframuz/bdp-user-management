@@ -5,6 +5,7 @@ import logoToolbar from '@Assets/logo-toolbar.svg';
 import { MoonIcon, SunIcon } from '@Components/Common/Icons';
 import type { SharedPageProps } from '@Types/inertia';
 import { usuarios } from '@Utils/routes';
+import styles from './AdminLayout.module.css';
 
 type Theme = 'light' | 'dark';
 
@@ -49,22 +50,45 @@ export function AdminLayout({ centered = false, children }: { centered?: boolean
     }, [theme]);
 
     return (
-        <div className="app-shell">
-            <header className="app-header">
+        <div className="min-vh-100">
+            <a
+                className={`${styles['admin-layout__skip-link']} visually-hidden-focusable position-fixed top-0 start-0 m-3 rounded bg-dark p-3 text-white text-decoration-none`}
+                href="#main-content"
+            >
+                Saltar al contenido principal
+            </a>
+            <header
+                className={`${styles['admin-layout__header']} sticky-top border-bottom border-dark border-opacity-25 shadow-sm`}
+            >
                 <Container className="d-flex align-items-center justify-content-between py-3">
-                    <Link aria-label="Ir al inicio de Bolsa de Productos" className="brand" href={usuarios.index()}>
-                        <span aria-hidden="true" className="brand__mark">
-                            <img alt="" className="brand__logo" src={logoToolbar} />
+                    <Link
+                        aria-label="Ir al inicio de Bolsa de Productos"
+                        className="d-inline-flex align-items-center gap-3 text-white text-decoration-none"
+                        href={usuarios.index()}
+                    >
+                        <span
+                            aria-hidden="true"
+                            className={`${styles['admin-layout__brand-mark']} d-block flex-shrink-0 overflow-hidden`}
+                        >
+                            <img
+                                alt=""
+                                className={`${styles['admin-layout__brand-logo']} d-block`}
+                                src={logoToolbar}
+                            />
                         </span>
                         <span>
-                            <strong>Bolsa de Productos</strong>
-                            <small>Panel de administración</small>
+                            <strong className="d-block lh-sm">Bolsa de Productos</strong>
+                            <small
+                                className={`${styles['admin-layout__brand-subtitle']} mt-1 d-block lh-sm text-white`}
+                            >
+                                Panel de administración
+                            </small>
                         </span>
                     </Link>
                     <button
                         aria-label={`Activar tema ${nextTheme === 'dark' ? 'oscuro' : 'claro'}`}
                         aria-pressed={theme === 'dark'}
-                        className="theme-toggle"
+                        className={`${styles['admin-layout__theme-toggle']} btn btn-outline-light d-inline-flex flex-shrink-0 align-items-center justify-content-center rounded-circle p-0`}
                         onClick={() => setTheme(nextTheme)}
                         title={`Activar tema ${nextTheme === 'dark' ? 'oscuro' : 'claro'}`}
                         type="button"
@@ -74,7 +98,7 @@ export function AdminLayout({ centered = false, children }: { centered?: boolean
                 </Container>
             </header>
             <main
-                className={`page-content${centered ? ' page-content--centered' : ''}`}
+                className={`${styles['admin-layout__content']}${centered ? ' d-flex align-items-center' : ''}`}
                 id="main-content"
                 tabIndex={-1}
             >

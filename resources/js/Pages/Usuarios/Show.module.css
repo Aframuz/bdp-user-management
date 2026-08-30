@@ -1,0 +1,57 @@
+.user-profile__avatar {
+   background: var(--brand-50);
+   border-color: var(--brand-100) !important;
+   color: var(--brand-800);
+   font-size: 1.65rem;
+   height: 4.5rem;
+   width: 4.5rem;
+}
+
+.user-detail :global(.nav-tabs) {
+   border-bottom-color: var(--line);
+   gap: .3rem;
+}
+
+.user-detail :global(.nav-link) {
+   color: var(--ink-700);
+   font-weight: 700;
+   padding: .85rem 1rem;
+}
+
+.user-detail :global(.nav-link.active) {
+   border-color: transparent transparent var(--brand-600);
+   border-bottom-width: 3px;
+   color: var(--brand-800);
+}
+
+.user-detail :global(.tab-content) {
+   min-height: 18rem;
+   padding-top: 1.8rem;
+}
+
+.user-detail :global(.tab-pane) {
+   animation: user-detail-tab-in var(--motion-fast) ease both;
+}
+
+@keyframes user-detail-tab-in {
+   from {
+      opacity: 0;
+      transform: translateY(5px);
+   }
+
+   to {
+      opacity: 1;
+      transform: translateY(0);
+   }
+}
+
+@media (max-width: 767.98px) {
+   .user-detail :global(.nav-tabs) {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+   }
+
+   .user-detail :global(.nav-link) {
+      white-space: nowrap;
+   }
+}

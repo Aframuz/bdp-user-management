@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { Breadcrumb } from 'react-bootstrap';
+import styles from './Breadcrumbs.module.css';
 
 export interface Crumb {
     label: string;
@@ -9,7 +10,7 @@ export interface Crumb {
 
 export function Breadcrumbs({ items }: { items: Crumb[] }) {
     return (
-        <Breadcrumb className="app-breadcrumbs" listProps={{ className: 'mb-0' }}>
+        <Breadcrumb className={`${styles.breadcrumbs} small mb-3`} listProps={{ className: 'mb-0' }}>
             {items.map((item, index) => {
                 const isLast = index === items.length - 1;
 

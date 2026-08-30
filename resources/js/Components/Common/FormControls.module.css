@@ -1,0 +1,13 @@
+.form-control {
+   border-color: var(--control-border);
+   min-height: 2.75rem;
+}
+
+.form-control:focus {
+   border-color: var(--brand-600);
+   box-shadow: 0 0 0 .2rem rgba(var(--brand-rgb), .18);
+}
+
+.form-control--textarea {
+   min-height: 7rem;
+}

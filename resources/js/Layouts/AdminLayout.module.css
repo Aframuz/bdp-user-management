@@ -1,0 +1,57 @@
+.admin-layout__skip-link {
+   z-index: 2000;
+}
+
+.admin-layout__header {
+   background: var(--brand-solid);
+   view-transition-name: app-header;
+}
+
+.admin-layout__brand-mark {
+   height: 2.75rem;
+   width: 2.75rem;
+}
+
+/* El SVG trae isotipo y wordmark; el contenedor recorta y deja solo el isotipo. */
+.admin-layout__brand-logo {
+   height: 2.75rem;
+   max-width: none;
+   width: 6.1875rem;
+}
+
+.admin-layout__brand-subtitle {
+   font-size: .72rem;
+   margin-top: .15rem;
+}
+
+.admin-layout__theme-toggle {
+   background: rgba(255, 255, 255, .12);
+   border-color: rgba(255, 255, 255, .42);
+   font-size: 1.25rem;
+   height: 2.75rem;
+   width: 2.75rem;
+}
+
+.admin-layout__theme-toggle:hover {
+   background: rgba(255, 255, 255, .22);
+   border-color: var(--white);
+   color: var(--white);
+   transform: translateY(-1px);
+}
+
+.admin-layout__theme-toggle:active {
+   background: rgba(255, 255, 255, .28) !important;
+   color: var(--white) !important;
+   transform: translateY(0);
+}
+
+.admin-layout__content {
+   min-height: calc(100vh - 74px);
+   padding: 3rem 0 4rem;
+}
+
+@media (max-width: 767.98px) {
+   .admin-layout__content {
+      padding-top: 2rem;
+   }
+}

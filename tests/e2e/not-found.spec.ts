@@ -10,10 +10,10 @@ test('an unknown route lands on the 404 page inside the panel', async ({ page })
     await expect(page.getByRole('link', { name: 'Ir al inicio de Bolsa de Productos' })).toBeVisible();
     await expect(page.getByText('/informes/2024')).toBeVisible();
 
-    // Acotado al panel y sin el botón primario: el blanco sobre --brand-600 (2.81:1)
-    // es de .btn-primary, común a toda la app, y ya falla en /usuarios.
+    // El botón primario conserva el verde claro de marca; su deuda de contraste es
+    // global y no forma parte del panel 404 que se audita en esta prueba.
     const results = await new AxeBuilder({ page })
-        .include('.error-page')
+        .include('[data-not-found-panel]')
         .exclude('.btn-primary')
         .analyze();
     expect(results.violations).toEqual([]);

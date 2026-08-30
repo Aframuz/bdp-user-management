@@ -105,7 +105,8 @@ resources/js/
 ├── Pages/Usuarios/         # composición: Index, Create y Show
 ├── Services/
 ├── Types/
-└── Utils/                  # rutas, validación y fechas
+├── Utils/                  # rutas, validación y fechas
+└── app.css                 # tokens, puente Bootstrap y estilos de documento
 tests/
 ├── Feature/                # CRUD, DataTables y tabs
 ├── frontend/               # Vitest/Testing Library
@@ -127,6 +128,9 @@ tests/
   `AsyncSection` no saben nada del dominio de usuarios.
 - **Los cuatro estados en un único lugar.** `AsyncSection` resuelve cargando / error / vacío /
   con datos, de modo que cada tab solo describe su marcado.
+- **Bootstrap primero, CSS local después.** El layout, espaciado y comportamiento responsive
+  usan utilidades de Bootstrap. Los estilos visuales que Bootstrap no puede expresar viven
+  junto a su componente en `*.module.css`, con nombres BEM y alcance local generado por Vite.
 
 ## Contratos internos
 
@@ -137,7 +141,12 @@ tests/
 
 ## Personalización y accesibilidad
 
-Los tokens de marca están al inicio de `resources/js/app.css`; color, radios, sombras y duración de movimiento pueden cambiarse sin modificar componentes. La interfaz incluye skip link, landmarks, foco visible, labels y errores asociados, regiones vivas, modal/Offcanvas accesibles, tabs navegables por teclado, tablas con caption y soporte para `prefers-reduced-motion`.
+Los tokens de marca están al inicio de `resources/js/app.css`; ese fichero se limita a fuentes,
+tokens, el puente de variables/variantes de Bootstrap, foco y transiciones de documento. Los
+estilos de componentes están aislados en CSS Modules BEM. Color, radios, sombras y duración de
+movimiento pueden cambiarse sin modificar componentes. La interfaz incluye skip link, landmarks,
+foco visible, labels y errores asociados, regiones vivas, modal/Offcanvas accesibles, tabs
+navegables por teclado, tablas con caption y soporte para `prefers-reduced-motion`.
 
 ## Matriz de cumplimiento
 

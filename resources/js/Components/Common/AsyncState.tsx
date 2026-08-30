@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Alert, Button, Placeholder } from 'react-bootstrap';
 import { AlertTriangleIcon, InboxIcon } from './Icons';
+import styles from './AsyncState.module.css';
 
 /** Forma del esqueleto: imita el layout final para evitar saltos al resolver. */
 export type SkeletonVariant = 'grid' | 'list' | 'table';
@@ -19,12 +20,21 @@ export function LoadingState({
     variant?: SkeletonVariant;
 }) {
     return (
-        <div aria-busy="true" aria-label={label} className="tab-state" role="status">
+        <div
+            aria-busy="true"
+            aria-label={label}
+            className={`${styles['async-state']} p-4`}
+            role="status"
+        >
             <Placeholder animation="glow" as="div" aria-hidden="true">
                 {SKELETON_ROWS[variant].map((row, rowIndex) => (
-                    <div className="skeleton-row" key={rowIndex}>
+                    <div className="mb-3 d-flex gap-4" key={rowIndex}>
                         {row.map((size, cellIndex) => (
-                            <Placeholder className="rounded" key={cellIndex} xs={size} />
+                            <Placeholder
+                                className={`${styles['async-state__placeholder']} rounded`}
+                                key={cellIndex}
+                                xs={size}
+                            />
                         ))}
                     </div>
                 ))}
@@ -35,8 +45,16 @@ export function LoadingState({
 
 export function EmptyState({ children }: { children: ReactNode }) {
     return (
-        <div className="tab-state empty-state" role="status">
-            <span aria-hidden="true" className="empty-state__icon"><InboxIcon /></span>
+        <div
+            className={`${styles['async-state']} d-flex flex-column align-items-center justify-content-center p-4 text-center text-body-secondary`}
+            role="status"
+        >
+            <span
+                aria-hidden="true"
+                className={`${styles['async-state__icon']} mb-3 d-flex align-items-center justify-content-center rounded-circle border text-primary`}
+            >
+                <InboxIcon />
+            </span>
             <p className="mb-0">{children}</p>
         </div>
     );
