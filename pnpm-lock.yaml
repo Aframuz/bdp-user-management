@@ -32,6 +32,9 @@ importers:
       react-dom:
         specifier: ^19.2.8
         version: 19.2.8(react@19.2.8)
+      use-rut:
+        specifier: ^1.1.1
+        version: 1.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
       '@axe-core/playwright':
         specifier: ^4.11.1
@@ -1747,6 +1750,12 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
+
+  use-rut@1.1.1:
+    resolution: {integrity: sha512-+VQrs1rxgpeiZm4KJ0p0YoCSorcN0X5t0CP1AqtT+agMZyjcy7jId6hOS8ApRs33D4T1YSI8eLTIM+X9TKk5bw==}
+    peerDependencies:
+      react: ^17.0.2
+      react-dom: ^17.0.2
 
   use-sync-external-store@1.6.0:
     resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
@@ -3529,6 +3538,11 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  use-rut@1.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
+    dependencies:
+      react: 19.2.8
+      react-dom: 19.2.8(react@19.2.8)
 
   use-sync-external-store@1.6.0(react@19.2.8):
     dependencies:

@@ -1,10 +1,12 @@
 import type { Form } from '@inertiajs/react';
-import { useRef, type ComponentRef, type SyntheticEvent } from 'react';
+import { useCallback, useRef, type ComponentRef, type SyntheticEvent } from 'react';
 import type { UsuarioFormData } from '@Types/usuario';
 import { validate } from '@Utils/validation';
 import { usuarioFormRules } from './usuarioFormRules';
 
 type UsuarioFormRef = ComponentRef<typeof Form<UsuarioFormData>>;
+
+export const RUT_INVALIDO = 'El RUT/RUN ingresado no es válido.';
 
 export function validateUsuarioForm(data: UsuarioFormData): Record<string, string> {
     return validate(data, usuarioFormRules);
@@ -23,6 +25,9 @@ export function focusFirstError(errors: Record<string, string>): void {
  */
 export function useUsuarioForm() {
     const formRef = useRef<UsuarioFormRef>(null);
+    /** El dígito verificador lo calcula `RutField`; aquí solo se recuerda para frenar el envío. */
+    const rutValidoRef = useRef(false);
+    const setRutValido = useCallback((valido: boolean) => { rutValidoRef.current = valido; }, []);
 
     /** Se ejecuta en `onBefore`: devolver `false` cancela la petición y deja los errores en pantalla. */
     const validateBeforeSubmit = (): boolean => {
@@ -30,6 +35,7 @@ export function useUsuarioForm() {
         if (!form) return true;
 
         const errors = validateUsuarioForm(form.getData());
+        if (!errors.rut && !rutValidoRef.current) errors.rut = RUT_INVALIDO;
         if (Object.keys(errors).length === 0) return true;
 
         form.setError(errors);
@@ -43,5 +49,5 @@ export function useUsuarioForm() {
         if (name) formRef.current?.clearErrors(name);
     };
 
-    return { formRef, validateBeforeSubmit, clearFieldError };
+    return { formRef, validateBeforeSubmit, clearFieldError, setRutValido };
 }

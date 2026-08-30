@@ -66,7 +66,7 @@ test('validates and creates a complete user', async ({ page }) => {
     await page.getByLabel('Nombre').fill('Elena');
     await page.getByLabel('Apellido').fill('E2E');
     await page.getByLabel('Email').fill(createdEmail);
-    await page.getByLabel('RUT/RUN').fill('17.111.111-1');
+    await page.getByLabel('RUT/RUN').fill('17.111.111-0');
     await page.getByLabel('Teléfono').fill('912345678');
     await page.getByLabel('Rol').selectOption({ label: 'Editor' });
     await page.getByLabel('Estado').selectOption('activo');
@@ -87,7 +87,7 @@ test('shows backend validation errors', async ({ page }) => {
     await page.getByLabel('Nombre').fill('Duplicada');
     await page.getByLabel('Apellido').fill('Demo');
     await page.getByLabel('Email').fill('ana.demo@example.test');
-    await page.getByLabel('RUT/RUN').fill('1-9');
+    await page.getByLabel('RUT/RUN').fill('12.345.678-5');
     await page.getByLabel('Rol').selectOption({ label: 'Admin' });
     await page.getByLabel('Estado').selectOption('activo');
     await page.getByLabel('Calle').fill('Calle Uno');
@@ -154,14 +154,19 @@ test('keeps search and filters after deleting, and toasts every deletion', async
     // Dos usuarios desechables, identificados por un sello único para que la
     // prueba no dependa de los datos que dejen otras ejecuciones.
     const stamp = String(Date.now());
-    const emails = [0, 1].map((index) => `temporal${index}+${stamp}@example.test`);
+    // El RUT lleva dígito verificador real: el formulario lo comprueba antes de enviar.
+    const desechables = [
+        { email: `temporal0+${stamp}@example.test`, rut: '20.111.111-0' },
+        { email: `temporal1+${stamp}@example.test`, rut: '21.111.111-9' },
+    ];
+    const emails = desechables.map((usuario) => usuario.email);
 
-    for (const [index, email] of emails.entries()) {
+    for (const [index, { email, rut }] of desechables.entries()) {
         await page.goto('/usuarios/create');
         await page.getByLabel('Nombre').fill('Temporal');
         await page.getByLabel('Apellido').fill(`Borrable${index}`);
         await page.getByLabel('Email').fill(email);
-        await page.getByLabel('RUT/RUN').fill(`2${index}.111.111-1`);
+        await page.getByLabel('RUT/RUN').fill(rut);
         await page.getByLabel('Rol').selectOption({ label: 'Editor' });
         await page.getByLabel('Estado').selectOption('activo');
         await page.getByLabel('Calle').fill('Calle Temporal 1');
