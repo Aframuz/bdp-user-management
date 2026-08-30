@@ -2,6 +2,7 @@ import {
     IconAlertCircle,
     IconAlertTriangle,
     IconArrowLeft,
+    IconCircleCheck,
     IconDownload,
     IconEye,
     IconFilter,
@@ -37,6 +38,7 @@ function withInheritedSize(Icon: TablerIcon, displayName: string) {
 export const AlertCircleIcon = withInheritedSize(IconAlertCircle, 'AlertCircleIcon');
 export const AlertTriangleIcon = withInheritedSize(IconAlertTriangle, 'AlertTriangleIcon');
 export const ArrowLeftIcon = withInheritedSize(IconArrowLeft, 'ArrowLeftIcon');
+export const CircleCheckIcon = withInheritedSize(IconCircleCheck, 'CircleCheckIcon');
 export const DownloadIcon = withInheritedSize(IconDownload, 'DownloadIcon');
 export const EyeIcon = withInheritedSize(IconEye, 'EyeIcon');
 export const FilterIcon = withInheritedSize(IconFilter, 'FilterIcon');
