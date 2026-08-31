@@ -4,50 +4,27 @@ namespace Database\Seeders;
 
 use App\Models\Direccion;
 use App\Models\Nota;
-use App\Models\Rol;
 use App\Models\Usuario;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    private const DEMO_EMAILS = [
-        'ana.demo@example.test',
-        'bruno.vacio@example.test',
-    ];
-
     /**
-     * Seed the application's database.
+     * Siembra completa para desarrollo y tests: los datos esenciales más el
+     * volumen aleatorio que hace falta para ejercitar paginación y filtros.
+     *
+     * Usa factories, así que depende de `fakerphp/faker` y NO puede correr en
+     * producción. Allí se ejecuta solo EssentialSeeder.
      */
     public function run(): void
     {
-        $roles = collect(['Admin', 'Editor', 'Visualizador'])
-            ->mapWithKeys(fn (string $nombre) => [$nombre => Rol::query()->firstOrCreate(['nombre' => $nombre])]);
-
-        $demo = Usuario::query()->updateOrCreate(['email' => self::DEMO_EMAILS[0]], [
-            'rol_id' => $roles['Admin']->id,
-            'nombre' => 'Ana',
-            'apellido' => 'Demo',
-            'rut' => '12.345.678-9',
-            'estado' => 'activo',
-        ]);
-        $demo->direccion()->updateOrCreate([], [
-            'calle' => 'Avenida Providencia 123',
-            'ciudad' => 'Santiago',
-        ]);
-        $demo->notas()->firstOrCreate(['texto' => 'Usuario de demostración con información completa.']);
-
-        Usuario::query()->updateOrCreate(['email' => self::DEMO_EMAILS[1]], [
-            'rol_id' => $roles['Visualizador']->id,
-            'nombre' => 'Bruno',
-            'apellido' => 'Sin Datos',
-            'rut' => '9.876.543-2',
-            'estado' => 'inactivo',
-        ]);
+        $essential = new EssentialSeeder;
+        $this->call(EssentialSeeder::class);
+        $roles = $essential->roles();
 
         $missingUsers = max(
             0,
-            34 - Usuario::query()->whereNotIn('email', self::DEMO_EMAILS)->count(),
+            34 - Usuario::query()->whereNotIn('email', EssentialSeeder::DEMO_EMAILS)->count(),
         );
 
         Usuario::factory($missingUsers)->make(['rol_id' => $roles['Admin']->id])->each(function (Usuario $usuario, int $index) use ($roles) {
