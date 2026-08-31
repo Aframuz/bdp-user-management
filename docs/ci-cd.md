@@ -413,6 +413,7 @@ toca. Respáldalos junto con `/etc/apache2/sites-available/`.
 | `.env: Permission denied` en el servidor | El archivo se creó con `sudo` y quedó como `root:root` | `sudo chown deploy:deploy <DEPLOY_PATH>/.env` (Paso 5) |
 | El sitio carga sin estilos y la consola marca contenido mixto | Se pierde `X-Forwarded-Proto` y Laravel emite URLs `http://` | Las tres piezas del Paso 7: `RequestHeader` en Apache, `trusted_proxies` en Caddy, `trustProxies` en Laravel |
 | `no alternative certificate subject name matches` | Apache no tiene vhost para el dominio y responde con el certificado de otro sitio | Paso 7: `a2ensite` y `certbot` para ESTE dominio |
+| El despliegue sale verde pero solo `db` está arriba | Un comando que lee stdin se comió el resto del script | Ya corregido: el script se copia y se ejecuta desde archivo, y `compose run` usa `-T < /dev/null` |
 | `502 Bad Gateway` desde Apache | El stack no escucha en `127.0.0.1:8080` | `docker compose -f compose.prod.yaml ps` y `ss -tlnp | grep 8080` |
 | `denied` al hacer `pull` en el servidor | Paquete privado sin `GHCR_READ_TOKEN` | Paso 9 |
 | `Permission denied (publickey)` | Clave incompleta en el secret | `DEPLOY_SSH_KEY` debe incluir las líneas `BEGIN`/`END` |
