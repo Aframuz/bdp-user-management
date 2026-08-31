@@ -1,3 +1,10 @@
+/* La cabecera es fija: sin este margen, saltar a un campo (desde el resumen o desde
+   `focusFirstError`) lo deja justo debajo de ella. */
+.form-control,
+.phone-input {
+  scroll-margin-top: 6rem;
+}
+
 .form-control {
   border-color: var(--control-border);
   min-height: 2.75rem;

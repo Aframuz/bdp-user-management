@@ -4,6 +4,7 @@ import es from 'react-phone-number-input/locale/es.json';
 import 'react-phone-number-input/style.css';
 import { FieldWrapper } from '@Components/Common/FieldWrapper';
 import { TELEFONO_INVALIDO } from '@Hooks/useUsuarioForm';
+import { USUARIO_CAMPOS } from '@Hooks/usuarioFormSecciones';
 import styles from '@Components/Common/FormControls.module.css';
 
 /**
@@ -43,7 +44,7 @@ export function TelefonoField({ error, onValidChange }: TelefonoFieldProps) {
       error={error ?? localError}
       hint="Opcional. Se guarda en formato internacional."
       id="telefono"
-      label="Teléfono"
+      label={USUARIO_CAMPOS.telefono}
     >
       {({ isInvalid, name, ...controlProps }) => (
         <>

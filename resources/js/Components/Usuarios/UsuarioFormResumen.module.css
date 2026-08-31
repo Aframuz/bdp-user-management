@@ -1,0 +1,115 @@
+/* Vía variable y no `height`: así no depende de si el CSS del módulo se inyecta
+   antes o después del de Bootstrap. */
+.form-summary__barra {
+  --bs-progress-height: 0.5rem;
+}
+
+.form-summary__body {
+  padding: 1.5rem;
+}
+
+.form-summary__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-summary__seccion {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.55rem 0;
+}
+
+.form-summary__seccion + .form-summary__seccion {
+  border-top: 1px solid var(--line);
+}
+
+.form-summary__marca {
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 1.05rem;
+}
+
+.form-summary__marca--completa {
+  color: var(--brand-600);
+}
+
+.form-summary__marca--error {
+  color: var(--bs-danger);
+}
+
+/* El estado «pendiente» no tiene icono propio en el set: un punto apagado basta,
+   porque quien lo distingue de verdad es el texto que va al lado. */
+.form-summary__marca--pendiente::before {
+  background: var(--control-border);
+  border-radius: 50%;
+  content: '';
+  height: 0.5rem;
+  margin: 0.28rem;
+  width: 0.5rem;
+}
+
+.form-summary__error-link {
+  background: none;
+  border: 0;
+  color: var(--bs-danger-text-emphasis);
+  padding: 0;
+  text-align: start;
+  text-decoration: underline;
+}
+
+.form-summary__error-link:hover {
+  color: var(--bs-danger);
+}
+
+/* A partir de `lg` hay una columna propia y el resumen viaja con el scroll,
+   justo por debajo de la cabecera fija. */
+@media (min-width: 992px) {
+  .form-summary {
+    position: sticky;
+    top: 5.5rem;
+  }
+}
+
+/* Por debajo de `lg` no hay columna donde anclarlo, así que el mismo resumen se
+   reduce a una barra fija al pie: el conteo a la izquierda, los botones a la
+   derecha y el detalle por secciones oculto. La lista de errores tampoco viaja
+   aquí: en móvil el aviso lo dan el `Alert` de cabecera y el error de cada campo. */
+@media (max-width: 991.98px) {
+  .form-summary {
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    z-index: 1020;
+  }
+
+  .form-summary__card {
+    border-radius: 0 !important;
+    border-width: 1px 0 0 !important;
+  }
+
+  .form-summary__body {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+  }
+
+  .form-summary__progreso {
+    flex: 1;
+    margin-bottom: 0;
+    min-width: 0;
+  }
+
+  .form-summary__conteo {
+    font-size: 0.875rem;
+  }
+
+  .form-summary__acciones {
+    flex-direction: row-reverse;
+    flex-shrink: 0;
+  }
+}

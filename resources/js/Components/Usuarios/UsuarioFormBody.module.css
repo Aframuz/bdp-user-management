@@ -1,0 +1,7 @@
+/* Por debajo de `lg` el resumen se despega y pasa a ser una barra fija al pie,
+   así que el formulario reserva su altura para que no tape el último campo. */
+@media (max-width: 991.98px) {
+  .usuario-form {
+    padding-bottom: 5.5rem;
+  }
+}

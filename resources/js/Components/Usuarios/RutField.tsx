@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import useRut from 'use-rut';
 import { FormField } from '@Components/Common/FormField';
 import { RUT_INVALIDO } from '@Hooks/useUsuarioForm';
+import { USUARIO_CAMPOS } from '@Hooks/usuarioFormSecciones';
 
 interface RutFieldProps {
   error?: string;
@@ -29,7 +30,7 @@ export function RutField({ error, onValidChange }: RutFieldProps) {
       error={error ?? localError}
       hint="Se formatea automáticamente al escribir."
       id="rut"
-      label="RUT/RUN"
+      label={USUARIO_CAMPOS.rut}
       onBlur={() => setTouched(true)}
       onChange={(event) => setRut(event.target.value)}
       placeholder="12.345.678-9"
