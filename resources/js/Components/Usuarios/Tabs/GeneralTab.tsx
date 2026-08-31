@@ -1,9 +1,9 @@
-import { Col, Row } from 'react-bootstrap';
 import { AsyncSection } from '@Components/Common/AsyncSection';
 import { StatusBadge } from '@Components/Common/StatusBadge';
 import type { TabState } from '@Hooks/useLazyUserTabs';
 import type { UsuarioGeneral } from '@Types/usuario';
 import { formatDate } from '@Utils/date';
+import styles from './GeneralTab.module.css';
 
 export function GeneralTab({
   state,
@@ -20,7 +20,7 @@ export function GeneralTab({
       state={state}
     >
       {(data) => (
-        <Row as="dl" className="m-0 g-4">
+        <dl className={styles['general-grid']}>
           {[
             ['Nombre', data.nombre],
             ['Apellido', data.apellido],
@@ -30,18 +30,18 @@ export function GeneralTab({
             ['Rol', data.rol],
             ['Fecha de creación', formatDate(data.created_at)],
           ].map(([label, value]) => (
-            <Col as="div" key={label} lg={4} md={6}>
+            <div key={label}>
               <dt className="mb-1 small text-uppercase text-body-secondary">{label}</dt>
-              <dd className="m-0 fw-semibold text-break">{value}</dd>
-            </Col>
+              <dd className={`${styles['general-grid__value']} fw-semibold`}>{value}</dd>
+            </div>
           ))}
-          <Col as="div" lg={4} md={6}>
+          <div>
             <dt className="mb-1 small text-uppercase text-body-secondary">Estado</dt>
-            <dd className="m-0 fw-semibold">
+            <dd className={`${styles['general-grid__value']} fw-semibold`}>
               <StatusBadge estado={data.estado} />
             </dd>
-          </Col>
-        </Row>
+          </div>
+        </dl>
       )}
     </AsyncSection>
   );

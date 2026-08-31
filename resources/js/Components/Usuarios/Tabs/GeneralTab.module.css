@@ -1,0 +1,28 @@
+/* Rejilla propia en vez de Row/Col: la `Row` necesitaba `m-0` para no desbordar
+   el ancho de la tarjeta, y eso anulaba su margen superior negativo mientras las
+   columnas conservaban el suyo, dejando 24px muertos sobre la primera fila. */
+.general-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .general-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .general-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.general-grid__value {
+  margin: 0;
+  /* El correo llega hasta 255 caracteres y nombre y apellido hasta 100, sin
+     espacios garantizados: tienen que poder partir por donde sea. */
+  overflow-wrap: anywhere;
+}

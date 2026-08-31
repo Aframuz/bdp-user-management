@@ -1,0 +1,48 @@
+.ficha-header {
+  align-items: flex-start;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.75rem;
+}
+
+.ficha-header__identity {
+  min-width: 0;
+}
+
+/**
+ * El título es dato, no copia: nombre y apellido admiten 100 caracteres cada uno,
+ * y pueden venir sin un solo espacio donde partir, así que `overflow-wrap: anywhere`
+ * es lo único que impide que se salga de la tarjeta. Se recorta a tres líneas
+ * porque sin recorte un nombre al tope ocupa cinco y se come la ficha entera; el
+ * valor completo sigue visible en el tab «Información general» y entero en el DOM,
+ * así que un lector de pantalla lo lee sin cortar.
+ */
+.ficha-header__title {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  display: -webkit-box;
+  max-width: 26ch;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+/* El correo admite 255 caracteres y tampoco trae espacios. */
+.ficha-header__email {
+  max-width: 62ch;
+  overflow-wrap: anywhere;
+}
+
+.ficha-header__back {
+  flex-shrink: 0;
+}
+
+@media (max-width: 767.98px) {
+  .ficha-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

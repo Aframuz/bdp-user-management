@@ -14,3 +14,22 @@
   color: var(--ink-700);
   font-weight: 650;
 }
+
+/* El último elemento puede ser el nombre completo de un usuario: hasta 201
+   caracteres. Aquí sí se recorta, porque la miga de pan es navegación y no
+   contenido — el valor completo vive en la ficha. */
+.breadcrumbs :global(.breadcrumb) {
+  flex-wrap: nowrap;
+}
+
+.breadcrumbs :global(.breadcrumb-item) {
+  flex-shrink: 0;
+}
+
+.breadcrumbs :global(.breadcrumb-item.active) {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
