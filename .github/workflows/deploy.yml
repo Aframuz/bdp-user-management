@@ -168,17 +168,22 @@ jobs:
           printf '%s\n' "${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Copiar el compose de producción
-        # El servidor no clona el repositorio: recibe solo este archivo, así
-        # que su stack siempre coincide con lo que está versionado aquí.
+      - name: Copiar el compose y el script de despliegue
+        # El servidor no clona el repositorio: recibe solo estos dos archivos,
+        # así que su stack siempre coincide con lo que está versionado aquí.
         run: |
           scp -i ~/.ssh/id_deploy -P "${{ vars.DEPLOY_SSH_PORT || 22 }}" \
-            compose.prod.yaml \
-            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${DEPLOY_PATH}/compose.prod.yaml"
+            compose.prod.yaml deploy/remote-deploy.sh \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${DEPLOY_PATH}/"
 
       - name: Desplegar
+        # El script se ejecuta desde un archivo en el servidor, NO por stdin
+        # (`bash -s` < script). Con stdin, el primer comando que lea de ahí
+        # —`docker compose run` lo hace— se traga el resto del script: bash
+        # llega a EOF, sale 0 y el despliegue "funciona" sin haber levantado
+        # nada. `-n` cierra stdin del propio ssh por el mismo motivo.
         run: |
-          ssh -i ~/.ssh/id_deploy -p "${{ vars.DEPLOY_SSH_PORT || 22 }}" \
+          ssh -n -i ~/.ssh/id_deploy -p "${{ vars.DEPLOY_SSH_PORT || 22 }}" \
             "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
             IMAGE_REPOSITORY="${IMAGE_REPOSITORY}" \
             IMAGE_TAG="${IMAGE_TAG}" \
@@ -186,7 +191,7 @@ jobs:
             APP_DOMAIN="${{ vars.APP_DOMAIN }}" \
             GHCR_USER="${{ github.actor }}" \
             GHCR_TOKEN="${{ secrets.GHCR_READ_TOKEN }}" \
-            'bash -s' < deploy/remote-deploy.sh
+            bash "${DEPLOY_PATH}/remote-deploy.sh"
 
       - name: Verificar el sitio publicado
         run: |

@@ -21,6 +21,22 @@ cd "$DEPLOY_PATH"
 
 compose() { docker compose -f compose.prod.yaml "$@"; }
 
+# Comprueba el puerto publicado DESDE EL HOST, que es por donde entra Apache.
+probe_host_port() {
+    local port="$1" i
+    for i in $(seq 1 10); do
+        if command -v curl >/dev/null 2>&1; then
+            curl -fsS --max-time 5 "http://127.0.0.1:${port}/up" >/dev/null 2>&1 && return 0
+        elif command -v wget >/dev/null 2>&1; then
+            wget -q -O /dev/null --timeout=5 "http://127.0.0.1:${port}/up" 2>/dev/null && return 0
+        else
+            (exec 3<>"/dev/tcp/127.0.0.1/${port}") 2>/dev/null && return 0
+        fi
+        sleep 3
+    done
+    return 1
+}
+
 # El script lee y reescribe .env (guarda ahí IMAGE_TAG). Si el archivo se creó
 # con sudo queda como root:root y el usuario de despliegue no puede tocarlo:
 # sin esta comprobación el `grep` de más abajo falla en silencio, reporta
@@ -94,7 +110,10 @@ compose pull
 # --- Migraciones con la base arriba y la versión nueva -------------------
 echo "==> Aplicando migraciones"
 compose up -d --wait db
-compose run --rm app php artisan migrate --force
+# `-T` y el redirect son imprescindibles: `compose run` se conecta a stdin y,
+# si el script llegara por ahí, se comería el resto (incluido el `up` de abajo)
+# dejando el despliegue a medias con estado de salida 0.
+compose run --rm -T app php artisan migrate --force < /dev/null
 
 # --- Reemplazar los contenedores ----------------------------------------
 echo "==> Levantando la versión nueva"
@@ -106,5 +125,24 @@ compose up -d --wait --remove-orphans
 docker image prune -af --filter "until=336h" > /dev/null || true
 
 trap - EXIT
+
+# --- El puerto publicado tiene que responder en el host -----------------
+# El healthcheck de compose corre DENTRO del contenedor, así que `web` sale
+# "healthy" aunque la publicación en 127.0.0.1 no funcione. Apache entra por
+# el host: si esto falla, el sitio da 503 con los contenedores en verde.
+bind_port="$(grep -E '^HTTP_BIND_PORT=' .env | head -1 | cut -d= -f2- | tr -d '"'"'"'\r ')"
+bind_port="${bind_port:-8080}"
+echo "==> Comprobando http://127.0.0.1:${bind_port}/up desde el host"
+if ! probe_host_port "$bind_port"; then
+    echo "ERROR: los contenedores están arriba pero 127.0.0.1:${bind_port} no responde." >&2
+    echo "       Apache no puede alcanzar el stack, así que el sitio dará 503." >&2
+    compose ps >&2
+    echo "--- Quién escucha en ${bind_port} ---" >&2
+    ss -tlnp 2>/dev/null | grep ":${bind_port}" >&2 || echo "       Nadie." >&2
+    echo "--- Últimas líneas de web ---" >&2
+    compose logs --tail 20 web >&2 || true
+    exit 1
+fi
+
 echo "==> Despliegue completado: ${IMAGE_TAG}"
 compose ps
