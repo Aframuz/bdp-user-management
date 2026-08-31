@@ -20,14 +20,16 @@ const MENSAJES_POR_CAMPO = { rut: RUT_INVALIDO, telefono: TELEFONO_INVALIDO } as
 type CampoAutovalidado = keyof typeof MENSAJES_POR_CAMPO;
 
 export function validateUsuarioForm(data: UsuarioFormData): Record<string, string> {
-    return validate(data, usuarioFormRules);
+  return validate(data, usuarioFormRules);
 }
 
 /** Lleva el foco al primer campo con error para no obligar a buscarlo a mano. */
 export function focusFirstError(errors: Record<string, string>): void {
-    const firstField = Object.keys(errors)[0];
-    if (!firstField) return;
-    requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="${firstField}"]`)?.focus());
+  const firstField = Object.keys(errors)[0];
+  if (!firstField) return;
+  requestAnimationFrame(() =>
+    document.querySelector<HTMLElement>(`[data-field="${firstField}"]`)?.focus(),
+  );
 }
 
 /**
@@ -35,39 +37,48 @@ export function focusFirstError(errors: Record<string, string>): void {
  * lee sus valores del DOM, así que aquí solo queda la validación previa al envío.
  */
 export function useUsuarioForm() {
-    const formRef = useRef<UsuarioFormRef>(null);
-    // El RUT arranca inválido (aún vacío) y el teléfono válido, porque es opcional.
-    const validezRef = useRef<Record<CampoAutovalidado, boolean>>({ rut: false, telefono: true });
-    const setCampoValido = useCallback((campo: CampoAutovalidado, valido: boolean) => {
-        validezRef.current[campo] = valido;
-    }, []);
-    const setRutValido = useCallback((valido: boolean) => setCampoValido('rut', valido), [setCampoValido]);
-    const setTelefonoValido = useCallback((valido: boolean) => setCampoValido('telefono', valido), [setCampoValido]);
+  const formRef = useRef<UsuarioFormRef>(null);
+  // El RUT arranca inválido (aún vacío) y el teléfono válido, porque es opcional.
+  const validezRef = useRef<Record<CampoAutovalidado, boolean>>({ rut: false, telefono: true });
+  const setCampoValido = useCallback((campo: CampoAutovalidado, valido: boolean) => {
+    validezRef.current[campo] = valido;
+  }, []);
+  const setRutValido = useCallback(
+    (valido: boolean) => setCampoValido('rut', valido),
+    [setCampoValido],
+  );
+  const setTelefonoValido = useCallback(
+    (valido: boolean) => setCampoValido('telefono', valido),
+    [setCampoValido],
+  );
 
-    /** Se ejecuta en `onBefore`: devolver `false` cancela la petición y deja los errores en pantalla. */
-    const validateBeforeSubmit = (): boolean => {
-        const form = formRef.current;
-        if (!form) return true;
+  /** Se ejecuta en `onBefore`: devolver `false` cancela la petición y deja los errores en pantalla. */
+  const validateBeforeSubmit = (): boolean => {
+    const form = formRef.current;
+    if (!form) return true;
 
-        const errors = validateUsuarioForm(form.getData());
+    const errors = validateUsuarioForm(form.getData());
 
-        // Las reglas mandan: solo se añade el aviso propio del campo si no falló ya antes.
-        for (const [campo, mensaje] of Object.entries(MENSAJES_POR_CAMPO) as [CampoAutovalidado, string][]) {
-            if (!errors[campo] && !validezRef.current[campo]) errors[campo] = mensaje;
-        }
+    // Las reglas mandan: solo se añade el aviso propio del campo si no falló ya antes.
+    for (const [campo, mensaje] of Object.entries(MENSAJES_POR_CAMPO) as [
+      CampoAutovalidado,
+      string,
+    ][]) {
+      if (!errors[campo] && !validezRef.current[campo]) errors[campo] = mensaje;
+    }
 
-        if (Object.keys(errors).length === 0) return true;
+    if (Object.keys(errors).length === 0) return true;
 
-        form.setError(errors);
-        focusFirstError(errors);
-        return false;
-    };
+    form.setError(errors);
+    focusFirstError(errors);
+    return false;
+  };
 
-    /** Limpia el error del campo que el usuario acaba de corregir; el evento llega delegado desde el control. */
-    const clearFieldError = (event: SyntheticEvent<HTMLFormElement>) => {
-        const { name } = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-        if (name) formRef.current?.clearErrors(name);
-    };
+  /** Limpia el error del campo que el usuario acaba de corregir; el evento llega delegado desde el control. */
+  const clearFieldError = (event: SyntheticEvent<HTMLFormElement>) => {
+    const { name } = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    if (name) formRef.current?.clearErrors(name);
+  };
 
-    return { formRef, validateBeforeSubmit, clearFieldError, setRutValido, setTelefonoValido };
+  return { formRef, validateBeforeSubmit, clearFieldError, setRutValido, setTelefonoValido };
 }

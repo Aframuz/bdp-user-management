@@ -1,22 +1,22 @@
 import {
-    IconAlertCircle,
-    IconAlertTriangle,
-    IconArrowLeft,
-    IconCircleCheck,
-    IconDownload,
-    IconEye,
-    IconFilter,
-    IconIdBadge2,
-    IconInbox,
-    IconMapPin,
-    IconMoon,
-    IconSearch,
-    IconSun,
-    IconTrash,
-    IconUserPlus,
-    IconX,
-    type IconProps,
-    type TablerIcon,
+  IconAlertCircle,
+  IconAlertTriangle,
+  IconArrowLeft,
+  IconCircleCheck,
+  IconDownload,
+  IconEye,
+  IconFilter,
+  IconIdBadge2,
+  IconInbox,
+  IconMapPin,
+  IconMoon,
+  IconSearch,
+  IconSun,
+  IconTrash,
+  IconUserPlus,
+  IconX,
+  type IconProps,
+  type TablerIcon,
 } from '@tabler/icons-react';
 
 /**
@@ -28,11 +28,11 @@ import {
  * hereden el tamaño de su contenedor.
  */
 function withInheritedSize(Icon: TablerIcon, displayName: string) {
-    const Wrapped = (props: IconProps) => <Icon size="1em" stroke={1.75} {...props} />;
+  const Wrapped = (props: IconProps) => <Icon size="1em" stroke={1.75} {...props} />;
 
-    Wrapped.displayName = displayName;
+  Wrapped.displayName = displayName;
 
-    return Wrapped;
+  return Wrapped;
 }
 
 export const AlertCircleIcon = withInheritedSize(IconAlertCircle, 'AlertCircleIcon');

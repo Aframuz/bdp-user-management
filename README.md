@@ -15,7 +15,6 @@ Aplicación monolítica Laravel + React para listar, buscar, filtrar, registrar,
 - PHPUnit, Vitest, Testing Library y Playwright
 - Docker Compose y pnpm 11
 
-> **Compatibilidad de versiones:** Laravel 11 es un requisito de la prueba, pero ya no recibe soporte de seguridad. Composer documenta los avisos conocidos que afectan al framework fijado. Para un proyecto real expuesto públicamente se debe migrar al major soportado antes de desplegar. El paquete oficial `datatables.net-react` usa actualmente versión 1.x; el motor DataTables instalado y evaluado es 2.x, que es la versión tecnológica solicitada.
 
 ## Puesta en marcha con Docker
 
@@ -142,7 +141,7 @@ tests/
 
 ## Personalización y accesibilidad
 
-Los tokens de marca están al inicio de `resources/js/app.css`; ese fichero se limita a fuentes,
+Los tokens de marca están al inicio de `resources/js/app.css`; ese archivo se limita a fuentes,
 tokens, el puente de variables/variantes de Bootstrap y SweetAlert2, foco, transiciones de página
 y movimiento accesible.
 Los estilos de componentes están aislados en CSS Modules BEM. Color, radios, sombras
@@ -167,7 +166,6 @@ navegables por teclado, tablas con caption y soporte para `prefers-reduced-motio
 | Sin warnings y ejecución reproducible | lint, typecheck, build y lockfiles |
 | README de instalación completo | Docker-first y comandos de validación |
 
-No se incluyen edición, autenticación, permisos, exportación, modo oscuro ni validación adicional del dígito verificador del RUT porque no forman parte del enunciado.
 
 ## Notas de operación
 

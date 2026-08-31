@@ -10,7 +10,8 @@ export const DEFAULT_TITLE = 'Mantenedor de Usuarios';
  * `twitter:title` son metas normales y tienen que componerse a mano con la
  * misma regla para no divergir.
  */
-export const formatTitle = (title?: string): string => (title ? `${title} · Mantenedor` : DEFAULT_TITLE);
+export const formatTitle = (title?: string): string =>
+  title ? `${title} · Mantenedor` : DEFAULT_TITLE;
 
 /**
  * Convierte la ruta de Inertia (`usePage().url`, siempre relativa) en la URL
@@ -18,9 +19,9 @@ export const formatTitle = (title?: string): string => (title ? `${title} · Man
  * devuelve la ruta tal cual: es lo único cierto que tenemos.
  */
 export function absoluteUrl(path: string): string {
-    if (typeof window === 'undefined') {
-        return path;
-    }
+  if (typeof window === 'undefined') {
+    return path;
+  }
 
-    return new URL(path, window.location.origin).toString();
+  return new URL(path, window.location.origin).toString();
 }

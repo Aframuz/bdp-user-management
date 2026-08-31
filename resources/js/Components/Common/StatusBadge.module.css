@@ -1,10 +1,10 @@
 :global([data-bs-theme='dark']) .status-badge--inactive {
-   background-color: #e7e7e7 !important;
-   color: var(--bs-secondary) !important;
+  background-color: #e7e7e7 !important;
+  color: var(--bs-secondary) !important;
 }
 
 .status-badge__dot {
-   background: currentColor;
-   height: .42rem;
-   width: .42rem;
+  background: currentColor;
+  height: 0.42rem;
+  width: 0.42rem;
 }

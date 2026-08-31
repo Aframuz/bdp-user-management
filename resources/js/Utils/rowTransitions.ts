@@ -13,8 +13,8 @@
  */
 
 export interface TableRow {
-    id: number;
-    node: HTMLElement;
+  id: number;
+  node: HTMLElement;
 }
 
 const EXIT_MS = 140;
@@ -31,14 +31,15 @@ const staggerFor = (index: number) => Math.min(index, MAX_STAGGERED) * STAGGER_M
 
 /** Sin Web Animations, o con «reducir movimiento» activo, todo ocurre al instante. */
 function animationsEnabled(): boolean {
-    if (typeof Element === 'undefined' || typeof Element.prototype.animate !== 'function') return false;
+  if (typeof Element === 'undefined' || typeof Element.prototype.animate !== 'function')
+    return false;
 
-    return !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  return !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 
 /** Posición vertical de cada fila, para calcular después cuánto se ha movido. */
 export function snapshotRowPositions(rows: TableRow[]): Map<number, number> {
-    return new Map(rows.map(({ id, node }) => [id, node.getBoundingClientRect().top]));
+  return new Map(rows.map(({ id, node }) => [id, node.getBoundingClientRect().top]));
 }
 
 /**
@@ -47,18 +48,21 @@ export function snapshotRowPositions(rows: TableRow[]): Map<number, number> {
  * relevo entre el DOM viejo y el nuevo no se note.
  */
 export function fadeOutRows(nodes: HTMLElement[]): Promise<void> {
-    if (!nodes.length || !animationsEnabled()) return Promise.resolve();
+  if (!nodes.length || !animationsEnabled()) return Promise.resolve();
 
-    const animations = nodes.map((node) => node.animate(
-        [{ opacity: 1 }, { opacity: 0, transform: 'translateY(-4px)' }],
-        { duration: EXIT_MS, easing: 'ease-in', fill: 'forwards' },
-    ));
+  const animations = nodes.map((node) =>
+    node.animate([{ opacity: 1 }, { opacity: 0, transform: 'translateY(-4px)' }], {
+      duration: EXIT_MS,
+      easing: 'ease-in',
+      fill: 'forwards',
+    }),
+  );
 
-    // Un fallo de la animación no puede dejar la tabla sin redibujar.
-    return Promise.all(animations.map((animation) => animation.finished)).then(
-        () => undefined,
-        () => undefined,
-    );
+  // Un fallo de la animación no puede dejar la tabla sin redibujar.
+  return Promise.all(animations.map((animation) => animation.finished)).then(
+    () => undefined,
+    () => undefined,
+  );
 }
 
 /**
@@ -71,39 +75,45 @@ export function fadeOutRows(nodes: HTMLElement[]): Promise<void> {
  * solo retrasa su lectura (y hace que las herramientas de accesibilidad midan
  * el contraste sobre filas a medio fundido).
  */
-export function animateRowsIn(rows: TableRow[], previousPositions: Map<number, number> | null): void {
-    if (!rows.length || !previousPositions || !animationsEnabled()) return;
+export function animateRowsIn(
+  rows: TableRow[],
+  previousPositions: Map<number, number> | null,
+): void {
+  if (!rows.length || !previousPositions || !animationsEnabled()) return;
 
-    // Se miden todas las posiciones antes de animar: alternar lecturas de layout
-    // con la creación de animaciones fuerza reflows innecesarios.
-    const positions = snapshotRowPositions(rows);
-    // Si no quedaba ninguna fila que reubicar, las nuevas entran de inmediato.
-    const enterDelay = previousPositions.size === 0 ? 0 : Math.round(MOVE_MS * 0.45);
-    let entering = 0;
+  // Se miden todas las posiciones antes de animar: alternar lecturas de layout
+  // con la creación de animaciones fuerza reflows innecesarios.
+  const positions = snapshotRowPositions(rows);
+  // Si no quedaba ninguna fila que reubicar, las nuevas entran de inmediato.
+  const enterDelay = previousPositions.size === 0 ? 0 : Math.round(MOVE_MS * 0.45);
+  let entering = 0;
 
-    rows.forEach(({ id, node }) => {
-        const previousTop = previousPositions.get(id);
+  rows.forEach(({ id, node }) => {
+    const previousTop = previousPositions.get(id);
 
-        if (previousTop === undefined) {
-            node.animate(
-                [{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }],
-                {
-                    duration: ENTER_MS,
-                    delay: enterDelay + staggerFor(entering++),
-                    easing: 'ease-out',
-                    // `backwards` mantiene la fila oculta durante la espera.
-                    fill: 'backwards',
-                },
-            );
-            return;
-        }
+    if (previousTop === undefined) {
+      node.animate(
+        [
+          { opacity: 0, transform: 'translateY(-6px)' },
+          { opacity: 1, transform: 'none' },
+        ],
+        {
+          duration: ENTER_MS,
+          delay: enterDelay + staggerFor(entering++),
+          easing: 'ease-out',
+          // `backwards` mantiene la fila oculta durante la espera.
+          fill: 'backwards',
+        },
+      );
+      return;
+    }
 
-        const offset = previousTop - (positions.get(id) ?? previousTop);
-        if (Math.abs(offset) < MIN_OFFSET_PX) return;
+    const offset = previousTop - (positions.get(id) ?? previousTop);
+    if (Math.abs(offset) < MIN_OFFSET_PX) return;
 
-        node.animate(
-            [{ transform: `translateY(${offset}px)` }, { transform: 'none' }],
-            { duration: MOVE_MS, easing: MOVE_EASING },
-        );
+    node.animate([{ transform: `translateY(${offset}px)` }, { transform: 'none' }], {
+      duration: MOVE_MS,
+      easing: MOVE_EASING,
     });
+  });
 }

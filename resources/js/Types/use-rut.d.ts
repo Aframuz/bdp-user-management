@@ -3,5 +3,5 @@
  * verificador cuadra, y el setter que recibe el valor crudo tecleado por el usuario.
  */
 declare module 'use-rut' {
-    export default function useRut(): [string, boolean, (value: string) => void];
+  export default function useRut(): [string, boolean, (value: string) => void];
 }
