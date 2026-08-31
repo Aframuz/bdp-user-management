@@ -166,7 +166,7 @@ export default function Index({ roles, estados }: IndexProps) {
         title="Eliminar usuario"
       >
         ¿Confirmas que deseas eliminar a <strong>{table.deleteTarget?.nombre_completo}</strong>?
-        Esta acción no se puede deshacer.
+        <span className='d-block'>Esta acción no se puede deshacer.</span>
       </ConfirmDialog>
     </AdminLayout>
   );

@@ -36,7 +36,9 @@ export function ConfirmDialog({
           {title}
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body>{children}</Modal.Body>
+      {/* `text-break` evita que nombres largos sin espacios desborden el modal:
+          el texto se parte y se muestra completo en vez de salirse. */}
+      <Modal.Body className="text-break">{children}</Modal.Body>
       <Modal.Footer>
         <Button disabled={pending} onClick={onCancel} variant="outline-secondary">
           {cancelLabel}

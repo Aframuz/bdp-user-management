@@ -1,5 +1,16 @@
 .users-table :global(.table) {
   --bs-table-bg: transparent;
+  /* Con `table-layout: fixed` los anchos declarados por columna son vinculantes y
+     el contenido largo se trunca en vez de ensanchar la tabla. */
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Celdas con texto largo: se truncan con elipsis y el contenido completo queda en `title`. */
+.users-table__cell-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .users-table :global(thead th) {
