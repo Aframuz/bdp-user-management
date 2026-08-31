@@ -1,5 +1,5 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { auditA11y } from './support/axe';
 
 test.describe.configure({ mode: 'serial' });
 const createdEmail = `elena.e2e+${Date.now()}@example.test`;
@@ -219,7 +219,7 @@ test('main page has no automatically detectable accessibility violations', async
 
     await page.goto('/usuarios');
     await expect(page.getByRole('table')).toBeVisible();
-    const results = await new AxeBuilder({ page }).analyze();
+    const results = await auditA11y(page).analyze();
 
     expect(consoleIssues).toEqual([]);
     expect(results.violations).toEqual([]);
