@@ -27,8 +27,14 @@ test-frontend:
 # `app-test` solo siembra al arrancar, y phpunit comparte esa misma base
 # (ver phpunit.xml), así que `make test-backend` la deja vacía. Se resiembra
 # antes de cada corrida para que E2E parta siempre del mismo estado.
+#
+# `--wait` no es opcional: `app-test` arranca con su propio `migrate:fresh`
+# (ver compose.yaml) y sin esperar a que el healthcheck pase, el `exec` de abajo
+# lanzaría un segundo `migrate:fresh` sobre la misma base mientras el primero
+# sigue corriendo. Uno suelta las tablas, el otro las recrea: "relation ya
+# existe". Es la misma espera que hace ci.yml.
 test-e2e:
-	docker compose --profile test up -d app-test
+	docker compose --profile test up -d --wait app-test
 	docker compose --profile test exec -T app-test php artisan migrate:fresh --seed --force
 	docker compose --profile test run --rm e2e
 
