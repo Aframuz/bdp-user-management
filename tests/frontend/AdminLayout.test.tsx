@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import { render } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FlashMessages } from '@Types/inertia';
 
 const flash = vi.hoisted(() => ({ current: {} as FlashMessages }));
@@ -27,6 +28,13 @@ describe('AdminLayout', () => {
     beforeEach(() => {
         showDesktopNotice.mockClear();
         showToast.mockClear();
+        window.localStorage.clear();
+        document.documentElement.removeAttribute('data-bs-theme');
+    });
+
+    afterEach(() => {
+        Reflect.deleteProperty(document, 'startViewTransition');
+        vi.unstubAllGlobals();
     });
 
     it('checks whether the desktop recommendation is needed on mount', () => {
@@ -67,5 +75,40 @@ describe('AdminLayout', () => {
         renderLayout({});
 
         expect(showToast).not.toHaveBeenCalled();
+    });
+
+    it('switches the theme from the header button', async () => {
+        const user = userEvent.setup();
+        renderLayout({});
+
+        expect(document.documentElement.dataset.bsTheme).toBe('light');
+
+        await user.click(screen.getByRole('button', { name: 'Activar tema oscuro' }));
+
+        expect(document.documentElement.dataset.bsTheme).toBe('dark');
+        expect(screen.getByRole('button', { name: 'Activar tema claro' })).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('leaves the document already changed inside the view transition', async () => {
+        const user = userEvent.setup();
+        const themeWhenPhotographed: (string | undefined)[] = [];
+
+        vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
+        // El círculo descubre la foto que el navegador toma al volver del callback:
+        // si el tema se aplicara más tarde, la animación revelaría la página vieja.
+        Object.defineProperty(document, 'startViewTransition', {
+            configurable: true,
+            value: (change: () => void) => {
+                change();
+                themeWhenPhotographed.push(document.documentElement.dataset.bsTheme);
+
+                return { finished: Promise.resolve() };
+            },
+        });
+
+        renderLayout({});
+        await user.click(screen.getByRole('button', { name: 'Activar tema oscuro' }));
+
+        expect(themeWhenPhotographed).toEqual(['dark']);
     });
 });

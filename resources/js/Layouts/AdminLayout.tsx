@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { Container } from 'react-bootstrap';
 import logoToolbar from '@Assets/logo-toolbar.svg';
 import { MoonIcon, SunIcon } from '@Components/Common/Icons';
@@ -7,30 +8,9 @@ import type { SharedPageProps } from '@Types/inertia';
 import { showDesktopNotice } from '@Utils/desktopNotice';
 import { preloadPage } from '@Utils/pageModules';
 import { usuarios } from '@Utils/routes';
+import { applyTheme, getInitialTheme, revealThemeChange, type Theme } from '@Utils/theme';
 import { showToast } from '@Utils/toast';
 import styles from './AdminLayout.module.css';
-
-type Theme = 'light' | 'dark';
-
-const THEME_STORAGE_KEY = 'bolsa-productos-theme';
-
-function getInitialTheme(): Theme {
-    if (typeof window === 'undefined') {
-        return 'light';
-    }
-
-    try {
-        const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-
-        if (storedTheme === 'light' || storedTheme === 'dark') {
-            return storedTheme;
-        }
-    } catch {
-        // El almacenamiento puede estar deshabilitado; la preferencia del sistema sigue disponible.
-    }
-
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
 
 export function AdminLayout({ centered = false, children }: { centered?: boolean; children: ReactNode }) {
     const { flash } = usePage<SharedPageProps>().props;
@@ -56,16 +36,19 @@ export function AdminLayout({ centered = false, children }: { centered?: boolean
         showToast(flash.success ? 'success' : 'error', message);
     }, [flash]);
 
-    useEffect(() => {
-        document.documentElement.dataset.bsTheme = theme;
-        document.documentElement.style.colorScheme = theme;
-
-        try {
-            window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-        } catch {
-            // El tema sigue funcionando durante la sesión aunque no pueda persistirse.
-        }
+    // De layout y no de efecto normal: el cambio de tema se repinta dentro del
+    // callback de la transición (ver `toggleTheme`), y el documento tiene que
+    // quedar con el tema nuevo en esa misma tanda síncrona para que el círculo
+    // descubra la página ya cambiada.
+    useLayoutEffect(() => {
+        applyTheme(theme);
     }, [theme]);
+
+    const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
+        const trigger = event.currentTarget;
+
+        revealThemeChange(trigger, () => flushSync(() => setTheme(nextTheme)));
+    };
 
     return (
         <div className="min-vh-100">
@@ -110,7 +93,7 @@ export function AdminLayout({ centered = false, children }: { centered?: boolean
                         aria-label={`Activar tema ${nextTheme === 'dark' ? 'oscuro' : 'claro'}`}
                         aria-pressed={theme === 'dark'}
                         className={`${styles['admin-layout__theme-toggle']} btn btn-outline-light d-inline-flex flex-shrink-0 align-items-center justify-content-center rounded-circle p-0`}
-                        onClick={() => setTheme(nextTheme)}
+                        onClick={toggleTheme}
                         title={`Activar tema ${nextTheme === 'dark' ? 'oscuro' : 'claro'}`}
                         type="button"
                     >

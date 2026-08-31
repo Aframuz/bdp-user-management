@@ -7,6 +7,13 @@
    view-transition-name: app-header;
 }
 
+/* Durante el cambio de tema la cabecera renuncia a su nombre propio: así entra en
+   la instantánea de la raíz y el círculo la descubre con el resto de la página,
+   en vez de quedarse fuera y cambiar de golpe. */
+:global(html.theme-switch) .admin-layout__header {
+   view-transition-name: none;
+}
+
 .admin-layout__brand-mark {
    height: 2.75rem;
    width: 2.75rem;

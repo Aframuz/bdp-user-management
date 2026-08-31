@@ -401,6 +401,35 @@
    }
 }
 
+/* Cambio de tema. Solo mientras `theme-switch` está en la raíz, para no pisar la
+   transición de página: el tema nuevo entra recortado en un círculo que crece
+   desde el botón (centro y radio los calcula Utils/theme.ts) y el anterior se
+   queda quieto debajo hasta que el círculo lo cubre entero. */
+:root.theme-switch::view-transition-old(root),
+:root.theme-switch::view-transition-new(root) {
+   /* Por defecto las dos capas se mezclan con `plus-lighter`, pensado para un
+      fundido cruzado; aquí conviven opacas y eso las aclararía. */
+   mix-blend-mode: normal;
+}
+
+:root.theme-switch::view-transition-old(root) {
+   animation: none;
+}
+
+:root.theme-switch::view-transition-new(root) {
+   animation: theme-reveal 600ms cubic-bezier(.22, .61, .36, 1) both;
+}
+
+@keyframes theme-reveal {
+   from {
+      clip-path: circle(0 at var(--theme-switch-x, 50%) var(--theme-switch-y, 0));
+   }
+
+   to {
+      clip-path: circle(var(--theme-switch-radius, 150%) at var(--theme-switch-x, 50%) var(--theme-switch-y, 0));
+   }
+}
+
 @media (prefers-reduced-motion: reduce) {
 
    *,
