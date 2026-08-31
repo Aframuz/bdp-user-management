@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { usuarioFormRules } from '@Hooks/usuarioFormRules';
+import { getInputValidationProps, usuarioFormRules } from '@Hooks/usuarioFormRules';
 import { validate, type ValidationRules } from '@Utils/validation';
 
 interface Sample extends Record<string, string> {
@@ -36,10 +36,14 @@ describe('validate', () => {
 
 describe('usuarioFormRules', () => {
   it('mirrors the max lengths validated by StoreUsuarioRequest', () => {
+    expect(usuarioFormRules.nombre?.maxLength).toBe(100);
+    expect(usuarioFormRules.apellido?.maxLength).toBe(100);
+    expect(usuarioFormRules.email?.maxLength).toBe(255);
     expect(usuarioFormRules.calle?.maxLength).toBe(255);
     expect(usuarioFormRules.ciudad?.maxLength).toBe(100);
     expect(usuarioFormRules.rut?.maxLength).toBe(30);
     expect(usuarioFormRules.codigo_postal?.maxLength).toBe(20);
+    expect(usuarioFormRules.nota?.maxLength).toBe(1000);
   });
 
   it('marks every field the backend requires', () => {
@@ -61,12 +65,25 @@ describe('usuarioFormRules', () => {
     ]);
   });
 
-  it('restricts names and addresses to letters and postal codes to digits', () => {
+  it('restricts names and cities to letters and postal codes to digits', () => {
     expect(usuarioFormRules.nombre?.pattern?.test('María José')).toBe(true);
     expect(usuarioFormRules.apellido?.pattern?.test('Soto3')).toBe(false);
-    expect(usuarioFormRules.calle?.pattern?.test('Calle Uno 123')).toBe(false);
+    expect(usuarioFormRules.calle?.pattern).toBeUndefined();
     expect(usuarioFormRules.ciudad?.pattern?.test('Viña del Mar')).toBe(true);
     expect(usuarioFormRules.codigo_postal?.pattern?.test('7500000')).toBe(true);
     expect(usuarioFormRules.codigo_postal?.pattern?.test('75A0000')).toBe(false);
+  });
+
+  it('derives rendered input attributes from the shared rules', () => {
+    expect(getInputValidationProps('nombre')).toEqual({
+      maxLength: 100,
+      pattern: usuarioFormRules.nombre?.pattern?.source,
+      required: true,
+    });
+    expect(getInputValidationProps('calle')).toEqual({
+      maxLength: 255,
+      pattern: undefined,
+      required: true,
+    });
   });
 });

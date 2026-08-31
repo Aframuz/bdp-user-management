@@ -64,7 +64,7 @@ class UsuarioCrudTest extends TestCase
 
         $response = $this->from(route('usuarios.create'))->post(route('usuarios.store'), [
             'nombre' => '',
-            'apellido' => str_repeat('a', 101),
+            'apellido' => '',
             'email' => 'persona@example.test',
             'rut' => '',
             'telefono' => 'no-numérico',
@@ -102,9 +102,18 @@ class UsuarioCrudTest extends TestCase
         return [
             'nombre con números' => ['nombre', 'Camila3'],
             'apellido con símbolos' => ['apellido', 'Soto!'],
-            'calle con números' => ['calle', 'Calle Uno 123'],
             'ciudad con símbolos' => ['ciudad', 'Santiago_1'],
             'código postal con letras' => ['codigo_postal', '7500A00'],
+        ];
+    }
+
+    /** @return array<string, array{string, int}> */
+    public static function camposConLongitudMaxima(): array
+    {
+        return [
+            'nombre' => ['nombre', 100],
+            'apellido' => ['apellido', 100],
+            'nota' => ['nota', 1000],
         ];
     }
 
@@ -134,6 +143,32 @@ class UsuarioCrudTest extends TestCase
         $this->assertDatabaseCount('usuarios', 0);
     }
 
+    #[DataProvider('camposConLongitudMaxima')]
+    public function test_store_accepts_values_at_the_maximum_length(string $campo, int $maximo): void
+    {
+        $rol = Rol::factory()->create();
+        $payload = array_merge($this->validPayload($rol), [$campo => str_repeat('a', $maximo)]);
+
+        $this->post(route('usuarios.store'), $payload)
+            ->assertRedirect(route('usuarios.index'))
+            ->assertSessionDoesntHaveErrors();
+
+        $this->assertDatabaseCount('usuarios', 1);
+    }
+
+    #[DataProvider('camposConLongitudMaxima')]
+    public function test_store_rejects_values_over_the_maximum_length(string $campo, int $maximo): void
+    {
+        $rol = Rol::factory()->create();
+        $payload = array_merge($this->validPayload($rol), [$campo => str_repeat('a', $maximo + 1)]);
+
+        $this->from(route('usuarios.create'))->post(route('usuarios.store'), $payload)
+            ->assertRedirect(route('usuarios.create'))
+            ->assertSessionHasErrors($campo);
+
+        $this->assertDatabaseCount('usuarios', 0);
+    }
+
     public function test_destroy_removes_user_and_related_records(): void
     {
         $usuario = Usuario::factory()->create();
@@ -159,7 +194,7 @@ class UsuarioCrudTest extends TestCase
             'telefono' => '56987654321',
             'rol_id' => $rol->id,
             'estado' => 'activo',
-            'calle' => 'Calle Uno',
+            'calle' => 'Calle Uno 123',
             'ciudad' => 'Santiago',
             'codigo_postal' => '7500000',
             'nota' => 'Observación inicial',

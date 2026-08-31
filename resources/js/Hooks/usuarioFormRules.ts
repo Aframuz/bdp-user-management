@@ -1,5 +1,6 @@
 import type { UsuarioFormData } from '@Types/usuario';
 import type { ValidationRules } from '@Utils/validation';
+import type { UsuarioCampo } from './usuarioFormSecciones';
 
 export const SOLO_LETRAS_Y_ESPACIOS = /^[\p{L}\p{M} ]+$/u;
 export const SOLO_DIGITOS = /^\d+$/;
@@ -46,8 +47,6 @@ export const usuarioFormRules: ValidationRules<UsuarioFormData> = {
     label: 'La calle',
     required: true,
     maxLength: 255,
-    pattern: SOLO_LETRAS_Y_ESPACIOS,
-    patternMessage: MENSAJE_SOLO_LETRAS,
   },
   ciudad: {
     label: 'La ciudad',
@@ -64,3 +63,34 @@ export const usuarioFormRules: ValidationRules<UsuarioFormData> = {
   },
   nota: { label: 'La nota', required: true, maxLength: 1000 },
 };
+
+/**
+ * Atributos compartidos por inputs, selects y textareas. El esquema es la única
+ * fuente frontend de `required` y `maxLength`; los componentes solo lo proyectan
+ * al control que renderizan.
+ */
+export function getFieldValidationProps(campo: UsuarioCampo) {
+  const rule = usuarioFormRules[campo];
+
+  return {
+    maxLength: rule?.maxLength,
+    required: rule?.required,
+  };
+}
+
+/** Añade el patrón HTML cuando el campo tiene uno en el esquema. */
+export function getInputValidationProps(campo: UsuarioCampo) {
+  const rule = usuarioFormRules[campo];
+
+  return {
+    ...getFieldValidationProps(campo),
+    pattern: rule?.pattern?.source,
+  };
+}
+
+/** Hace visible un límite que `maxlength` aplicaría silenciosamente. */
+export function getMaxLengthHint(campo: UsuarioCampo): string | undefined {
+  const maxLength = usuarioFormRules[campo]?.maxLength;
+
+  return maxLength === undefined ? undefined : `Máximo ${maxLength} caracteres.`;
+}

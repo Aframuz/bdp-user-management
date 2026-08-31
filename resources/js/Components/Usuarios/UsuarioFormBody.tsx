@@ -9,7 +9,11 @@ import { TelefonoField } from '@Components/Usuarios/TelefonoField';
 import { UsuarioFormResumen } from '@Components/Usuarios/UsuarioFormResumen';
 import { useUsuarioFormProgreso } from '@Hooks/useUsuarioFormProgreso';
 import { USUARIO_CAMPOS, USUARIO_FORM_SECCIONES } from '@Hooks/usuarioFormSecciones';
-import { SOLO_DIGITOS, SOLO_LETRAS_Y_ESPACIOS } from '@Hooks/usuarioFormRules';
+import {
+  getFieldValidationProps,
+  getInputValidationProps,
+  getMaxLengthHint,
+} from '@Hooks/usuarioFormRules';
 import type { SelectOption, UsuarioFormData } from '@Types/usuario';
 import styles from './UsuarioFormBody.module.css';
 
@@ -57,33 +61,31 @@ export function UsuarioFormBody({
             <Row className="g-4">
               <Col md={6}>
                 <FormField
+                  {...getInputValidationProps('nombre')}
                   autoComplete="given-name"
                   error={errors.nombre}
+                  hint={getMaxLengthHint('nombre')}
                   id="nombre"
                   label={USUARIO_CAMPOS.nombre}
-                  maxLength={100}
-                  pattern={SOLO_LETRAS_Y_ESPACIOS.source}
-                  required
                 />
               </Col>
               <Col md={6}>
                 <FormField
+                  {...getInputValidationProps('apellido')}
                   autoComplete="family-name"
                   error={errors.apellido}
+                  hint={getMaxLengthHint('apellido')}
                   id="apellido"
                   label={USUARIO_CAMPOS.apellido}
-                  maxLength={100}
-                  pattern={SOLO_LETRAS_Y_ESPACIOS.source}
-                  required
                 />
               </Col>
               <Col md={6}>
                 <FormField
+                  {...getInputValidationProps('email')}
                   autoComplete="email"
                   error={errors.email}
                   id="email"
                   label={USUARIO_CAMPOS.email}
-                  required
                   type="email"
                 />
               </Col>
@@ -92,22 +94,22 @@ export function UsuarioFormBody({
               </Col>
               <Col md={6}>
                 <SelectField
+                  {...getFieldValidationProps('rol_id')}
                   error={errors.rol_id}
                   id="rol_id"
                   label={USUARIO_CAMPOS.rol_id}
                   options={roleOptions}
                   placeholder="Selecciona un rol"
-                  required
                 />
               </Col>
               <Col md={6}>
                 <SelectField
+                  {...getFieldValidationProps('estado')}
                   error={errors.estado}
                   id="estado"
                   label={USUARIO_CAMPOS.estado}
                   options={estados}
                   placeholder="Selecciona un estado"
-                  required
                 />
               </Col>
               <Col md={6}>
@@ -120,36 +122,31 @@ export function UsuarioFormBody({
             <Row className="g-4">
               <Col xs={12}>
                 <FormField
+                  {...getInputValidationProps('calle')}
                   autoComplete="street-address"
                   error={errors.calle}
                   id="calle"
                   label={USUARIO_CAMPOS.calle}
-                  maxLength={255}
-                  pattern={SOLO_LETRAS_Y_ESPACIOS.source}
-                  required
                 />
               </Col>
               <Col md={6}>
                 <FormField
+                  {...getInputValidationProps('ciudad')}
                   autoComplete="address-level2"
                   error={errors.ciudad}
                   id="ciudad"
                   label={USUARIO_CAMPOS.ciudad}
-                  maxLength={100}
-                  pattern={SOLO_LETRAS_Y_ESPACIOS.source}
-                  required
                 />
               </Col>
               <Col md={6}>
                 <FormField
+                  {...getInputValidationProps('codigo_postal')}
                   autoComplete="postal-code"
                   error={errors.codigo_postal}
                   hint="Opcional."
                   id="codigo_postal"
                   inputMode="numeric"
                   label={USUARIO_CAMPOS.codigo_postal}
-                  maxLength={20}
-                  pattern={SOLO_DIGITOS.source}
                 />
               </Col>
             </Row>
@@ -157,12 +154,12 @@ export function UsuarioFormBody({
 
           <ContentCard title={USUARIO_FORM_SECCIONES.nota.titulo}>
             <TextareaField
+              {...getFieldValidationProps('nota')}
               error={errors.nota}
+              hint={getMaxLengthHint('nota')}
               id="nota"
               label={USUARIO_CAMPOS.nota}
-              maxLength={1000}
               placeholder="Registra al menos una observación sobre este usuario."
-              required
             />
           </ContentCard>
         </Col>

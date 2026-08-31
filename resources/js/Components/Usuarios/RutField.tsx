@@ -3,6 +3,7 @@ import useRut from 'use-rut';
 import { FormField } from '@Components/Common/FormField';
 import { RUT_INVALIDO } from '@Hooks/useUsuarioForm';
 import { USUARIO_CAMPOS } from '@Hooks/usuarioFormSecciones';
+import { getInputValidationProps } from '@Hooks/usuarioFormRules';
 
 interface RutFieldProps {
   error?: string;
@@ -40,6 +41,7 @@ export function RutField({ error, onValidChange }: RutFieldProps) {
 
   return (
     <FormField
+      {...getInputValidationProps('rut')}
       error={error ?? localError}
       hint="Ingresa solo números o K; los puntos y el guion se agregan automáticamente."
       id="rut"
@@ -50,7 +52,6 @@ export function RutField({ error, onValidChange }: RutFieldProps) {
         if (rutPermitido !== null) setRut(rutPermitido);
       }}
       placeholder="12.345.678-9"
-      required
       value={rut}
     />
   );
