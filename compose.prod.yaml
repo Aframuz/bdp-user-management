@@ -5,6 +5,9 @@
 #   docker compose -f compose.prod.yaml up -d
 #
 # Las imágenes no se construyen aquí: llegan ya publicadas desde GHCR.
+#
+# El stack NO atiende 80/443: Apache los ocupa en el host para servir otros
+# sitios y hace de proxy inverso hacia el puerto local de aquí abajo.
 
 name: bdp-user-management
 
@@ -12,25 +15,16 @@ services:
   web:
     image: ${IMAGE_REPOSITORY:?falta IMAGE_REPOSITORY}/web:${IMAGE_TAG:?falta IMAGE_TAG}
     restart: unless-stopped
-    environment:
-      APP_DOMAIN: ${APP_DOMAIN:?falta APP_DOMAIN}
-      ACME_EMAIL: ${ACME_EMAIL:?falta ACME_EMAIL}
     ports:
-      - "80:80"
-      - "443:443"
-      # HTTP/3. Si el Security List de OCI no abre UDP/443, Caddy sigue
-      # sirviendo por TCP sin degradación visible.
-      - "443:443/udp"
-    volumes:
-      # Certificados de Let's Encrypt. Perder este volumen implica reemitir y
-      # topar con el rate limit de ACME, así que no se borra en los redeploys.
-      - caddy_data:/data
-      - caddy_config:/config
+      # Atado a 127.0.0.1 a propósito: quien termina el TLS y atiende 80/443 es
+      # Apache en el host, que reenvía aquí. Publicarlo en 0.0.0.0 expondría el
+      # sitio en claro y saltándose el proxy.
+      - "127.0.0.1:${HTTP_BIND_PORT:-8080}:8080"
     depends_on:
       app:
         condition: service_started
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:2020/up"]
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8080/up"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -72,6 +66,4 @@ services:
 
 volumes:
   app_storage:
-  caddy_config:
-  caddy_data:
   postgres_data:

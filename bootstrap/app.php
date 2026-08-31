@@ -17,6 +17,17 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [HandleInertiaRequests::class]);
+
+        // En producción la aplicación corre detrás de un proxy (Apache termina
+        // el TLS en el host y reenvía a Caddy en 127.0.0.1). Las solicitudes
+        // llegan por HTTP, así que sin confiar en `X-Forwarded-Proto` Laravel
+        // generaría redirecciones `http://` y el navegador descartaría la
+        // cookie de sesión, que va marcada como `secure`.
+        //
+        // Se confía en cualquier proxy porque el contenedor solo escucha en
+        // localhost del servidor: nadie externo puede falsificar la cabecera.
+        // Si algún día se publica el puerto, acotar con TRUSTED_PROXIES.
+        $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Los errores de navegación se responden dentro del panel de Inertia. Además

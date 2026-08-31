@@ -33,13 +33,28 @@ Dos reglas de diseño que conviene tener presentes:
 
 ## Arquitectura en producción
 
+La instancia ya sirve otros sitios con Apache, así que **Apache conserva los
+puertos 80 y 443** y hace de proxy inverso hacia el stack:
+
+```text
+Internet :443
+   └─ Apache (host, certificado de certbot)
+        ├─ books.aframuz.dev     → /var/www/…
+        └─ usuarios.aframuz.dev  → proxy → 127.0.0.1:8080
+                                              └─ Caddy → php-fpm → PostgreSQL
+```
+
 Tres contenedores definidos en `compose.prod.yaml`:
 
 | Servicio | Imagen | Rol |
 | --- | --- | --- |
-| `web` | `…/web:<tag>` (Caddy) | TLS automático, sirve `public/` y pasa PHP por FastCGI |
+| `web` | `…/web:<tag>` (Caddy) | Sirve `public/` por HTTP en 127.0.0.1 y pasa PHP por FastCGI |
 | `app` | `…/app:<tag>` (php-fpm) | Ejecuta Laravel |
 | `db` | `postgres:16-alpine` | Base de datos, sin puertos publicados |
+
+El TLS es cosa de Apache: Caddy sirve HTTP plano y su puerto se publica atado a
+`127.0.0.1`, nunca a `0.0.0.0`, para que no haya forma de llegar al sitio
+saltándose el proxy.
 
 Las imágenes `web` y `app` salen del **mismo** `docker/php/Dockerfile.prod`
 (objetivos `--target web` y `--target app`) y se despliegan siempre con la misma
@@ -81,6 +96,10 @@ ssh ubuntu@<IP_PUBLICA>
 
 ## Paso 2. Abrir los puertos 80 y 443
 
+Si la instancia ya sirve otros sitios con Apache, esto ya está hecho: sáltalo y
+comprueba solo que ambos puertos responden desde fuera. Los abre y los atiende
+Apache, no el stack.
+
 Son dos capas distintas y la primera es obligatoria.
 
 **a) Security List de la VCN** (sin esto no llega nada). En **Networking → Virtual
@@ -91,7 +110,6 @@ Rules**, agrega:
 | --- | --- | --- |
 | `0.0.0.0/0` | TCP | 80 |
 | `0.0.0.0/0` | TCP | 443 |
-| `0.0.0.0/0` | UDP | 443 (opcional, HTTP/3) |
 
 **b) Firewall local.** Las imágenes Ubuntu de Oracle traen una cadena `INPUT`
 restrictiva. En la práctica **no bloquea los puertos publicados por Docker**,
@@ -168,7 +186,8 @@ echo "base64:$(openssl rand -base64 32)"
 openssl rand -base64 24
 ```
 
-Ajusta también `APP_DOMAIN`, `ACME_EMAIL`, `APP_URL` e `IMAGE_REPOSITORY`
+Ajusta también `APP_URL` (debe coincidir con el dominio del vhost) e
+`IMAGE_REPOSITORY`
 (`ghcr.io/<owner>/<repo>` en minúsculas). Deja el archivo cerrado y **en manos
 del usuario `deploy`**:
 
@@ -195,15 +214,68 @@ instancia. Verifica antes de desplegar:
 dig +short usuarios.ejemplo.cl
 ```
 
-Debe devolver la IP de la instancia. Caddy pide el certificado a Let's Encrypt
-durante el primer arranque y necesita que el dominio ya resuelva; si aún no
-propaga, el certificado falla y se consume cuota del rate limit de ACME.
+Debe devolver la IP de la instancia. El certificado lo pide certbot en el Paso 7
+y necesita que el dominio ya resuelva; si aún no propaga, la emisión falla y se
+consume cuota del rate limit de Let's Encrypt.
 
 ---
 
 # Parte 2 — Configurar GitHub
 
-## Paso 7. Secrets y variables del repositorio
+## Paso 7. Publicar el sitio a través de Apache
+
+Apache ya ocupa 80/443 para los demás sitios, así que atiende también este
+dominio y reenvía al puerto local del stack. Habilita los módulos necesarios:
+
+```bash
+sudo a2enmod proxy proxy_http headers ssl
+```
+
+Crea `/etc/apache2/sites-available/usuarios.conf` con el vhost de HTTP; el de
+HTTPS lo genera certbot a partir de este:
+
+```apache
+<VirtualHost *:80>
+    ServerName usuarios.ejemplo.cl
+
+    # Conserva el Host original: sin esto Laravel generaría las URLs con
+    # 127.0.0.1 en lugar del dominio público.
+    ProxyPreserveHost On
+
+    # `expr` en vez de un valor fijo porque certbot copia este bloque al vhost
+    # 443 que crea: así la cabecera sale `http` en el 80 y `https` en el 443
+    # sin tener que editar el archivo generado. Sin ella Laravel emite URLs
+    # absolutas http:// que el navegador bloquea como contenido mixto.
+    RequestHeader set X-Forwarded-Proto expr=%{REQUEST_SCHEME}
+
+    ProxyPass        / http://127.0.0.1:8080/
+    ProxyPassReverse / http://127.0.0.1:8080/
+
+    ErrorLog  ${APACHE_LOG_DIR}/usuarios-error.log
+    CustomLog ${APACHE_LOG_DIR}/usuarios-access.log combined
+</VirtualHost>
+```
+
+Actívalo y emite el certificado:
+
+```bash
+sudo a2ensite usuarios
+sudo apache2ctl configtest && sudo systemctl reload apache2
+
+# Genera el vhost 443 y la redirección desde el 80.
+sudo certbot --apache -d usuarios.ejemplo.cl
+```
+
+Hasta que el stack esté arriba el sitio responde `502`: es lo esperado, el
+certificado se emite igual porque lo valida Apache por el puerto 80.
+
+> La cadena completa depende de tres piezas que deben coincidir: Apache manda
+> `X-Forwarded-Proto: https`, Caddy la conserva porque su Caddyfile declara
+> `trusted_proxies static private_ranges`, y Laravel la cree porque
+> `bootstrap/app.php` llama a `trustProxies`. Si falta cualquiera de las tres, el
+> sitio responde 200 pero se ve sin estilos.
+
+## Paso 8. Secrets y variables del repositorio
 
 En **Settings → Secrets and variables → Actions**.
 
@@ -215,7 +287,7 @@ En **Settings → Secrets and variables → Actions**.
 | `DEPLOY_USER` | `deploy` |
 | `DEPLOY_SSH_KEY` | Contenido completo de `~/.ssh/bdp-deploy` (la clave **privada**) |
 | `DEPLOY_SSH_KNOWN_HOSTS` | Huella del host (ver abajo) |
-| `GHCR_READ_TOKEN` | Solo si dejas el paquete privado (ver Paso 8) |
+| `GHCR_READ_TOKEN` | Solo si dejas el paquete privado (ver Paso 9) |
 
 Para `DEPLOY_SSH_KNOWN_HOSTS`:
 
@@ -236,7 +308,7 @@ clave privada a cualquier servidor que responda en esa IP.
 | `DEPLOY_PATH` | `/opt/bdp-user-management` |
 | `DEPLOY_SSH_PORT` | Opcional; por defecto `22` |
 
-## Paso 8. Visibilidad del paquete en GHCR
+## Paso 9. Visibilidad del paquete en GHCR
 
 El workflow publica con el `GITHUB_TOKEN`, que ya tiene permiso de escritura. El
 único punto a decidir es cómo **lee** el servidor:
@@ -248,7 +320,7 @@ El workflow publica con el `GITHUB_TOKEN`, que ya tiene permiso de escritura. El
 - **Paquete privado**: crea un PAT clásico con el scope `read:packages` y
   guárdalo como secret `GHCR_READ_TOKEN`. El script hace `docker login` con él.
 
-## Paso 9. Compuerta de aprobación (opcional)
+## Paso 10. Compuerta de aprobación (opcional)
 
 En **Settings → Environments → New environment → `production`**, activa
 *Required reviewers*. El job `deploy` queda en pausa hasta que alguien apruebe.
@@ -257,7 +329,7 @@ En **Settings → Environments → New environment → `production`**, activa
 
 # Parte 3 — Desplegar y operar
 
-## Paso 10. Primer despliegue
+## Paso 11. Primer despliegue
 
 ```bash
 git checkout main
@@ -324,9 +396,9 @@ CRON
 sudo chmod +x /etc/cron.daily/bdp-backup
 ```
 
-El volumen `caddy_data` guarda los certificados: si se borra, Caddy los reemite
-y puede topar con el rate limit de Let's Encrypt. No lo incluyas en un
-`docker compose down --volumes`.
+Los certificados los administra certbot en el host (`/etc/letsencrypt`), fuera
+de los volúmenes de Docker, así que un `docker compose down --volumes` no los
+toca. Respáldalos junto con `/etc/apache2/sites-available/`.
 
 ---
 
@@ -336,10 +408,13 @@ y puede topar con el rate limit de Let's Encrypt. No lo incluyas en un
 | --- | --- | --- |
 | El workflow falla en `Verificar el sitio publicado` | DNS sin propagar o Security List sin la regla de ingreso | `dig +short <dominio>`; reglas de la VCN (Paso 2) |
 | `502 Bad Gateway` | `app` no arrancó | `docker compose -f compose.prod.yaml logs app` |
-| Caddy no obtiene certificado | El dominio no apunta a la instancia, o el 80 está cerrado | Logs de `web`; ACME valida por HTTP en el puerto 80 |
+| certbot no obtiene certificado | El dominio no apunta a la instancia, o el 80 está cerrado | `dig +short <dominio>`; ACME valida por HTTP en el puerto 80 |
 | `Could not resolve hostname :` en `scp`/`ssh` | Secretos o variables sin definir: se interpolan como cadena vacía | Paso 7. El job los valida antes de conectarse y nombra los que faltan |
 | `.env: Permission denied` en el servidor | El archivo se creó con `sudo` y quedó como `root:root` | `sudo chown deploy:deploy <DEPLOY_PATH>/.env` (Paso 5) |
-| `denied` al hacer `pull` en el servidor | Paquete privado sin `GHCR_READ_TOKEN` | Paso 8 |
+| El sitio carga sin estilos y la consola marca contenido mixto | Se pierde `X-Forwarded-Proto` y Laravel emite URLs `http://` | Las tres piezas del Paso 7: `RequestHeader` en Apache, `trusted_proxies` en Caddy, `trustProxies` en Laravel |
+| `no alternative certificate subject name matches` | Apache no tiene vhost para el dominio y responde con el certificado de otro sitio | Paso 7: `a2ensite` y `certbot` para ESTE dominio |
+| `502 Bad Gateway` desde Apache | El stack no escucha en `127.0.0.1:8080` | `docker compose -f compose.prod.yaml ps` y `ss -tlnp | grep 8080` |
+| `denied` al hacer `pull` en el servidor | Paquete privado sin `GHCR_READ_TOKEN` | Paso 9 |
 | `Permission denied (publickey)` | Clave incompleta en el secret | `DEPLOY_SSH_KEY` debe incluir las líneas `BEGIN`/`END` |
 | El sitio carga sin estilos | Etiquetas distintas en `app` y `web` | `docker compose -f compose.prod.yaml ps` — la misma etiqueta en ambos |
 | PHPUnit falla en CI y no en local | La base del servicio no está lista | El job publica `db-test` en `/etc/hosts` y espera el healthcheck |
@@ -347,5 +422,5 @@ y puede topar con el rate limit de Let's Encrypt. No lo incluyas en un
 Para inspeccionar lo mismo que ve el healthcheck, sin pasar por TLS ni DNS:
 
 ```bash
-docker compose -f compose.prod.yaml exec web wget -q -O- http://127.0.0.1:2020/up
+docker compose -f compose.prod.yaml exec web wget -q -O- http://127.0.0.1:8080/up
 ```

@@ -95,13 +95,15 @@ Los E2E cubren búsqueda, filtros, alta, errores frontend/backend, tabs lazy, es
 GitHub Actions cubre dos flujos, descritos paso a paso en
 [`docs/ci-cd.md`](docs/ci-cd.md):
 
-- **`ci.yml`** — en cada push a `develop`/`main` y en cada PR: Pint, PHPUnit
+- **`ci.yml`** — en cada push a `develop` y en cada PR a `develop`/`main`: Pint, PHPUnit
   contra PostgreSQL real, `tsc`, ESLint, Vitest, build de Vite y Playwright
   sobre el stack completo de `compose.yaml`.
 - **`deploy.yml`** — en cada push a `main`: reutiliza `ci.yml` con
   `workflow_call`, publica dos imágenes en GHCR (`app` con php-fpm y `web` con
   Caddy, ambas desde `docker/php/Dockerfile.prod`) y las despliega por SSH en
-  una instancia de Oracle Cloud con `compose.prod.yaml`.
+  una instancia de Oracle Cloud con `compose.prod.yaml`. Ahí el stack escucha en
+  `127.0.0.1:8080` y el Apache del host termina el TLS y hace de proxy inverso,
+  porque la instancia ya sirve otros sitios en los puertos 80 y 443.
 
 El despliegue aplica las migraciones, espera a los healthchecks y comprueba
 `https://<dominio>/up` desde el runner; si algo falla,

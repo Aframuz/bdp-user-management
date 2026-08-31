@@ -1,15 +1,30 @@
 {
 	# El endpoint de administración no se usa y escucha en 2019 por defecto.
 	admin off
-	email {$ACME_EMAIL}
+	# Sin TLS: el certificado lo gestiona Apache en el host, que termina el
+	# HTTPS y reenvía en claro a este contenedor por 127.0.0.1.
+	auto_https off
+
+	servers {
+		# Imprescindible detrás de Apache. Por defecto Caddy REESCRIBE
+		# X-Forwarded-Proto con el esquema de su propia conexión (http), y
+		# entonces Laravel genera URLs absolutas http:// que el navegador
+		# bloquea como contenido mixto: la página carga sin estilos ni JS.
+		# Declarando de quién viene el tráfico, Caddy conserva las cabeceras
+		# X-Forwarded-* originales (y con ellas la IP real del visitante).
+		trusted_proxies static private_ranges
+	}
 }
 
-{$APP_DOMAIN} {
+# Caddy sirve HTTP plano y solo escucha en la red interna de compose: en el
+# servidor el puerto se publica atado a 127.0.0.1, nunca a 0.0.0.0.
+:8080 {
 	root * /var/www/html/public
 	encode zstd gzip
 
 	header {
 		-Server
+		# Apache reenvía estas cabeceras tal cual en la respuesta HTTPS.
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "DENY"
@@ -20,37 +35,14 @@
 	@assets path /build/*
 	header @assets Cache-Control "public, max-age=31536000, immutable"
 
-	# `php_fastcgi` ya resuelve el try_files hacia index.php del front controller.
+	# `php_fastcgi` ya resuelve el try_files hacia index.php del front
+	# controller, y reenvía las cabeceras X-Forwarded-* que pone Apache para
+	# que Laravel reconstruya la URL original en https.
 	php_fastcgi app:9000
 	file_server
 
 	log {
 		output stdout
 		format json
-	}
-}
-
-# Endpoint interno de salud. Recorre el mismo camino que el tráfico real
-# (Caddy -> php-fpm -> Laravel), pero sin TLS ni redirección a HTTPS, para que
-# el healthcheck de Docker no dependa del certificado ni del DNS público.
-# Este puerto no se publica en compose.prod.yaml: solo existe dentro de la red.
-:2020 {
-	root * /var/www/html/public
-
-	# Solo /up. Este listener existe para el healthcheck de Docker, no para
-	# servir el sitio: cualquier otra ruta responde 404 en vez de caer al
-	# front controller y devolver un 200 vacío. Se usan bloques `handle`
-	# (excluyentes y evaluados en orden) porque con matchers sueltos el
-	# `respond` se adelanta a `php_fastcgi` en el orden por defecto de Caddy.
-	handle /up {
-		php_fastcgi app:9000
-	}
-
-	handle {
-		respond 404
-	}
-
-	log {
-		output discard
 	}
 }
