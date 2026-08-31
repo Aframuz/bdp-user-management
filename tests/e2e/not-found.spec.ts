@@ -1,5 +1,5 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { auditA11y } from './support/axe';
 
 test('an unknown route lands on the 404 page inside the panel', async ({ page }) => {
     const response = await page.goto('/informes/2024');
@@ -10,12 +10,9 @@ test('an unknown route lands on the 404 page inside the panel', async ({ page })
     await expect(page.getByRole('link', { name: 'Ir al inicio de Bolsa de Productos' })).toBeVisible();
     await expect(page.getByText('/informes/2024')).toBeVisible();
 
-    // El botón primario conserva el verde claro de marca; su deuda de contraste es
-    // global y no forma parte del panel 404 que se audita en esta prueba.
-    const results = await new AxeBuilder({ page })
-        .include('[data-not-found-panel]')
-        .exclude('.btn-primary')
-        .analyze();
+    // El contraste del verde de marca queda fuera del análisis (ver support/axe.ts);
+    // el resto de reglas sí se aplica al panel completo, botón incluido.
+    const results = await auditA11y(page).include('[data-not-found-panel]').analyze();
     expect(results.violations).toEqual([]);
 
     await page.getByRole('link', { name: 'Ir a Usuarios' }).click();
