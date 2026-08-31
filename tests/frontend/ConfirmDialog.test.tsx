@@ -37,4 +37,22 @@ describe('ConfirmDialog', () => {
         expect(screen.getByRole('button', { name: 'Eliminando…' })).toBeDisabled();
         expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled();
     });
+
+    it('contains long unbreakable names instead of letting them overflow', () => {
+        const longName = 'A'.repeat(200);
+
+        render(
+            <ConfirmDialog
+                confirmLabel="Eliminar"
+                onCancel={vi.fn()}
+                onConfirm={vi.fn()}
+                show
+                title="Eliminar usuario"
+            >
+                ¿Confirmas que deseas eliminar a <strong>{longName}</strong>?
+            </ConfirmDialog>,
+        );
+
+        expect(screen.getByText(longName).closest('.modal-body')).toHaveClass('text-break');
+    });
 });

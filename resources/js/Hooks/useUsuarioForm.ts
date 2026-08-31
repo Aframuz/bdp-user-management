@@ -1,5 +1,5 @@
 import type { Form } from '@inertiajs/react';
-import { useCallback, useRef, type ComponentRef, type SyntheticEvent } from 'react';
+import { useCallback, useRef, useState, type ComponentRef, type SyntheticEvent } from 'react';
 import type { UsuarioFormData } from '@Types/usuario';
 import { validate } from '@Utils/validation';
 import { usuarioFormRules } from './usuarioFormRules';
@@ -23,21 +23,33 @@ export function validateUsuarioForm(data: UsuarioFormData): Record<string, strin
   return validate(data, usuarioFormRules);
 }
 
+/**
+ * Lleva el foco a un campo por su nombre. Se aplaza un frame porque quien la llama
+ * suele acabar de provocar un repintado (`setError`, un salto desde el resumen) y el
+ * control al que hay que ir todavía no está en el DOM cuando se resuelve el evento.
+ */
+export function focusField(campo: string): void {
+  requestAnimationFrame(() =>
+    document.querySelector<HTMLElement>(`[data-field="${campo}"]`)?.focus(),
+  );
+}
+
 /** Lleva el foco al primer campo con error para no obligar a buscarlo a mano. */
 export function focusFirstError(errors: Record<string, string>): void {
   const firstField = Object.keys(errors)[0];
-  if (!firstField) return;
-  requestAnimationFrame(() =>
-    document.querySelector<HTMLElement>(`[data-field="${firstField}"]`)?.focus(),
-  );
+  if (firstField) focusField(firstField);
 }
 
 /**
  * Cableado del `<Form>` de Inertia: los campos son no controlados y el componente
- * lee sus valores del DOM, así que aquí solo queda la validación previa al envío.
+ * lee sus valores del DOM, así que aquí quedan la validación previa al envío y el
+ * espejo de valores del que vive el resumen lateral.
  */
 export function useUsuarioForm() {
   const formRef = useRef<UsuarioFormRef>(null);
+  // Espejo de lo tecleado. El formulario sigue siendo no controlado; esto solo existe
+  // para que el resumen pueda repintarse, así que se refresca leyendo el DOM.
+  const [valores, setValores] = useState<Partial<UsuarioFormData>>({});
   // El RUT arranca inválido (aún vacío) y el teléfono válido, porque es opcional.
   const validezRef = useRef<Record<CampoAutovalidado, boolean>>({ rut: false, telefono: true });
   const setCampoValido = useCallback((campo: CampoAutovalidado, valido: boolean) => {
@@ -74,11 +86,22 @@ export function useUsuarioForm() {
     return false;
   };
 
-  /** Limpia el error del campo que el usuario acaba de corregir; el evento llega delegado desde el control. */
-  const clearFieldError = (event: SyntheticEvent<HTMLFormElement>) => {
+  /**
+   * Un único `onChange` delegado para todo el formulario: limpia el error del campo que
+   * se acaba de corregir y actualiza el espejo de valores que alimenta el resumen.
+   */
+  const handleFieldChange = (event: SyntheticEvent<HTMLFormElement>) => {
     const { name } = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
     if (name) formRef.current?.clearErrors(name);
+    setValores(formRef.current?.getData() ?? {});
   };
 
-  return { formRef, validateBeforeSubmit, clearFieldError, setRutValido, setTelefonoValido };
+  return {
+    formRef,
+    valores,
+    validateBeforeSubmit,
+    handleFieldChange,
+    setRutValido,
+    setTelefonoValido,
+  };
 }

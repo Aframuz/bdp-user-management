@@ -2,10 +2,25 @@ import { useEffect, useState } from 'react';
 import useRut from 'use-rut';
 import { FormField } from '@Components/Common/FormField';
 import { RUT_INVALIDO } from '@Hooks/useUsuarioForm';
+import { USUARIO_CAMPOS } from '@Hooks/usuarioFormSecciones';
+import { getInputValidationProps } from '@Hooks/usuarioFormRules';
 
 interface RutFieldProps {
   error?: string;
   onValidChange: (valido: boolean) => void;
+}
+
+const CARACTERES_DE_FORMATO = /[.-]/g;
+const RUT_PARCIAL_PERMITIDO = /^(?:\d{0,9}|\d{7,8}K)$/;
+
+/**
+ * Quita únicamente la puntuación generada por `use-rut`. El resultado debe tener
+ * hasta nueve dígitos, o siete u ocho dígitos seguidos por K.
+ */
+function rutSinFormatoPermitido(value: string): string | null {
+  const rutSinFormato = value.replace(CARACTERES_DE_FORMATO, '').toUpperCase();
+
+  return RUT_PARCIAL_PERMITIDO.test(rutSinFormato) ? rutSinFormato : null;
 }
 
 /**
@@ -26,14 +41,17 @@ export function RutField({ error, onValidChange }: RutFieldProps) {
 
   return (
     <FormField
+      {...getInputValidationProps('rut')}
       error={error ?? localError}
-      hint="Se formatea automáticamente al escribir."
+      hint="Ingresa solo números o K; los puntos y el guion se agregan automáticamente."
       id="rut"
-      label="RUT/RUN"
+      label={USUARIO_CAMPOS.rut}
       onBlur={() => setTouched(true)}
-      onChange={(event) => setRut(event.target.value)}
+      onChange={(event) => {
+        const rutPermitido = rutSinFormatoPermitido(event.target.value);
+        if (rutPermitido !== null) setRut(rutPermitido);
+      }}
       placeholder="12.345.678-9"
-      required
       value={rut}
     />
   );

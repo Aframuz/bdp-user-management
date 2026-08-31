@@ -1,0 +1,75 @@
+.ficha-tabs {
+  display: grid;
+  gap: 2rem;
+}
+
+/* Por debajo de `lg` la navegación vertical no cabe: vuelve a ser una barra
+   horizontal que se desplaza, con el subrayado de siempre. */
+.ficha-tabs__nav {
+  border-bottom: 1px solid var(--line);
+  flex-wrap: nowrap;
+  gap: 0.3rem;
+  overflow-x: auto;
+}
+
+.ficha-tabs__nav :global(.nav-link) {
+  border-bottom: 3px solid transparent;
+  color: var(--ink-700);
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  white-space: nowrap;
+}
+
+.ficha-tabs__nav :global(.nav-link.active) {
+  border-bottom-color: var(--brand-600);
+  color: var(--brand-800);
+}
+
+/* A partir de `lg` la navegación pasa a una columna fija a la izquierda y solo
+   cambia la columna de contenido. Sin `min-height`: la fila del grid ya no puede
+   encoger por debajo de la altura de la navegación, y los estados de carga y
+   vacío traen su propio suelo desde AsyncState.module.css. */
+@media (min-width: 992px) {
+  .ficha-tabs {
+    align-items: start;
+    grid-template-columns: 13.75rem minmax(0, 1fr);
+  }
+
+  .ficha-tabs__nav {
+    border-bottom: 0;
+    flex-direction: column;
+    gap: 0.25rem;
+    overflow-x: visible;
+  }
+
+  .ficha-tabs__nav :global(.nav-link) {
+    border-bottom: 0;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .ficha-tabs__nav :global(.nav-link.active) {
+    background: var(--brand-50);
+    box-shadow: inset 0px 0 0 var(--brand-600);
+    border-bottom: 2px solid var(--brand-600);
+    border-radius: 0;
+    color: var(--brand-800);
+  }
+}
+
+.ficha-tabs__content :global(.tab-pane) {
+  animation: ficha-tab-in var(--motion-fast) ease both;
+}
+
+@keyframes ficha-tab-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

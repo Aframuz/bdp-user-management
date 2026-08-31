@@ -114,11 +114,24 @@ export function UsuariosTable({
             },
           );
       },
+      // `autoWidth` desactivado: mandan los anchos declarados por columna y, junto a
+      // `table-layout: fixed`, la tabla nunca se ensancha más que su contenedor.
+      autoWidth: false,
       columns: ALL_COLUMNS.map((column) => ({
         data: column.data,
         name: column.name,
         orderable: column.orderable ?? true,
         searchable: column.searchable ?? true,
+        width: column.width,
+        // El truncado con elipsis no es una opción nativa de DataTables 2.x: se aplica
+        // por CSS y el contenido completo se expone en el `title` de la celda.
+        createdCell: column.ellipsis
+          ? (cell: HTMLTableCellElement, cellData: unknown) => {
+              const truncateClass = styles['users-table__cell-truncate'];
+              if (truncateClass) cell.classList.add(truncateClass);
+              cell.title = String(cellData ?? '');
+            }
+          : undefined,
       })),
       layout: {
         topStart: null,
