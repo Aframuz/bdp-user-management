@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use App\Models\Rol;
@@ -94,6 +96,31 @@ class UsuarioCrudTest extends TestCase
         ];
     }
 
+    /** @return array<string, array{string, string}> */
+    public static function valoresConCaracteresNoPermitidos(): array
+    {
+        return [
+            'nombre con números' => ['nombre', 'Camila3'],
+            'apellido con símbolos' => ['apellido', 'Soto!'],
+            'calle con números' => ['calle', 'Calle Uno 123'],
+            'ciudad con símbolos' => ['ciudad', 'Santiago_1'],
+            'código postal con letras' => ['codigo_postal', '7500A00'],
+        ];
+    }
+
+    #[DataProvider('valoresConCaracteresNoPermitidos')]
+    public function test_store_rejects_characters_not_allowed_by_the_form(string $campo, string $valor): void
+    {
+        $rol = Rol::factory()->create();
+        $payload = array_merge($this->validPayload($rol), [$campo => $valor]);
+
+        $this->from(route('usuarios.create'))->post(route('usuarios.store'), $payload)
+            ->assertRedirect(route('usuarios.create'))
+            ->assertSessionHasErrors($campo);
+
+        $this->assertDatabaseCount('usuarios', 0);
+    }
+
     #[DataProvider('valoresQueSoloRechazanLasReglasPropias')]
     public function test_store_rejects_values_that_pass_the_format_rules(string $campo, string $valor, string $mensaje): void
     {
@@ -132,7 +159,7 @@ class UsuarioCrudTest extends TestCase
             'telefono' => '56987654321',
             'rol_id' => $rol->id,
             'estado' => 'activo',
-            'calle' => 'Calle Uno 123',
+            'calle' => 'Calle Uno',
             'ciudad' => 'Santiago',
             'codigo_postal' => '7500000',
             'nota' => 'Observación inicial',

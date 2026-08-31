@@ -9,6 +9,7 @@ import { TelefonoField } from '@Components/Usuarios/TelefonoField';
 import { UsuarioFormResumen } from '@Components/Usuarios/UsuarioFormResumen';
 import { useUsuarioFormProgreso } from '@Hooks/useUsuarioFormProgreso';
 import { USUARIO_CAMPOS, USUARIO_FORM_SECCIONES } from '@Hooks/usuarioFormSecciones';
+import { SOLO_DIGITOS, SOLO_LETRAS_Y_ESPACIOS } from '@Hooks/usuarioFormRules';
 import type { SelectOption, UsuarioFormData } from '@Types/usuario';
 import styles from './UsuarioFormBody.module.css';
 
@@ -61,6 +62,7 @@ export function UsuarioFormBody({
                   id="nombre"
                   label={USUARIO_CAMPOS.nombre}
                   maxLength={100}
+                  pattern={SOLO_LETRAS_Y_ESPACIOS.source}
                   required
                 />
               </Col>
@@ -71,6 +73,7 @@ export function UsuarioFormBody({
                   id="apellido"
                   label={USUARIO_CAMPOS.apellido}
                   maxLength={100}
+                  pattern={SOLO_LETRAS_Y_ESPACIOS.source}
                   required
                 />
               </Col>
@@ -122,6 +125,7 @@ export function UsuarioFormBody({
                   id="calle"
                   label={USUARIO_CAMPOS.calle}
                   maxLength={255}
+                  pattern={SOLO_LETRAS_Y_ESPACIOS.source}
                   required
                 />
               </Col>
@@ -132,6 +136,7 @@ export function UsuarioFormBody({
                   id="ciudad"
                   label={USUARIO_CAMPOS.ciudad}
                   maxLength={100}
+                  pattern={SOLO_LETRAS_Y_ESPACIOS.source}
                   required
                 />
               </Col>
@@ -141,8 +146,10 @@ export function UsuarioFormBody({
                   error={errors.codigo_postal}
                   hint="Opcional."
                   id="codigo_postal"
+                  inputMode="numeric"
                   label={USUARIO_CAMPOS.codigo_postal}
                   maxLength={20}
+                  pattern={SOLO_DIGITOS.source}
                 />
               </Col>
             </Row>

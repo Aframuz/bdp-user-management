@@ -1,4 +1,4 @@
-import type { ChangeEventHandler, FocusEventHandler } from 'react';
+import type { ChangeEventHandler, FocusEventHandler, InputHTMLAttributes } from 'react';
 import { Form } from 'react-bootstrap';
 import { FieldWrapper, type FieldProps } from './FieldWrapper';
 import styles from './FormControls.module.css';
@@ -10,7 +10,9 @@ interface FormFieldProps extends FieldProps {
   onBlur?: FocusEventHandler<HTMLInputElement>;
   type?: string;
   autoComplete?: string;
+  inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   maxLength?: number;
+  pattern?: string;
   placeholder?: string;
 }
 
@@ -21,7 +23,9 @@ export function FormField({
   onBlur,
   type = 'text',
   autoComplete,
+  inputMode,
   maxLength,
+  pattern,
   placeholder,
   ...field
 }: FormFieldProps) {
@@ -33,9 +37,11 @@ export function FormField({
           autoComplete={autoComplete}
           className={styles['form-control']}
           defaultValue={defaultValue}
+          inputMode={inputMode}
           maxLength={maxLength}
           onBlur={onBlur}
           onChange={onChange}
+          pattern={pattern}
           placeholder={placeholder}
           type={type}
           value={value}

@@ -17,6 +17,27 @@ describe('RutField', () => {
         expect(onValidChange).toHaveBeenLastCalledWith(true);
     });
 
+    it('rejects non-RUT characters and limits the raw value to nine characters', async () => {
+        render(<RutField onValidChange={vi.fn()} />);
+
+        const input = screen.getByLabelText(/RUT\/RUN/);
+        await userEvent.type(input, '111a!111_1111');
+
+        expect(input).toHaveValue('11.111.111-1');
+    });
+
+    it('allows K only as the final verifier while preserving its formatting', async () => {
+        render(<RutField onValidChange={vi.fn()} />);
+
+        const input = screen.getByLabelText(/RUT\/RUN/);
+        await userEvent.type(input, '6532891k');
+
+        expect(input).toHaveValue('6.532.891-k');
+
+        await userEvent.type(input, 'a2');
+        expect(input).toHaveValue('6.532.891-k');
+    });
+
     it('warns about an invalid check digit only after leaving the field', async () => {
         const onValidChange = vi.fn();
         render(<RutField onValidChange={onValidChange} />);

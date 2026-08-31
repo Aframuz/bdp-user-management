@@ -3,34 +3,61 @@ import { validateUsuarioForm } from '@Hooks/useUsuarioForm';
 import type { UsuarioFormData } from '@Types/usuario';
 
 const validForm: UsuarioFormData = {
-    nombre: 'Camila', apellido: 'Soto', email: 'camila@example.test', rut: '11.111.111-1',
-    telefono: '987654321', rol_id: '1', estado: 'activo', calle: 'Calle Uno', ciudad: 'Santiago',
-    codigo_postal: '', nota: 'Observación',
+  nombre: 'Camila',
+  apellido: 'Soto',
+  email: 'camila@example.test',
+  rut: '11.111.111-1',
+  telefono: '987654321',
+  rol_id: '1',
+  estado: 'activo',
+  calle: 'Calle Uno',
+  ciudad: 'Santiago',
+  codigo_postal: '',
+  nota: 'Observación',
 };
 
 describe('validateUsuarioForm', () => {
-    it('accepts the complete required form', () => {
-        expect(validateUsuarioForm(validForm)).toEqual({});
+  it('accepts the complete required form', () => {
+    expect(validateUsuarioForm(validForm)).toEqual({});
+  });
+
+  it('reports required, length, email and numeric errors', () => {
+    const errors = validateUsuarioForm({
+      ...validForm,
+      nombre: '',
+      apellido: 'a'.repeat(101),
+      email: 'incorrecto',
+      telefono: '+56 9',
+      rol_id: '',
+      nota: '',
     });
 
-    it('reports required, length, email and numeric errors', () => {
-        const errors = validateUsuarioForm({
-            ...validForm,
-            nombre: '',
-            apellido: 'a'.repeat(101),
-            email: 'incorrecto',
-            telefono: '+56 9',
-            rol_id: '',
-            nota: '',
-        });
-
-        expect(errors).toMatchObject({
-            nombre: 'Este campo es obligatorio.',
-            apellido: 'El apellido no puede superar 100 caracteres.',
-            email: 'Ingresa un correo electrónico válido.',
-            telefono: 'El teléfono solo puede contener números (entre 6 y 15 dígitos).',
-            rol_id: 'Este campo es obligatorio.',
-            nota: 'Este campo es obligatorio.',
-        });
+    expect(errors).toMatchObject({
+      nombre: 'Este campo es obligatorio.',
+      apellido: 'El apellido no puede superar 100 caracteres.',
+      email: 'Ingresa un correo electrónico válido.',
+      telefono: 'El teléfono solo puede contener números (entre 6 y 15 dígitos).',
+      rol_id: 'Este campo es obligatorio.',
+      nota: 'Este campo es obligatorio.',
     });
+  });
+
+  it('reports non-letter names and addresses and a non-numeric postal code', () => {
+    const errors = validateUsuarioForm({
+      ...validForm,
+      nombre: 'Camila3',
+      apellido: 'Soto!',
+      calle: 'Calle Uno 123',
+      ciudad: 'Santiago_1',
+      codigo_postal: '7500A00',
+    });
+
+    expect(errors).toMatchObject({
+      nombre: 'Solo se permiten letras y espacios.',
+      apellido: 'Solo se permiten letras y espacios.',
+      calle: 'Solo se permiten letras y espacios.',
+      ciudad: 'Solo se permiten letras y espacios.',
+      codigo_postal: 'El código postal solo puede contener números.',
+    });
+  });
 });
