@@ -3,6 +3,22 @@
 node_modules
 vendor
 public/build
+# Todo `storage/` es estado en tiempo de ejecución (sesiones, vistas
+# compiladas, logs, herramientas de desarrollo). La imagen de producción
+# recrea el árbol vacío y el volumen `app_storage` lo persiste; incluirlo
+# aquí solo mete basura local en el contexto de build.
+storage/app
+storage/framework
 storage/logs
+storage/inertia-devtools
+storage/pail
+
+# Cachés de arranque generadas en local: si `packages.php` viaja a la imagen,
+# `package:discover` lo lee antes de regenerarlo y falla al buscar proveedores
+# de dev (Pail, Sail) que no existen en el vendor de producción.
+bootstrap/cache
 playwright-report
 test-results
+public/hot
+compose.prod.yaml
+.env.production.example

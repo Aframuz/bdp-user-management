@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate } from '../../resources/js/Utils/date';
+import { formatDate } from '@Utils/date';
 
 describe('formatDate', () => {
     it('formats a valid date for Chile and handles missing or invalid values', () => {

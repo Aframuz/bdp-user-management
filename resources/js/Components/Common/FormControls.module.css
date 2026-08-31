@@ -1,0 +1,42 @@
+.form-control {
+  border-color: var(--control-border);
+  min-height: 2.75rem;
+}
+
+.form-control:focus {
+  border-color: var(--brand-600);
+  box-shadow: 0 0 0 0.2rem rgba(var(--brand-rgb), 0.18);
+}
+
+.form-control--textarea {
+  min-height: 7rem;
+}
+
+.phone-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.375rem 0.75rem;
+  border: var(--bs-border-width) solid var(--control-border);
+  border-radius: var(--bs-border-radius);
+  background-color: var(--bs-body-bg);
+}
+
+.phone-input:focus-within {
+  border-color: var(--brand-600);
+  box-shadow: 0 0 0 0.2rem rgba(var(--brand-rgb), 0.18);
+}
+
+.phone-input:global(.is-invalid) {
+  border-color: var(--bs-form-invalid-border-color);
+}
+
+.phone-input__number {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background-color: transparent;
+  color: inherit;
+  outline: 0;
+}

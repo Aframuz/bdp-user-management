@@ -1,0 +1,128 @@
+.users-table :global(.table) {
+  --bs-table-bg: transparent;
+}
+
+.users-table :global(thead th) {
+  background: var(--surface);
+  border-bottom-color: var(--line);
+  color: var(--ink-500);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  padding: 0.9rem 0.75rem;
+  position: sticky;
+  text-transform: uppercase;
+  top: 0;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.users-table :global(tbody td) {
+  border-bottom-color: var(--line);
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+}
+
+/* Se reserva el ancho expandido para que el hover no desplace las columnas. */
+@media (hover: hover) {
+  .users-table__actions {
+    min-width: 11rem;
+  }
+}
+
+/* La etiqueta anima de 0fr a 1fr para crecer hasta el ancho real del texto. */
+.users-table__action {
+  border: 0 !important;
+  border-radius: 0.55rem !important;
+  color: var(--white) !important;
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+  font-weight: 700;
+  height: 2.15rem;
+  min-width: 2.15rem;
+  padding: 0 0.5rem !important;
+}
+
+.users-table__action:hover,
+.users-table__action:active,
+.users-table__action:focus-visible {
+  gap: 0.4rem;
+}
+
+.users-table__action > svg {
+  flex: 0 0 auto;
+  font-size: 0.95rem;
+}
+
+.users-table__action-label {
+  display: grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns var(--motion-fast) ease;
+}
+
+.users-table__action-label > span {
+  overflow: hidden;
+}
+
+.users-table__action:hover .users-table__action-label,
+.users-table__action:focus-visible .users-table__action-label {
+  grid-template-columns: 1fr;
+}
+
+.users-table :global(.dt-info),
+.users-table :global(.dt-paging) {
+  color: var(--ink-500);
+  font-size: 0.84rem;
+  padding-top: 1rem;
+}
+
+.users-table :global(.pagination) {
+  margin-bottom: 0;
+}
+
+/* DataTables crea el indicador fuera del subárbol que controlan los slots. */
+.users-table :global(.dt-processing) {
+  background: var(--surface) !important;
+  border: 1px solid var(--brand-100) !important;
+  border-radius: 100px !important;
+  box-shadow: 0 0.7rem 1.8rem rgba(51, 51, 51, 0.14);
+  color: var(--ink-700);
+  font-size: 0.88rem;
+  font-weight: 700;
+  left: 50%;
+  letter-spacing: 0.01em;
+  margin: 0 !important;
+  padding: 0.72rem 1rem 0.72rem 2.85rem !important;
+  text-align: left;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  width: auto !important;
+}
+
+.users-table :global(.dt-processing > div:last-child) {
+  animation: users-table-loader-spin 0.75s linear infinite;
+  border: 2px solid var(--brand-100);
+  border-radius: 50%;
+  border-top-color: var(--brand-700);
+  height: 1.15rem;
+  left: 1rem;
+  margin: -0.575rem 0 0;
+  position: absolute;
+  top: 50%;
+  width: 1.15rem;
+}
+
+.users-table :global(.dt-processing > div:last-child > div) {
+  display: none;
+}
+
+@keyframes users-table-loader-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .users-table :global(.dt-processing > div:last-child) {
+    animation: none;
+  }
+}

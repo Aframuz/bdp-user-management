@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\Usuario;
+use App\Rules\RutValido;
+use App\Rules\TelefonoValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -34,8 +36,8 @@ class StoreUsuarioRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:100'],
             'apellido' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:usuarios,email'],
-            'rut' => ['required', 'string', 'max:30'],
-            'telefono' => ['nullable', 'string', 'regex:/^\\d{6,15}$/'],
+            'rut' => ['required', 'string', 'max:30', new RutValido],
+            'telefono' => ['nullable', 'string', 'regex:/^\\d{6,15}$/', new TelefonoValido],
             'rol_id' => ['required', 'integer', 'exists:roles,id'],
             'estado' => ['required', Rule::in(Usuario::ESTADOS)],
             'calle' => ['required', 'string', 'max:255'],

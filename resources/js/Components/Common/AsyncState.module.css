@@ -1,0 +1,14 @@
+.async-state {
+  min-height: 13rem;
+}
+
+.async-state__placeholder {
+  height: 1.15rem;
+}
+
+.async-state__icon {
+  border-width: 2px !important;
+  font-size: 1.5rem;
+  height: 3.5rem;
+  width: 3.5rem;
+}

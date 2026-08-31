@@ -1,59 +1,84 @@
-import { useForm } from '@inertiajs/react';
-import type { FormEvent } from 'react';
-import type { UsuarioFormData } from '../Types/usuario';
-import { usuarios } from '../Utils/routes';
-import { validate } from '../Utils/validation';
+import type { Form } from '@inertiajs/react';
+import { useCallback, useRef, type ComponentRef, type SyntheticEvent } from 'react';
+import type { UsuarioFormData } from '@Types/usuario';
+import { validate } from '@Utils/validation';
 import { usuarioFormRules } from './usuarioFormRules';
 
-const initialData: UsuarioFormData = {
-    nombre: '',
-    apellido: '',
-    email: '',
-    rut: '',
-    telefono: '',
-    rol_id: '',
-    estado: '',
-    calle: '',
-    ciudad: '',
-    codigo_postal: '',
-    nota: '',
-};
+type UsuarioFormRef = ComponentRef<typeof Form<UsuarioFormData>>;
+
+export const RUT_INVALIDO = 'El RUT/RUN ingresado no es válido.';
+export const TELEFONO_INVALIDO = 'Ingresa un teléfono válido para el país seleccionado.';
+
+/**
+ * Campos que se validan solos: el componente sabe si su valor cuadra (dígito verificador,
+ * numeración del país) y el hook guarda qué decir cuando no, para frenar el envío.
+ * Los mismos textos y los mismos criterios viven en `App\Rules\RutValido` y
+ * `App\Rules\TelefonoValido`, que son la autoridad.
+ */
+const MENSAJES_POR_CAMPO = { rut: RUT_INVALIDO, telefono: TELEFONO_INVALIDO } as const;
+
+type CampoAutovalidado = keyof typeof MENSAJES_POR_CAMPO;
 
 export function validateUsuarioForm(data: UsuarioFormData): Record<string, string> {
-    return validate(data, usuarioFormRules);
+  return validate(data, usuarioFormRules);
 }
 
 /** Lleva el foco al primer campo con error para no obligar a buscarlo a mano. */
-function focusFirstError(errors: Record<string, string>): void {
-    const firstField = Object.keys(errors)[0];
-    if (!firstField) return;
-    requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="${firstField}"]`)?.focus());
+export function focusFirstError(errors: Record<string, string>): void {
+  const firstField = Object.keys(errors)[0];
+  if (!firstField) return;
+  requestAnimationFrame(() =>
+    document.querySelector<HTMLElement>(`[data-field="${firstField}"]`)?.focus(),
+  );
 }
 
+/**
+ * Cableado del `<Form>` de Inertia: los campos son no controlados y el componente
+ * lee sus valores del DOM, así que aquí solo queda la validación previa al envío.
+ */
 export function useUsuarioForm() {
-    const form = useForm<UsuarioFormData>(initialData);
+  const formRef = useRef<UsuarioFormRef>(null);
+  // El RUT arranca inválido (aún vacío) y el teléfono válido, porque es opcional.
+  const validezRef = useRef<Record<CampoAutovalidado, boolean>>({ rut: false, telefono: true });
+  const setCampoValido = useCallback((campo: CampoAutovalidado, valido: boolean) => {
+    validezRef.current[campo] = valido;
+  }, []);
+  const setRutValido = useCallback(
+    (valido: boolean) => setCampoValido('rut', valido),
+    [setCampoValido],
+  );
+  const setTelefonoValido = useCallback(
+    (valido: boolean) => setCampoValido('telefono', valido),
+    [setCampoValido],
+  );
 
-    const setField = (field: keyof UsuarioFormData, value: string) => {
-        form.setData(field as string, value);
-        form.clearErrors(field as string);
-    };
+  /** Se ejecuta en `onBefore`: devolver `false` cancela la petición y deja los errores en pantalla. */
+  const validateBeforeSubmit = (): boolean => {
+    const form = formRef.current;
+    if (!form) return true;
 
-    const submit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        form.clearErrors();
-        const clientErrors = validateUsuarioForm(form.data);
+    const errors = validateUsuarioForm(form.getData());
 
-        if (Object.keys(clientErrors).length > 0) {
-            form.setError(clientErrors);
-            focusFirstError(clientErrors);
-            return;
-        }
+    // Las reglas mandan: solo se añade el aviso propio del campo si no falló ya antes.
+    for (const [campo, mensaje] of Object.entries(MENSAJES_POR_CAMPO) as [
+      CampoAutovalidado,
+      string,
+    ][]) {
+      if (!errors[campo] && !validezRef.current[campo]) errors[campo] = mensaje;
+    }
 
-        form.post(usuarios.index(), {
-            preserveScroll: true,
-            onError: (errors) => focusFirstError(errors as Record<string, string>),
-        });
-    };
+    if (Object.keys(errors).length === 0) return true;
 
-    return { ...form, setField, submit };
+    form.setError(errors);
+    focusFirstError(errors);
+    return false;
+  };
+
+  /** Limpia el error del campo que el usuario acaba de corregir; el evento llega delegado desde el control. */
+  const clearFieldError = (event: SyntheticEvent<HTMLFormElement>) => {
+    const { name } = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    if (name) formRef.current?.clearErrors(name);
+  };
+
+  return { formRef, validateBeforeSubmit, clearFieldError, setRutValido, setTelefonoValido };
 }

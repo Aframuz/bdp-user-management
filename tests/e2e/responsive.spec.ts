@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test';
 
 test('core controls remain usable on a mobile viewport', async ({ page }) => {
     await page.goto('/usuarios');
+    await expect(page.getByRole('heading', { name: 'Mejor experiencia en escritorio' })).toBeVisible();
+    await page.getByRole('button', { name: 'Entendido' }).click();
+
     await expect(page.getByRole('link', { name: 'Registrar usuario' })).toBeVisible();
     await page.getByRole('button', { name: /^Filtros/ }).click();
     await expect(page.getByRole('heading', { name: 'Filtrar usuarios' })).toBeVisible();

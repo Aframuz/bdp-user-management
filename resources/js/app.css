@@ -1,710 +1,464 @@
+/* Cabin, servida desde Google Fonts. Los tres subsets son el mismo fichero variable
+   (400-700), partido por `unicode-range` para que el navegador solo descargue el
+   rango que la página necesita. `swap` evita el texto invisible mientras carga. */
+@font-face {
+  font-family: 'Cabin';
+  font-style: normal;
+  font-weight: 400 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/cabin/v35/u-4i0qWljRw-PfU81xCKCpdpbgZJl6XvptnsBXw.woff2)
+    format('woff2');
+  unicode-range:
+    U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301,
+    U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-family: 'Cabin';
+  font-style: normal;
+  font-weight: 400 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/cabin/v35/u-4i0qWljRw-PfU81xCKCpdpbgZJl6Xvp9nsBXw.woff2)
+    format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Cabin';
+  font-style: normal;
+  font-weight: 400 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/cabin/v35/u-4i0qWljRw-PfU81xCKCpdpbgZJl6Xvqdns.woff2)
+    format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Paleta de marca. Es el único sitio donde vive un color en crudo: los tokens de la
+   app (--brand-*, --ink-*) y los de Bootstrap (--bs-*) se derivan de aquí. */
 :root {
-   --brand-50: #eef1ff;
-   --brand-100: #dfe5ff;
-   --brand-600: #3454d1;
-   --brand-700: #2944ad;
-   --ink-900: #172033;
-   --ink-700: #465168;
-   --ink-500: #6c768b;
-   --surface: #ffffff;
-   --surface-subtle: #f5f7fb;
-   --line: #e4e8f0;
-   --radius: 0.9rem;
-   --shadow: 0 12px 35px rgba(22, 32, 54, 0.08);
-   --motion-fast: 180ms;
+  --blue: #007bff;
+  --indigo: #6610f2;
+  --purple: #6f42c1;
+  --pink: #e83e8c;
+  --red: #dc3545;
+  --orange: #fd7e14;
+  --yellow: #ffc107;
+  --green: #62ab52;
+  --teal: #20c997;
+  --cyan: #17a2b8;
+  --white: #fff;
+  --gray: #6c757d;
+  --gray-dark: #333;
+  --primary: #62ab52;
+  --secondary: #333;
+  --success: #62ab52;
+  --info: #17a2b8;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --light: #f8f9fa;
+  --dark: #333;
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --font-family-sans-serif:
+    'Cabin', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-family-monospace:
+    SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
-html {
-   background: var(--surface-subtle);
+/* Tokens de la app. Los tres tonos de marca que faltan en la paleta (el tinte claro,
+   el borde y los dos oscuros de hover) se derivan a mano de --primary. */
+:root {
+  --brand-rgb: 98, 171, 82;
+  --brand-50: #eff6ed;
+  --brand-100: #d8e9d3;
+  --brand-600: var(--primary);
+  --brand-700: #4e8942;
+  --brand-800: #3d6b34;
+  --brand-band: #3d6b34;
+  --brand-solid: #62ab52;
+  --brand-solid-hover: #62ab52;
+  --brand-solid-active: #284622;
+  --brand-solid-rgb: 98, 171, 82;
+  --ink-900: var(--gray-dark);
+  --ink-700: #55606b;
+  --ink-500: var(--gray);
+  --surface: var(--white);
+  --surface-subtle: #f6f8f5;
+  --line: #e2e7de;
+  --control-border: #cdd3c9;
+  --radius: 0.9rem;
+  --shadow: 0 12px 35px rgba(51, 51, 51, 0.08);
+  --motion-fast: 180ms;
 }
 
-body {
-   background: var(--surface-subtle);
-   color: var(--ink-900);
-   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-   margin: 0;
+/* Puente hacia Bootstrap: su CSS ya viene compilado con el azul #0d6efd, así que
+   todo lo que consuma una variable --bs-* se redirige aquí de una vez. Lo que trae
+   el hex escrito a fuego (botones, checks, paginación…) se corrige más abajo. */
+:root {
+  --bs-blue: var(--blue);
+  --bs-indigo: var(--indigo);
+  --bs-purple: var(--purple);
+  --bs-pink: var(--pink);
+  --bs-red: var(--red);
+  --bs-orange: var(--orange);
+  --bs-yellow: var(--yellow);
+  --bs-green: var(--green);
+  --bs-teal: var(--teal);
+  --bs-cyan: var(--cyan);
+  --bs-white: var(--white);
+  --bs-gray: var(--gray);
+  --bs-gray-dark: var(--gray-dark);
+
+  --bs-primary: var(--brand-800);
+  --bs-primary-rgb: 61, 107, 52;
+  --bs-secondary: var(--secondary);
+  --bs-secondary-rgb: 51, 51, 51;
+  --bs-success: var(--brand-solid);
+  --bs-success-rgb: var(--brand-solid-rgb);
+  --bs-info: var(--info);
+  --bs-info-rgb: 23, 162, 184;
+  --bs-warning: var(--warning);
+  --bs-warning-rgb: 255, 193, 7;
+  --bs-danger: var(--danger);
+  --bs-danger-rgb: 220, 53, 69;
+  --bs-light: var(--light);
+  --bs-light-rgb: 248, 249, 250;
+  --bs-dark: var(--dark);
+  --bs-dark-rgb: 51, 51, 51;
+
+  --bs-body-font-family: var(--font-family-sans-serif);
+  --bs-font-monospace: var(--font-family-monospace);
+  --bs-body-color: var(--ink-900);
+  --bs-body-color-rgb: 51, 51, 51;
+  --bs-body-bg: var(--surface-subtle);
+  --bs-body-bg-rgb: 246, 248, 245;
+  --bs-secondary-bg: var(--surface);
+  --bs-secondary-bg-rgb: 255, 255, 255;
+  --bs-tertiary-bg: var(--surface-subtle);
+  --bs-tertiary-bg-rgb: 246, 248, 245;
+  --bs-emphasis-color: var(--ink-900);
+  --bs-heading-color: var(--ink-900);
+  --bs-border-color: var(--line);
+
+  --bs-primary-bg-subtle: var(--brand-50);
+  --bs-primary-border-subtle: var(--brand-100);
+  --bs-primary-text-emphasis: var(--brand-800);
+
+  --bs-link-color: var(--brand-800);
+  --bs-link-color-rgb: 61, 107, 52;
+  --bs-link-hover-color: var(--brand-solid-hover);
+  --bs-link-hover-color-rgb: 49, 86, 42;
+  --bs-focus-ring-color: rgba(var(--brand-rgb), 0.25);
 }
 
-a,
-button,
-input,
-select,
-textarea {
-   transition: border-color var(--motion-fast), box-shadow var(--motion-fast), color var(--motion-fast), background-color var(--motion-fast), opacity var(--motion-fast), transform var(--motion-fast);
+[data-bs-theme='dark'] {
+  --brand-50: #243421;
+  --brand-100: #35502f;
+  --brand-700: #8dca80;
+  --brand-800: #a7d69d;
+  --ink-900: #f1f5ef;
+  --ink-700: #c1cbc0;
+  --ink-500: #9aa697;
+  --surface: #222822;
+  --surface-subtle: #171b17;
+  --line: #3a4438;
+  --control-border: #566153;
+  --shadow: 0 12px 35px rgba(0, 0, 0, 0.28);
+
+  --bs-body-color: var(--ink-900);
+  --bs-body-color-rgb: 241, 245, 239;
+  --bs-body-bg: var(--surface-subtle);
+  --bs-body-bg-rgb: 23, 27, 23;
+  --bs-emphasis-color: var(--ink-900);
+  --bs-heading-color: var(--ink-900);
+  --bs-border-color: var(--line);
+  --bs-secondary-bg: var(--surface);
+  --bs-secondary-bg-rgb: 34, 40, 34;
+  --bs-tertiary-bg: var(--surface-subtle);
+  --bs-tertiary-bg-rgb: 23, 27, 23;
+  --bs-primary-bg-subtle: var(--brand-50);
+  --bs-primary-border-subtle: var(--brand-100);
+  --bs-primary-text-emphasis: var(--brand-800);
+  --bs-primary: var(--brand-800);
+  --bs-primary-rgb: 167, 214, 157;
+  --bs-link-color-rgb: 167, 214, 157;
+  --bs-link-hover-color-rgb: 141, 202, 128;
 }
 
 :focus-visible {
-   outline: 3px solid rgba(52, 84, 209, 0.35);
-   outline-offset: 2px;
+  outline: 3px solid rgba(var(--brand-rgb), 0.35);
+  outline-offset: 2px;
 }
 
-.btn-primary {
-   --bs-btn-bg: var(--brand-600);
-   --bs-btn-border-color: var(--brand-600);
-   --bs-btn-hover-bg: var(--brand-700);
-   --bs-btn-hover-border-color: var(--brand-700);
+/* Bootstrap compila los botones con el hex dentro de cada `--bs-btn-*`, así que
+   redirigir `--bs-primary` no basta: hay que reescribir variante por variante. */
+.btn-primary,
+.btn-success {
+  --bs-btn-bg: var(--brand-solid);
+  --bs-btn-border-color: var(--brand-solid);
+  --bs-btn-hover-bg: var(--brand-solid-hover);
+  --bs-btn-hover-border-color: var(--brand-solid-hover);
+  --bs-btn-active-bg: var(--brand-solid-active);
+  --bs-btn-active-border-color: var(--brand-solid-active);
+  --bs-btn-disabled-bg: var(--brand-solid);
+  --bs-btn-disabled-border-color: var(--brand-solid);
+  --bs-btn-focus-shadow-rgb: var(--brand-solid-rgb);
 }
 
 .btn-outline-primary {
-   --bs-btn-color: var(--brand-600);
-   --bs-btn-border-color: var(--brand-600);
-   --bs-btn-hover-bg: var(--brand-600);
-   --bs-btn-hover-border-color: var(--brand-600);
-}
-
-.skip-link {
-   background: var(--ink-900);
-   color: white;
-   left: 1rem;
-   padding: .75rem 1rem;
-   position: fixed;
-   top: -5rem;
-   z-index: 2000;
-}
-
-.skip-link:focus {
-   top: 1rem;
-}
-
-.app-shell {
-   min-height: 100vh;
-}
-
-.app-header {
-   background: rgba(255, 255, 255, .96);
-   border-bottom: 1px solid var(--line);
-   position: sticky;
-   top: 0;
-   z-index: 100;
-}
-
-.brand {
-   align-items: center;
-   color: var(--ink-900);
-   display: inline-flex;
-   gap: .75rem;
-   text-decoration: none;
-}
-
-.brand__mark {
-   align-items: center;
-   background: var(--brand-600);
-   border-radius: .7rem;
-   color: white;
-   display: inline-flex;
-   font-size: 1.25rem;
-   height: 2.5rem;
-   justify-content: center;
-   width: 2.5rem;
-}
-
-.brand strong,
-.brand small {
-   display: block;
-   line-height: 1.2;
-}
-
-.brand small {
-   color: var(--ink-500);
-   font-size: .72rem;
-   margin-top: .15rem;
-}
-
-.environment-label {
-   background: var(--brand-50);
-   border: 1px solid var(--brand-100);
-   border-radius: 100px;
-   color: var(--brand-700);
-   font-size: .78rem;
-   font-weight: 700;
-   padding: .4rem .7rem;
-}
-
-.page-content {
-   min-height: calc(100vh - 74px);
-   padding: 3rem 0 4rem;
-}
-
-.page-heading {
-   margin-bottom: 2rem;
-}
-
-.page-heading--actions {
-   align-items: end;
-   display: flex;
-   gap: 1.5rem;
-   justify-content: space-between;
-}
-
-.page-heading__actions {
-   display: grid;
-   gap: .55rem;
-}
-
-.page-heading__actions .btn {
-   align-items: center;
-   display: inline-flex;
-   justify-content: center;
-   width: 100%;
-}
-
-.page-heading h1 {
-   font-size: clamp(1.8rem, 4vw, 2.45rem);
-   font-weight: 750;
-   letter-spacing: -.035em;
-   margin: 0 0 .45rem;
-}
-
-.page-heading p:not(.eyebrow) {
-   color: var(--ink-700);
-   margin: 0;
-}
-
-.eyebrow {
-   color: var(--brand-600);
-   font-size: .75rem;
-   font-weight: 800;
-   letter-spacing: .11em;
-   margin: 0 0 .4rem;
-   text-transform: uppercase;
-}
-
-.content-card,
-.profile-summary {
-   border: 1px solid var(--line);
-   border-radius: var(--radius);
-   box-shadow: var(--shadow);
-   overflow: hidden;
-}
-
-.content-card .card-body {
-   padding: clamp(1.25rem, 3vw, 2rem);
-}
-
-.section-title {
-   border-bottom: 1px solid var(--line);
-   font-size: 1.05rem;
-   font-weight: 750;
-   margin: 0 0 1.5rem;
-   padding-bottom: 1rem;
-}
-
-.required-mark {
-   color: #b42318;
-}
-
-.form-label {
-   color: var(--ink-700);
-   font-size: .88rem;
-   font-weight: 700;
-}
-
-.form-control,
-.form-select {
-   border-color: #cdd3df;
-   min-height: 2.75rem;
-}
-
-.form-control:focus,
-.form-select:focus {
-   border-color: var(--brand-600);
-   box-shadow: 0 0 0 .2rem rgba(52, 84, 209, .14);
-}
-
-textarea.form-control {
-   min-height: 7rem;
-}
-
-.form-actions {
-   display: flex;
-   gap: .75rem;
-   justify-content: flex-end;
-}
-
-.app-breadcrumbs {
-   --bs-breadcrumb-divider-color: var(--ink-500);
-   font-size: .85rem;
-   margin-bottom: 1rem;
-}
-
-.app-breadcrumbs a {
-   color: var(--ink-500);
-   text-decoration: none;
-}
-
-.app-breadcrumbs a:hover {
-   color: var(--brand-600);
-}
-
-.app-breadcrumbs .breadcrumb-item.active {
-   color: var(--ink-700);
-   font-weight: 650;
-}
-
-.table-card {
-   background: var(--surface);
-}
-
-.table-toolbar {
-   align-items: end;
-   display: flex;
-   gap: 1rem;
-   justify-content: space-between;
-   padding: 1.4rem 1.5rem;
-}
-
-.search-field {
-   max-width: 32rem;
-   width: 100%;
-}
-
-.search-field .form-label {
-   display: block;
-}
-
-.table-toolbar__actions {
-   align-items: center;
-   display: flex;
-   flex: 0 0 auto;
-   gap: 1rem;
-}
-
-.table-count {
-   color: var(--ink-500);
-   font-size: .85rem;
-   font-weight: 650;
-   margin: 0;
-   white-space: nowrap;
-}
-
-.filter-chips {
-   display: flex;
-   flex-wrap: wrap;
-   gap: .5rem;
-   padding: 0 1.5rem 1.1rem;
-}
-
-.filter-chip {
-   align-items: center;
-   background: var(--brand-50);
-   border: 1px solid var(--brand-100);
-   border-radius: 100px;
-   color: var(--brand-700);
-   display: inline-flex;
-   font-size: .8rem;
-   font-weight: 650;
-   gap: .45rem;
-   padding: .35rem .75rem;
-}
-
-.filter-chip:hover {
-   background: var(--brand-100);
-}
-
-.filter-chip--clear {
-   background: transparent;
-   border-color: var(--line);
-   color: var(--ink-500);
-}
-
-.filter-chip--clear:hover {
-   background: var(--surface-subtle);
-   color: var(--ink-700);
-}
-
-.table {
-   --bs-table-bg: transparent;
-   margin-bottom: 0;
-}
-
-.table thead th {
-   background: var(--surface);
-   border-bottom-color: var(--line);
-   color: var(--ink-500);
-   font-size: .72rem;
-   letter-spacing: .05em;
-   padding: .9rem .75rem;
-   position: sticky;
-   text-transform: uppercase;
-   top: 0;
-   white-space: nowrap;
-   z-index: 1;
-}
-
-.table tbody td {
-   border-bottom-color: var(--line);
-   padding: 1rem .75rem;
-   vertical-align: middle;
-}
-
-.row-actions {
-   display: flex;
-   gap: .4rem;
-   white-space: nowrap;
-}
-
-/* Se reserva el ancho del botón más largo ya expandido: sin ello, el `hover`
-   ensancharía la columna y toda la tabla daría un salto. */
-@media (hover: hover) {
-   .row-actions {
-      min-width: 11rem;
-   }
-}
-
-/* Arranca como un cuadrado con solo el icono y se ensancha al pasar por encima.
-   La etiqueta va en un grid de `0fr` a `1fr` porque es la única forma de animar
-   hasta el ancho del texto sin fijarlo a mano por botón. */
-.row-action.btn {
-   align-items: center;
-   border: 0;
-   border-radius: .55rem;
-   color: #fff;
-   display: inline-flex;
-   flex: 0 0 auto;
-   font-size: .82rem;
-   font-weight: 700;
-   height: 2.15rem;
-   justify-content: center;
-   min-width: 2.15rem;
-   padding: 0 .5rem;
-   text-decoration: none;
-}
-
-.row-action.btn:hover,
-.row-action.btn:active,
-.row-action.btn:focus-visible {
-   color: #fff;
-   display: flex;
-   gap: .4rem;
-}
-
-.row-action>svg {
-   flex: 0 0 auto;
-   font-size: .95rem;
-}
-
-.row-action__label {
-   display: grid;
-   grid-template-columns: 0fr;
-   transition: grid-template-columns var(--motion-fast) ease;
-}
-
-.row-action__label>span {
-   overflow: hidden;
-}
-
-.row-action:hover .row-action__label,
-.row-action:focus-visible .row-action__label {
-   grid-template-columns: 1fr;
-}
-
-.status-badge {
-   align-items: center;
-   display: inline-flex;
-   font-weight: 650;
-   gap: .38rem;
-   padding: .48em .68em;
-}
-
-.status-dot {
-   background: currentColor;
-   border-radius: 50%;
-   height: .42rem;
-   width: .42rem;
-}
-
-.dt-container .dt-info,
-.dt-container .dt-paging {
-   color: var(--ink-500);
-   font-size: .84rem;
-   padding-top: 1rem;
-}
-
-.dt-container .pagination {
-   margin-bottom: 0;
-}
-
-.dt-processing {
-   background: white !important;
-   border: 1px solid var(--line) !important;
-   border-radius: .7rem !important;
-   box-shadow: var(--shadow);
-   color: var(--ink-700);
-}
-
-.profile-summary .card-body {
-   align-items: center;
-   display: flex;
-   gap: 1.2rem;
-   padding: 1.5rem;
-}
-
-.profile-avatar {
-   align-items: center;
-   background: var(--brand-50);
-   border: 1px solid var(--brand-100);
-   border-radius: .85rem;
-   color: var(--brand-700);
-   display: flex;
-   flex: 0 0 auto;
-   font-size: 1.65rem;
-   font-weight: 800;
-   height: 4.5rem;
-   justify-content: center;
-   width: 4.5rem;
-}
-
-.profile-summary__body h2 {
-   font-size: 1.3rem;
-   font-weight: 750;
-   margin: 0 0 .2rem;
-}
-
-.profile-summary__body p {
-   color: var(--ink-500);
-   margin: 0 0 .65rem;
-}
-
-.role-pill {
-   background: var(--brand-50);
-   border-radius: 100px;
-   color: var(--brand-700);
-   font-size: .78rem;
-   font-weight: 700;
-   padding: .35rem .65rem;
-}
-
-.detail-tabs .card-body {
-   padding-top: 1rem;
-}
-
-.detail-tabs .nav-tabs {
-   border-bottom-color: var(--line);
-   gap: .3rem;
-}
-
-.detail-tabs .nav-link {
-   color: var(--ink-700);
-   font-weight: 700;
-   padding: .85rem 1rem;
-}
-
-.detail-tabs .nav-link.active {
-   border-color: transparent transparent var(--brand-600);
-   border-bottom-width: 3px;
-   color: var(--brand-700);
-}
-
-.detail-tabs .tab-content {
-   min-height: 18rem;
-   padding-top: 1.8rem;
-}
+  --bs-btn-color: var(--brand-800);
+  --bs-btn-border-color: var(--brand-600);
+  --bs-btn-hover-bg: var(--brand-solid);
+  --bs-btn-hover-border-color: var(--brand-solid);
+  --bs-btn-active-bg: var(--brand-solid-hover);
+  --bs-btn-active-border-color: var(--brand-solid-hover);
+  --bs-btn-disabled-color: var(--brand-800);
+  --bs-btn-disabled-border-color: var(--brand-600);
+  --bs-btn-focus-shadow-rgb: var(--brand-solid-rgb);
+}
+
+.btn-secondary {
+  --bs-btn-bg: var(--secondary);
+  --bs-btn-border-color: var(--secondary);
+  --bs-btn-hover-bg: #1f1f1f;
+  --bs-btn-hover-border-color: #1f1f1f;
+  --bs-btn-active-bg: #1f1f1f;
+  --bs-btn-active-border-color: #1f1f1f;
+  --bs-btn-disabled-bg: var(--secondary);
+  --bs-btn-disabled-border-color: var(--secondary);
+  --bs-btn-focus-shadow-rgb: 51, 51, 51;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--secondary);
+  --bs-btn-border-color: var(--control-border);
+  --bs-btn-hover-bg: var(--secondary);
+  --bs-btn-hover-border-color: var(--secondary);
+  --bs-btn-active-bg: var(--secondary);
+  --bs-btn-active-border-color: var(--secondary);
+  --bs-btn-disabled-color: var(--ink-500);
+  --bs-btn-disabled-border-color: var(--control-border);
+  --bs-btn-focus-shadow-rgb: 51, 51, 51;
+}
+
+[data-bs-theme='dark'] .btn-outline-secondary {
+  --bs-btn-color: var(--ink-700);
+  --bs-btn-border-color: var(--control-border);
+  --bs-btn-hover-color: var(--white);
+  --bs-btn-hover-bg: #465044;
+  --bs-btn-hover-border-color: #5a6757;
+  --bs-btn-active-color: var(--white);
+  --bs-btn-active-bg: #536150;
+  --bs-btn-active-border-color: #657461;
+}
+
+.dropdown-menu {
+  --bs-dropdown-link-active-bg: var(--brand-solid);
+  --bs-dropdown-link-hover-bg: var(--brand-50);
+  --bs-dropdown-link-hover-color: var(--brand-800);
+  --bs-dropdown-border-color: var(--line);
+}
+
+/* La paginación la pinta DataTables con el marcado de Bootstrap. */
+.pagination {
+  --bs-pagination-color: var(--brand-800);
+  --bs-pagination-hover-color: var(--brand-800);
+  --bs-pagination-hover-bg: var(--brand-50);
+  --bs-pagination-focus-color: var(--brand-800);
+  --bs-pagination-focus-bg: var(--brand-50);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(var(--brand-rgb), 0.25);
+  --bs-pagination-active-bg: var(--brand-solid);
+  --bs-pagination-active-border-color: var(--brand-solid);
+  --bs-pagination-border-color: var(--line);
+}
+
+/* Toasts de SweetAlert2. La librería pinta con su propia paleta y solo distingue
+   claro/oscuro por `prefers-color-scheme`, así que aquí se reescribe con los tokens
+   de la app para que siga el tema que elige el usuario en la cabecera. */
+.app-toast.swal2-toast {
+  --app-toast-accent: var(--brand-solid);
+  --swal2-close-button-color: var(--ink-500);
+  --swal2-timer-progress-bar-background: var(--app-toast-accent);
+  width: min(24rem, calc(100vw - 2rem));
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-inline-start: 0.25rem solid var(--app-toast-accent);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--ink-900);
+  font-family: var(--bs-body-font-family);
+}
+
+.app-toast--error.swal2-toast {
+  --app-toast-accent: var(--danger);
+}
+
+.app-toast .swal2-title {
+  margin: 0 0.5rem 0 0;
+  color: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.app-toast .swal2-html-container {
+  margin: 0.15rem 0.5rem 0 0;
+  color: var(--ink-700);
+  font-size: 0.9rem;
+}
 
-.tab-pane {
-   animation: tab-in var(--motion-fast) ease both;
+.app-toast .swal2-close:hover {
+  color: var(--ink-900);
 }
 
-.detail-grid {
-   margin: 0;
+/* El icono lo dibuja la librería con bordes y barras de color fijo: se recolorea
+   pieza por pieza con el acento de la variante. */
+.app-toast .swal2-icon.swal2-success,
+.app-toast .swal2-icon.swal2-error {
+  border-color: var(--app-toast-accent);
+  color: var(--app-toast-accent);
 }
 
-.detail-grid dt {
-   color: var(--ink-500);
-   font-size: .76rem;
-   letter-spacing: .04em;
-   margin-bottom: .35rem;
-   text-transform: uppercase;
+.app-toast .swal2-icon.swal2-success .swal2-success-ring {
+  border-color: rgba(var(--brand-solid-rgb), 0.3);
 }
 
-.detail-grid dd {
-   font-weight: 650;
-   margin: 0;
-   overflow-wrap: anywhere;
+.app-toast .swal2-icon.swal2-success [class^='swal2-success-line'],
+.app-toast .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+  background-color: var(--app-toast-accent);
 }
 
-.tab-state {
-   min-height: 13rem;
-   padding: 2rem;
+/* Aviso de viewport: hereda el tema elegido dentro de la aplicación, no el tema
+   del sistema que SweetAlert2 detecta por defecto. */
+.app-desktop-notice.swal2-popup {
+  --swal2-width: 30rem;
+  --swal2-border: 1px solid var(--line);
+  --swal2-border-radius: var(--radius);
+  --swal2-background: var(--surface);
+  --swal2-color: var(--ink-900);
+  --swal2-confirm-button-background-color: var(--brand-solid);
+  --swal2-confirm-button-border-radius: 0.5rem;
+  font-family: var(--bs-body-font-family);
+  box-shadow: var(--shadow);
 }
 
-.skeleton-row {
-   display: flex;
-   gap: 1.5rem;
-   margin-bottom: 1.1rem;
+.app-desktop-notice .swal2-title {
+  font-size: 1.5rem;
 }
 
-.skeleton-row .placeholder {
-   border-radius: .45rem;
-   height: 1.15rem;
+.app-desktop-notice .swal2-html-container {
+  color: var(--ink-700);
+  font-size: 1rem;
+  line-height: 1.55;
 }
-
-.empty-state {
-   align-items: center;
-   color: var(--ink-500);
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   text-align: center;
-}
-
-.empty-state__icon {
-   border: 2px solid var(--line);
-   border-radius: 50%;
-   color: var(--brand-600);
-   display: grid;
-   font-size: 1.5rem;
-   height: 3.5rem;
-   margin-bottom: 1rem;
-   place-items: center;
-   width: 3.5rem;
-}
-
-.address-card {
-   background: var(--surface-subtle);
-   border: 1px solid var(--line);
-   border-radius: .8rem;
-   padding: 1.25rem;
-}
-
-.address-card h3 {
-   align-items: center;
-   display: flex;
-   font-size: 1rem;
-   font-weight: 750;
-}
-
-@keyframes tab-in {
-   from {
-      opacity: 0;
-      transform: translateY(5px);
-   }
 
-   to {
-      opacity: 1;
-      transform: translateY(0);
-   }
+.app-desktop-notice .swal2-icon.swal2-info {
+  border-color: var(--brand-solid);
+  color: var(--brand-solid);
 }
 
-/* Transiciones entre páginas. Inertia se encarga de envolver el swap en
-   document.startViewTransition(); aquí solo se define cómo se ve.
-   El header recibe su propio view-transition-name para salir del grupo `root`:
-   así queda anclado mientras el resto de la página entra y sale. */
-.app-header {
-   view-transition-name: app-header;
+/* La página de destino ya está precargada antes del click; esta transición solo
+   suaviza el swap y no intenta ocultar una espera de red. El header queda fijo. */
+::view-transition-group(app-header) {
+  animation: none;
 }
 
-/* Nombrarlo lo saca del grupo `root`, pero el navegador aún lo funde de una captura
-   a la otra con `plus-lighter`. Al ser el fondo semitransparente eso se ve como un
-   parpadeo, así que se anulan las animaciones y solo queda visible la captura nueva. */
 ::view-transition-old(app-header) {
-   animation: none;
-   mix-blend-mode: normal;
-   opacity: 0;
+  animation: none;
+  mix-blend-mode: normal;
+  opacity: 0;
 }
 
 ::view-transition-new(app-header) {
-   animation: none;
-   mix-blend-mode: normal;
-   opacity: 1;
+  animation: none;
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+
+::view-transition-group(root) {
+  animation-duration: 110ms;
 }
 
 ::view-transition-old(root) {
-   animation: page-leave 180ms ease-in both;
+  animation: page-leave 70ms ease-in both;
 }
 
 ::view-transition-new(root) {
-   animation: page-enter 260ms ease-out both;
+  animation: page-enter 110ms ease-out both;
 }
 
 @keyframes page-leave {
-   to {
-      opacity: 0;
-      transform: translateY(-10px);
-   }
+  to {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
 }
 
 @keyframes page-enter {
-   from {
-      opacity: 0;
-      transform: translateY(14px);
-   }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
 }
 
-@media (max-width: 767.98px) {
-   .environment-label {
-      display: none;
-   }
+/* Cambio de tema. Solo mientras `theme-switch` está en la raíz, para no pisar la
+   transición de página: el tema nuevo entra recortado en un círculo que crece
+   desde el botón (centro y radio los calcula Utils/theme.ts) y el anterior se
+   queda quieto debajo hasta que el círculo lo cubre entero. */
+:root.theme-switch::view-transition-old(root),
+:root.theme-switch::view-transition-new(root) {
+  /* Por defecto las dos capas se mezclan con `plus-lighter`, pensado para un
+      fundido cruzado; aquí conviven opacas y eso las aclararía. */
+  mix-blend-mode: normal;
+}
 
-   .page-content {
-      padding-top: 2rem;
-   }
+:root.theme-switch::view-transition-old(root) {
+  animation: none;
+}
 
-   .page-heading--actions {
-      align-items: stretch;
-      flex-direction: column;
-   }
+:root.theme-switch::view-transition-new(root) {
+  animation: theme-reveal 600ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
 
-   .page-heading--actions .btn {
-      width: 100%;
-   }
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--theme-switch-x, 50%) var(--theme-switch-y, 0));
+  }
 
-   .table-toolbar {
-      align-items: stretch;
-      flex-direction: column;
-   }
-
-   .filter-chips {
-      padding-inline: 1rem;
-   }
-
-   .table-toolbar__actions {
-      justify-content: space-between;
-   }
-
-   .profile-summary .card-body {
-      align-items: flex-start;
-   }
-
-   .detail-tabs .nav-tabs {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-   }
-
-   .detail-tabs .nav-link {
-      white-space: nowrap;
-   }
-
-   .form-actions {
-      flex-direction: column-reverse;
-   }
-
-   .form-actions .btn {
-      width: 100%;
-   }
+  to {
+    clip-path: circle(
+      var(--theme-switch-radius, 150%) at var(--theme-switch-x, 50%) var(--theme-switch-y, 0)
+    );
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 
-   *,
-   *::before,
-   *::after {
-      animation-duration: .01ms !important;
-      animation-iteration-count: 1 !important;
-      scroll-behavior: auto !important;
-      transition-duration: .01ms !important;
-   }
-
-   /* Los pseudoelementos de view transition viven fuera del árbol, el `*` de arriba
-       no los alcanza. Van en reglas separadas porque el `*` dentro del paréntesis no
-       lo entienden todos los navegadores y descartaría la regla entera. */
-   ::view-transition-old(root),
-   ::view-transition-new(root) {
-      animation: none !important;
-   }
-
-   ::view-transition-group(*),
-   ::view-transition-old(*),
-   ::view-transition-new(*) {
-      animation: none !important;
-   }
+  /* Los pseudo-elementos de View Transitions viven fuera del árbol del documento. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

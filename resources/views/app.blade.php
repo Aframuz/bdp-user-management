@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html lang="es">
+<html class="bg-body" lang="es">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#3454d1">
-        <title inertia>{{ config('app.name', 'Mantenedor de Usuarios') }}</title>
+        <meta name="theme-color" content="#62ab52">
+        {{-- Estáticas: viven aquí y no en <Head> para estar en el primer pintado,
+             antes de que monte React. Las que cambian por página (descripción,
+             Open Graph, canonical) las pone el componente PageMeta. --}}
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <title data-inertia>{{ config('app.name', 'Mantenedor de Usuarios') }}</title>
         @viteReactRefresh
         @vite('resources/js/app.tsx')
         @inertiaHead
@@ -96,7 +103,15 @@
         </style>
     </head>
     <body>
-        <div id="app" data-page="{{ json_encode($page) }}">
+        {{-- Inertia 3 entrega la página inicial en un <script type="application/json">;
+             el atributo data-page del contenedor ya no se lee. No usamos la directiva
+             blade de Inertia porque emite su <div id="app"> vacío y aquí el loader vive
+             dentro: React lo descarta al montar, en el mismo commit y sin parpadeo. --}}
+        {{-- JSON_HEX_TAG: desde la página 404 los props llevan la ruta pedida, es decir
+             texto que elige quien visita. Sin escapar `<`, un `</script>` en la URL
+             cerraría este bloque antes de tiempo. --}}
+        <script data-page="app" type="application/json">{!! json_encode($page, JSON_HEX_TAG) !!}</script>
+        <div id="app">
             <div id="loader-main">
                 <div id="logocontainer">
                     <div id="logo-bpc-loader">

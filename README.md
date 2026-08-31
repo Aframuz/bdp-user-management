@@ -2,19 +2,21 @@
 
 Aplicación monolítica Laravel + React para listar, buscar, filtrar, registrar, consultar y eliminar usuarios. Las páginas se sirven con Inertia.js; únicamente la tabla server-side y el contenido lazy de los tabs utilizan respuestas JSON internas.
 
+Una live demo está disponible en <https://usuarios.aframuz.dev> 
+
 ## Stack
 
 - Laravel 11.56 / PHP 8.3
 - React 19.2 + TypeScript estricto
-- Inertia.js 2
+- Inertia.js 3
 - PostgreSQL 16
-- Bootstrap 5.3 + React Bootstrap + Bootstrap Icons (`react-bootstrap-icons`)
+- Bootstrap 5.3 + React Bootstrap + Tabler Icons (`@tabler/icons-react`)
 - DataTables core 2.3 + adaptador oficial `datatables.net-react`
+- SweetAlert2 11 para los toasts de feedback
 - Vite 7.3
 - PHPUnit, Vitest, Testing Library y Playwright
 - Docker Compose y pnpm 11
 
-> **Compatibilidad de versiones:** Laravel 11 es un requisito de la prueba, pero ya no recibe soporte de seguridad. Composer documenta los avisos conocidos que afectan al framework fijado. Para un proyecto real expuesto públicamente se debe migrar al major soportado antes de desplegar. El paquete oficial `datatables.net-react` usa actualmente versión 1.x; el motor DataTables instalado y evaluado es 2.x, que es la versión tecnológica solicitada.
 
 ## Puesta en marcha con Docker
 
@@ -32,7 +34,7 @@ docker compose exec app php artisan migrate --seed
 
 La aplicación queda disponible en <http://localhost:8000> y Vite en el puerto `5173`. El healthcheck de Laravel está disponible en <http://localhost:8000/up>.
 
-También puede ejecutarse la preparación completa con:
+**También puede ejecutarse la preparación completa con:**
 
 ```bash
 make setup
@@ -88,6 +90,33 @@ docker compose --profile test run --rm e2e
 
 Los E2E cubren búsqueda, filtros, alta, errores frontend/backend, tabs lazy, estados vacíos, cancelación/confirmación de borrado, consola sin warnings/errores, accesibilidad automática y viewport móvil. La imagen Playwright tiene la misma versión que el paquete del lockfile.
 
+## Integración y despliegue continuos
+
+GitHub Actions cubre dos flujos, descritos paso a paso en
+[`docs/ci-cd.md`](docs/ci-cd.md):
+
+- **`ci.yml`** — en cada push a `develop`/`main` y en cada PR: Pint, PHPUnit
+  contra PostgreSQL real, `tsc`, ESLint, Vitest, build de Vite y Playwright
+  sobre el stack completo de `compose.yaml`.
+- **`deploy.yml`** — en cada push a `main`: reutiliza `ci.yml` con
+  `workflow_call`, publica dos imágenes en GHCR (`app` con php-fpm y `web` con
+  Caddy, ambas desde `docker/php/Dockerfile.prod`) y las despliega por SSH en
+  una instancia de Oracle Cloud con `compose.prod.yaml`.
+
+El despliegue aplica las migraciones, espera a los healthchecks y comprueba
+`https://<dominio>/up` desde el runner; si algo falla,
+`deploy/remote-deploy.sh` restaura la versión anterior. Un rollback manual se
+lanza desde *Actions → Deploy → Run workflow* indicando el SHA a desplegar.
+
+Para correr la misma suite en local antes de abrir el PR:
+
+```bash
+make ci
+
+# Solo las imágenes de producción, sin publicarlas
+make build-prod
+```
+
 ## Estructura relevante
 
 ```text
@@ -105,7 +134,8 @@ resources/js/
 ├── Pages/Usuarios/         # composición: Index, Create y Show
 ├── Services/
 ├── Types/
-└── Utils/                  # rutas, validación y fechas
+├── Utils/                  # rutas, validación, fechas y toasts
+└── app.css                 # tokens, puente Bootstrap y estilos de documento
 tests/
 ├── Feature/                # CRUD, DataTables y tabs
 ├── frontend/               # Vitest/Testing Library
@@ -127,6 +157,9 @@ tests/
   `AsyncSection` no saben nada del dominio de usuarios.
 - **Los cuatro estados en un único lugar.** `AsyncSection` resuelve cargando / error / vacío /
   con datos, de modo que cada tab solo describe su marcado.
+- **Bootstrap primero, CSS local después.** El layout, espaciado y comportamiento responsive
+  usan utilidades de Bootstrap. Los estilos visuales que Bootstrap no puede expresar viven
+  junto a su componente en `*.module.css`, con nombres BEM y alcance local generado por Vite.
 
 ## Contratos internos
 
@@ -137,7 +170,13 @@ tests/
 
 ## Personalización y accesibilidad
 
-Los tokens de marca están al inicio de `resources/js/app.css`; color, radios, sombras y duración de movimiento pueden cambiarse sin modificar componentes. La interfaz incluye skip link, landmarks, foco visible, labels y errores asociados, regiones vivas, modal/Offcanvas accesibles, tabs navegables por teclado, tablas con caption y soporte para `prefers-reduced-motion`.
+Los tokens de marca están al inicio de `resources/js/app.css`; ese archivo se limita a fuentes,
+tokens, el puente de variables/variantes de Bootstrap y SweetAlert2, foco, transiciones de página
+y movimiento accesible.
+Los estilos de componentes están aislados en CSS Modules BEM. Color, radios, sombras
+y duración de movimiento pueden cambiarse sin modificar componentes. La interfaz incluye skip link, landmarks,
+foco visible, labels y errores asociados, regiones vivas, modal/Offcanvas accesibles, tabs
+navegables por teclado, tablas con caption y soporte para `prefers-reduced-motion`.
 
 ## Matriz de cumplimiento
 
@@ -148,7 +187,7 @@ Los tokens de marca están al inicio de `resources/js/app.css`; color, radios, s
 | Panel lateral, rol/estado, Aplicar/Limpiar | Offcanvas controlado |
 | Confirmación de borrado | Modal con estados cancelar/procesando/error |
 | Formulario y validaciones frontend/backend | Hook TypeScript + Form Request |
-| Errores inline, error general y feedback de éxito | Campos accesibles + Alert + Toast |
+| Errores inline, error general y feedback de éxito | Campos accesibles + Alert + toast de SweetAlert2 |
 | Ficha con tres componentes tab | `GeneralTab`, `DireccionesTab`, `NotasTab` sobre `AsyncSection` |
 | Lazy loading y estados loading/empty/data/error | `useLazyUserTabs` con caché y reintento |
 | Modelos, migraciones, factories y seeders | PostgreSQL con relaciones/cascadas |
@@ -156,7 +195,6 @@ Los tokens de marca están al inicio de `resources/js/app.css`; color, radios, s
 | Sin warnings y ejecución reproducible | lint, typecheck, build y lockfiles |
 | README de instalación completo | Docker-first y comandos de validación |
 
-No se incluyen edición, autenticación, permisos, exportación, modo oscuro ni validación adicional del dígito verificador del RUT porque no forman parte del enunciado.
 
 ## Notas de operación
 
@@ -168,3 +206,9 @@ No se incluyen edición, autenticación, permisos, exportación, modo oscuro ni 
   blanca de variables de entorno a su proceso hijo, así que las definidas en `compose.yaml` para
   `app-test` no llegan y este archivo es la única fuente. Con el driver `array` el token CSRF se
   regenera en cada petición y todo POST responde 419. PHPUnit mantiene `array` vía `phpunit.xml`.
+
+## Consideraciones adicionales
+- Se utilizó `pnpm` en lugar de `npm` o `yarn` por su rapidez y determinismo. La lockfile se mantiene actualizada con `pnpm install --frozen-lockfile`.
+- Se utilizó `prettier` para formatear el código y mantener un estilo consistente en todo el proyecto.
+- No usé deferred props porque el payload inicial en index es pequeño, y la lista de usuarios se carga desde un endpoint separado `usuarios/data` que utiliza DataTables para cargar sus datos y manejar paginación, búsqueda, ordenamiento y filtrado en el servidor en vez de en el cliente. Si bien la demo contiene pocos datos, lo pensé en un entorno donde la cantidad de usuarios es considerable.
+- No usé ProvidesInertiaProperties para mantener legibilidad del código,  no existen props reutilizables a través de otros controladores que lo justifiquen

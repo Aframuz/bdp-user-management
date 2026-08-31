@@ -1,0 +1,16 @@
+.breadcrumbs {
+  --bs-breadcrumb-divider-color: var(--ink-500);
+}
+
+.breadcrumbs :global(a) {
+  color: var(--ink-500);
+}
+
+.breadcrumbs :global(a:hover) {
+  color: var(--brand-800);
+}
+
+.breadcrumbs :global(.breadcrumb-item.active) {
+  color: var(--ink-700);
+  font-weight: 650;
+}

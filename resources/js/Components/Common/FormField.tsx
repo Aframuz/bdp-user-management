@@ -1,38 +1,46 @@
-import type { ChangeEventHandler } from 'react';
+import type { ChangeEventHandler, FocusEventHandler } from 'react';
 import { Form } from 'react-bootstrap';
 import { FieldWrapper, type FieldProps } from './FieldWrapper';
+import styles from './FormControls.module.css';
 
 interface FormFieldProps extends FieldProps {
-    value: string;
-    onChange: ChangeEventHandler<HTMLInputElement>;
-    type?: string;
-    autoComplete?: string;
-    maxLength?: number;
-    placeholder?: string;
+  defaultValue?: string;
+  value?: string;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
+  onBlur?: FocusEventHandler<HTMLInputElement>;
+  type?: string;
+  autoComplete?: string;
+  maxLength?: number;
+  placeholder?: string;
 }
 
 export function FormField({
-    value,
-    onChange,
-    type = 'text',
-    autoComplete,
-    maxLength,
-    placeholder,
-    ...field
+  defaultValue,
+  value,
+  onChange,
+  onBlur,
+  type = 'text',
+  autoComplete,
+  maxLength,
+  placeholder,
+  ...field
 }: FormFieldProps) {
-    return (
-        <FieldWrapper {...field}>
-            {(controlProps) => (
-                <Form.Control
-                    {...controlProps}
-                    autoComplete={autoComplete}
-                    maxLength={maxLength}
-                    onChange={onChange}
-                    placeholder={placeholder}
-                    type={type}
-                    value={value}
-                />
-            )}
-        </FieldWrapper>
-    );
+  return (
+    <FieldWrapper {...field}>
+      {(controlProps) => (
+        <Form.Control
+          {...controlProps}
+          autoComplete={autoComplete}
+          className={styles['form-control']}
+          defaultValue={defaultValue}
+          maxLength={maxLength}
+          onBlur={onBlur}
+          onChange={onChange}
+          placeholder={placeholder}
+          type={type}
+          value={value}
+        />
+      )}
+    </FieldWrapper>
+  );
 }

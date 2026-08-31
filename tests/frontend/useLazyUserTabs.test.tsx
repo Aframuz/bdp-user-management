@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { useLazyUserTabs } from '../../resources/js/Hooks/useLazyUserTabs';
+import { useLazyUserTabs } from '@Hooks/useLazyUserTabs';
 
 describe('useLazyUserTabs', () => {
     afterEach(() => vi.restoreAllMocks());
