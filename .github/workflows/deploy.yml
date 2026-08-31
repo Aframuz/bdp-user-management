@@ -1,0 +1,173 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Etiqueta ya publicada a desplegar (vacío = construir el commit actual). Sirve para hacer rollback."
+        required: false
+        type: string
+
+# Nunca dos despliegues simultáneos sobre el mismo servidor; y a diferencia de
+# CI, aquí no se cancela el que está en curso: podría quedar a medio camino.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # ---------------------------------------------------------------------
+  # 1. La misma suite de CI, reutilizada (no una copia)
+  # ---------------------------------------------------------------------
+  tests:
+    name: Suite de CI
+    if: ${{ github.event.inputs.image_tag == '' }}
+    uses: ./.github/workflows/ci.yml
+
+  # ---------------------------------------------------------------------
+  # 2. Construir y publicar las imágenes en GHCR
+  # ---------------------------------------------------------------------
+  build:
+    name: Construir y publicar
+    runs-on: ubuntu-latest
+    needs: [tests]
+    # `always()` para que un rollback (que salta los tests) igual llegue aquí,
+    # pero sin dejar pasar un fallo real de la suite.
+    if: ${{ always() && !failure() && !cancelled() }}
+    timeout-minutes: 30
+    outputs:
+      image_repository: ${{ steps.meta.outputs.repository }}
+      image_tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Calcular nombre y etiqueta de la imagen
+        id: meta
+        # GHCR solo acepta minúsculas y el owner de este repo tiene mayúsculas.
+        run: |
+          repository="ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
+          tag="${{ github.event.inputs.image_tag }}"
+          if [ -z "$tag" ]; then
+            tag="${GITHUB_SHA}"
+          fi
+          echo "repository=$repository" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Omitir la construcción en un rollback
+        id: skip
+        run: |
+          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            echo "La etiqueta ya está publicada; se despliega tal cual."
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+        if: steps.skip.outputs.build == 'true'
+
+      - uses: docker/login-action@v3
+        if: steps.skip.outputs.build == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir y publicar `app` (php-fpm)
+        if: steps.skip.outputs.build == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/php/Dockerfile.prod
+          target: app
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.repository }}/app:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.repository }}/app:latest
+          cache-from: type=gha,scope=prod-app
+          cache-to: type=gha,mode=max,scope=prod-app
+
+      - name: Construir y publicar `web` (Caddy)
+        if: steps.skip.outputs.build == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/php/Dockerfile.prod
+          target: web
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.repository }}/web:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.repository }}/web:latest
+          cache-from: type=gha,scope=prod-web
+          cache-to: type=gha,mode=max,scope=prod-web
+
+  # ---------------------------------------------------------------------
+  # 3. Desplegar en la instancia de Oracle Cloud
+  # ---------------------------------------------------------------------
+  deploy:
+    name: Desplegar en OCI
+    runs-on: ubuntu-latest
+    needs: [build]
+    timeout-minutes: 15
+    # Configurar aprobación manual en Settings > Environments > production
+    # si se quiere una compuerta humana antes de tocar el servidor.
+    environment:
+      name: production
+      url: https://${{ vars.APP_DOMAIN }}
+    env:
+      IMAGE_REPOSITORY: ${{ needs.build.outputs.image_repository }}
+      IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar la clave SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          # La huella del host se fija como secreto en lugar de usar
+          # StrictHostKeyChecking=no: sin esto el despliegue acepta cualquier
+          # servidor que responda en esa IP.
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Copiar el compose de producción
+        # El servidor no clona el repositorio: recibe solo este archivo, así
+        # que su stack siempre coincide con lo que está versionado aquí.
+        run: |
+          scp -i ~/.ssh/id_deploy -P "${{ vars.DEPLOY_SSH_PORT || 22 }}" \
+            compose.prod.yaml \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${DEPLOY_PATH}/compose.prod.yaml"
+
+      - name: Desplegar
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "${{ vars.DEPLOY_SSH_PORT || 22 }}" \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            IMAGE_REPOSITORY="${IMAGE_REPOSITORY}" \
+            IMAGE_TAG="${IMAGE_TAG}" \
+            DEPLOY_PATH="${DEPLOY_PATH}" \
+            GHCR_USER="${{ github.actor }}" \
+            GHCR_TOKEN="${{ secrets.GHCR_READ_TOKEN }}" \
+            'bash -s' < deploy/remote-deploy.sh
+
+      - name: Verificar el sitio publicado
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            if curl -fsS --max-time 10 "https://${{ vars.APP_DOMAIN }}/up" > /dev/null; then
+              echo "https://${{ vars.APP_DOMAIN }}/up responde correctamente."
+              exit 0
+            fi
+            echo "Intento $attempt sin respuesta; reintentando en 10s..."
+            sleep 10
+          done
+          echo "El sitio no respondió tras el despliegue."
+          exit 1

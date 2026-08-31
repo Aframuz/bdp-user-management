@@ -1,4 +1,4 @@
-.PHONY: setup up down reset-db test-backend test-frontend test-e2e quality build
+.PHONY: setup up down reset-db test-backend test-frontend test-e2e quality build build-prod ci
 
 setup:
 	@test -f .env || cp .env.example .env
@@ -39,3 +39,13 @@ quality:
 
 build:
 	docker compose run --rm vite pnpm build
+
+# Réplica local de la suite que ejecuta .github/workflows/ci.yml, en el mismo
+# orden: sirve para no descubrir en el PR algo que se podía ver antes.
+ci: quality test-backend test-frontend test-e2e
+
+# Construye las dos imágenes de producción sin publicarlas. Útil para revisar
+# un cambio en docker/php/Dockerfile.prod sin pasar por GitHub Actions.
+build-prod:
+	docker build -f docker/php/Dockerfile.prod --target app -t bdp-user-management/app:local .
+	docker build -f docker/php/Dockerfile.prod --target web -t bdp-user-management/web:local .

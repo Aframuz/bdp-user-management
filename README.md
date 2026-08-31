@@ -90,6 +90,33 @@ docker compose --profile test run --rm e2e
 
 Los E2E cubren búsqueda, filtros, alta, errores frontend/backend, tabs lazy, estados vacíos, cancelación/confirmación de borrado, consola sin warnings/errores, accesibilidad automática y viewport móvil. La imagen Playwright tiene la misma versión que el paquete del lockfile.
 
+## Integración y despliegue continuos
+
+GitHub Actions cubre dos flujos, descritos paso a paso en
+[`docs/ci-cd.md`](docs/ci-cd.md):
+
+- **`ci.yml`** — en cada push a `develop`/`main` y en cada PR: Pint, PHPUnit
+  contra PostgreSQL real, `tsc`, ESLint, Vitest, build de Vite y Playwright
+  sobre el stack completo de `compose.yaml`.
+- **`deploy.yml`** — en cada push a `main`: reutiliza `ci.yml` con
+  `workflow_call`, publica dos imágenes en GHCR (`app` con php-fpm y `web` con
+  Caddy, ambas desde `docker/php/Dockerfile.prod`) y las despliega por SSH en
+  una instancia de Oracle Cloud con `compose.prod.yaml`.
+
+El despliegue aplica las migraciones, espera a los healthchecks y comprueba
+`https://<dominio>/up` desde el runner; si algo falla,
+`deploy/remote-deploy.sh` restaura la versión anterior. Un rollback manual se
+lanza desde *Actions → Deploy → Run workflow* indicando el SHA a desplegar.
+
+Para correr la misma suite en local antes de abrir el PR:
+
+```bash
+make ci
+
+# Solo las imágenes de producción, sin publicarlas
+make build-prod
+```
+
 ## Estructura relevante
 
 ```text
