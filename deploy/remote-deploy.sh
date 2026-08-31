@@ -51,6 +51,35 @@ if [ ! -r .env ] || [ ! -w .env ]; then
     exit 1
 fi
 
+# --- La clave de la aplicación tiene que ser utilizable -----------------
+# Un APP_KEY sin el prefijo `base64:` (pegar tal cual la salida de
+# `openssl rand -base64 32` es el error típico) deja la aplicación arrancando
+# y respondiendo /up, pero revienta con "Unsupported cipher or incorrect key
+# length" en cuanto una ruta usa sesión o cookies cifradas: es decir, en todo
+# el sitio menos el healthcheck. Vale más pararlo aquí.
+app_key="$(grep -E '^APP_KEY=' .env | head -1 | cut -d= -f2- | tr -d '"'"'"'\r ')"
+case "$app_key" in
+    base64:*)
+        key_bytes="$(printf '%s' "${app_key#base64:}" | base64 -d 2>/dev/null | wc -c)"
+        if [ "$key_bytes" -ne 32 ]; then
+            echo "ERROR: APP_KEY decodifica a ${key_bytes} bytes; AES-256-CBC necesita 32." >&2
+            echo "       Regenerar con: echo \"base64:\$(openssl rand -base64 32)\"" >&2
+            exit 1
+        fi
+        ;;
+    "")
+        echo "ERROR: APP_KEY está vacío en ${DEPLOY_PATH}/.env." >&2
+        echo "       Generar con: echo \"base64:\$(openssl rand -base64 32)\"" >&2
+        exit 1
+        ;;
+    *)
+        echo "ERROR: APP_KEY no lleva el prefijo 'base64:'." >&2
+        echo "       Laravel lo trata como clave en crudo y falla en toda ruta con sesión." >&2
+        echo "       Regenerar con: echo \"base64:\$(openssl rand -base64 32)\"" >&2
+        exit 1
+        ;;
+esac
+
 # --- El dominio está configurado en dos sitios --------------------------
 # `vars.APP_DOMAIN` en GitHub (lo usa la verificación final del workflow y el
 # vhost de Apache) y APP_URL en este .env (de ahí salen las URLs absolutas que

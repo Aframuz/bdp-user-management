@@ -179,7 +179,8 @@ Copia la plantilla `.env.production.example` del repositorio a
 generar:
 
 ```bash
-# APP_KEY
+# APP_KEY -- copia la línea COMPLETA, con el prefijo `base64:`. Sin él el
+# sitio arranca y /up responde 200, pero toda ruta con sesión da 500.
 echo "base64:$(openssl rand -base64 32)"
 
 # DB_PASSWORD
@@ -349,6 +350,49 @@ ssh deploy@<IP> 'cd /opt/bdp-user-management && \
   docker compose -f compose.prod.yaml run --rm app php artisan db:seed --force'
 ```
 
+## Sembrar los datos de referencia
+
+Las migraciones crean las tablas pero no los roles, y el formulario de alta no
+funciona sin ellos. `EssentialSeeder` los crea junto con dos usuarios de
+muestra, es idempotente y no usa factories, así que corre con `--no-dev`:
+
+```bash
+docker compose -f compose.prod.yaml run --rm -T app \
+  php artisan db:seed --class="Database\\Seeders\\EssentialSeeder" --force < /dev/null
+```
+
+`DatabaseSeeder` (el completo, con los 34 usuarios de relleno) **no** sirve
+aquí: usa factories, y `fakerphp/faker` es dependencia de desarrollo que la
+imagen de producción no incluye. Falla con `Class "Faker\Factory" not found`.
+
+## Cargar muchos usuarios de demostración
+
+`DemoUsuariosSeeder` genera el volumen que haga falta sin factories ni faker,
+así que corre en el servidor. La cantidad va en `SEED_USUARIOS`:
+
+```bash
+cd /opt/bdp-user-management
+
+docker compose -f compose.prod.yaml run --rm -T -e SEED_USUARIOS=500 app \
+  php artisan db:seed --class="Database\\Seeders\\DemoUsuariosSeeder" --force < /dev/null
+```
+
+Detalles que conviene saber:
+
+- **Es incremental.** Completa hasta el total pedido y no duplica lo existente:
+  repetirlo con el mismo número no hace nada, y subirlo de 500 a 2000 crea solo
+  los 1500 que faltan. Para reducir hay que borrar a mano.
+- **Los RUT son válidos** (módulo 11, el mismo de `App\Rules\RutValido`), así
+  que los usuarios generados se pueden editar desde el formulario. Los dos de
+  muestra de `EssentialSeeder` vienen del seeder original y no lo son.
+- **Deja huecos a propósito**: uno de cada siete sin dirección y uno de cada
+  cinco sin notas, para que la vista de detalle se pruebe también en vacío.
+- **Rendimiento**: inserta por lotes de 500. Unos 300 usuarios con sus
+  direcciones y notas tardan ~3 s; varios miles siguen siendo cuestión de
+  segundos.
+
+Conviene ejecutarlo con `EssentialSeeder` antes, que es quien crea los roles.
+
 ## Operación diaria
 
 Todos los comandos se ejecutan desde `/opt/bdp-user-management`.
@@ -414,6 +458,8 @@ toca. Respáldalos junto con `/etc/apache2/sites-available/`.
 | El sitio carga sin estilos y la consola marca contenido mixto | Se pierde `X-Forwarded-Proto` y Laravel emite URLs `http://` | Las tres piezas del Paso 7: `RequestHeader` en Apache, `trusted_proxies` en Caddy, `trustProxies` en Laravel |
 | `no alternative certificate subject name matches` | Apache no tiene vhost para el dominio y responde con el certificado de otro sitio | Paso 7: `a2ensite` y `certbot` para ESTE dominio |
 | El despliegue sale verde pero solo `db` está arriba | Un comando que lee stdin se comió el resto del script | Ya corregido: el script se copia y se ejecuta desde archivo, y `compose run` usa `-T < /dev/null` |
+| `/up` responde 200 pero todo lo demás da 500 | `APP_KEY` sin el prefijo `base64:` | Los logs de `app` dicen «Unsupported cipher or incorrect key length»; el despliegue ahora lo rechaza antes |
+| `Class "Faker\Factory" not found` al sembrar | Se lanzó `DatabaseSeeder`, que usa factories, contra la imagen `--no-dev` | Usar `EssentialSeeder` (ver «Sembrar los datos de referencia») |
 | `502 Bad Gateway` desde Apache | El stack no escucha en `127.0.0.1:8080` | `docker compose -f compose.prod.yaml ps` y `ss -tlnp | grep 8080` |
 | `denied` al hacer `pull` en el servidor | Paquete privado sin `GHCR_READ_TOKEN` | Paso 9 |
 | `Permission denied (publickey)` | Clave incompleta en el secret | `DEPLOY_SSH_KEY` debe incluir las líneas `BEGIN`/`END` |
