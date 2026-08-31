@@ -2,7 +2,7 @@
 
 Aplicación monolítica Laravel + React para listar, buscar, filtrar, registrar, consultar y eliminar usuarios. Las páginas se sirven con Inertia.js; únicamente la tabla server-side y el contenido lazy de los tabs utilizan respuestas JSON internas.
 
-Una live demo está disponible en <https://usuarios.aframuz.dev> 
+Una live demo está disponible en <https://usuarios.aframuz.dev/usuarios> 
 
 ## Stack
 
@@ -213,4 +213,5 @@ navegables por teclado, tablas con caption y soporte para `prefers-reduced-motio
 - Se utilizó `pnpm` en lugar de `npm` o `yarn` por su rapidez y determinismo. La lockfile se mantiene actualizada con `pnpm install --frozen-lockfile`.
 - Se utilizó `prettier` para formatear el código y mantener un estilo consistente en todo el proyecto.
 - No usé deferred props porque el payload inicial en index es pequeño, y la lista de usuarios se carga desde un endpoint separado `usuarios/data` que utiliza DataTables para cargar sus datos y manejar paginación, búsqueda, ordenamiento y filtrado en el servidor en vez de en el cliente. Si bien la demo contiene pocos datos, lo pensé en un entorno donde la cantidad de usuarios es considerable.
-- No usé ProvidesInertiaProperties para mantener legibilidad del código,  no existen props reutilizables a través de otros controladores que lo justifiquen
+- No usé ProvidesInertiaProperties para mantener legibilidad del código,  no existen props reutilizables a través de otros controladores que lo justifiquen.
+- Seguí las convenciones de Inertia para construir el formulario.
