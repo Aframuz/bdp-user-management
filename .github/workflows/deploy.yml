@@ -183,6 +183,7 @@ jobs:
             IMAGE_REPOSITORY="${IMAGE_REPOSITORY}" \
             IMAGE_TAG="${IMAGE_TAG}" \
             DEPLOY_PATH="${DEPLOY_PATH}" \
+            APP_DOMAIN="${{ vars.APP_DOMAIN }}" \
             GHCR_USER="${{ github.actor }}" \
             GHCR_TOKEN="${{ secrets.GHCR_READ_TOKEN }}" \
             'bash -s' < deploy/remote-deploy.sh
@@ -198,4 +199,20 @@ jobs:
             sleep 10
           done
           echo "El sitio no respondió tras el despliegue."
+          # Un error de TLS aquí casi siempre significa que Caddy no consiguió
+          # el certificado y está sirviendo el suyo interno. Mostrar el
+          # certificado real distingue eso de una caída de la aplicación.
+          echo "--- Certificado que sirve ${{ vars.APP_DOMAIN }}:443 ---"
+          echo | openssl s_client -connect "${{ vars.APP_DOMAIN }}:443" \
+                   -servername "${{ vars.APP_DOMAIN }}" 2>/dev/null \
+            | openssl x509 -noout -subject -issuer -ext subjectAltName 2>/dev/null \
+            || echo "No se pudo negociar TLS con el servidor."
+          echo "--- Respuesta ignorando la validación del certificado ---"
+          curl -ksS --max-time 10 -o /dev/null -w 'HTTP %{http_code}\n' \
+            "https://${{ vars.APP_DOMAIN }}/up" || true
+          echo
+          echo "Si el certificado es de OTRO dominio, Apache no tiene vhost para"
+          echo "este y responde con el del sitio por defecto: revisar a2ensite y"
+          echo "certbot (Paso 7 de docs/ci-cd.md). Si la respuesta es 502, el"
+          echo "stack no está escuchando en 127.0.0.1:8080."
           exit 1

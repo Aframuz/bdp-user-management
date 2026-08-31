@@ -9,6 +9,7 @@
 #   IMAGE_TAG         etiqueta a desplegar (normalmente el SHA del commit)
 #   DEPLOY_PATH       directorio con compose.prod.yaml y .env
 #   GHCR_USER/TOKEN   opcionales; solo si los paquetes son privados
+#   APP_DOMAIN        opcional; si llega, debe coincidir con el del .env
 
 set -euo pipefail
 
@@ -32,6 +33,23 @@ if [ ! -r .env ] || [ ! -w .env ]; then
     echo "ERROR: ${DEPLOY_PATH}/.env no es legible y escribible por $(id -un)." >&2
     echo "       En la instancia: sudo chown $(id -un):$(id -gn) ${DEPLOY_PATH}/.env" >&2
     exit 1
+fi
+
+# --- El dominio está configurado en dos sitios --------------------------
+# `vars.APP_DOMAIN` en GitHub (lo usa la verificación final del workflow y el
+# vhost de Apache) y APP_URL en este .env (de ahí salen las URLs absolutas que
+# genera Laravel). Si divergen, el despliegue "funciona" pero los enlaces y las
+# redirecciones apuntan a otro sitio, que es un fallo silencioso.
+if [ -n "${APP_DOMAIN:-}" ]; then
+    env_url="$(grep -E '^APP_URL=' .env | head -1 | cut -d= -f2- | tr -d '"'"'"'\r ')"
+    env_host="${env_url#*://}"
+    env_host="${env_host%%/*}"
+    if [ "$env_host" != "$APP_DOMAIN" ]; then
+        echo "ERROR: el dominio no coincide." >&2
+        echo "       GitHub (vars.APP_DOMAIN): ${APP_DOMAIN}" >&2
+        echo "       APP_URL en ${DEPLOY_PATH}/.env: ${env_url:-(vacío)}" >&2
+        exit 1
+    fi
 fi
 
 # --- Etiqueta anterior, para poder volver atrás -------------------------

@@ -3,7 +3,7 @@
 # Imagen de producción. Un mismo árbol de fuentes produce dos objetivos:
 #
 #   --target app  -> php-fpm con el código, el vendor sin dev y los assets compilados
-#   --target web  -> Caddy con `public/`, TLS automático y FastCGI hacia `app`
+#   --target web  -> Caddy sirviendo `public/` por HTTP y FastCGI hacia `app`
 #
 # Ambas imágenes deben publicarse y desplegarse con la MISMA etiqueta. Caddy
 # resuelve las rutas de los assets y le pasa a php-fpm el `index.php` que
@@ -94,4 +94,4 @@ FROM caddy:2-alpine AS web
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 COPY --from=assets /var/www/html/public /var/www/html/public
 
-EXPOSE 80 443
+EXPOSE 8080
