@@ -20,6 +20,20 @@ cd "$DEPLOY_PATH"
 
 compose() { docker compose -f compose.prod.yaml "$@"; }
 
+# El script lee y reescribe .env (guarda ahí IMAGE_TAG). Si el archivo se creó
+# con sudo queda como root:root y el usuario de despliegue no puede tocarlo:
+# sin esta comprobación el `grep` de más abajo falla en silencio, reporta
+# «Versión actual: (ninguna)» y recién revienta al escribir.
+if [ ! -f .env ]; then
+    echo "ERROR: falta ${DEPLOY_PATH}/.env (ver docs/ci-cd.md, Paso 5)." >&2
+    exit 1
+fi
+if [ ! -r .env ] || [ ! -w .env ]; then
+    echo "ERROR: ${DEPLOY_PATH}/.env no es legible y escribible por $(id -un)." >&2
+    echo "       En la instancia: sudo chown $(id -un):$(id -gn) ${DEPLOY_PATH}/.env" >&2
+    exit 1
+fi
+
 # --- Etiqueta anterior, para poder volver atrás -------------------------
 previous_tag="$(grep -E '^IMAGE_TAG=' .env | cut -d= -f2- || true)"
 echo "==> Versión actual: ${previous_tag:-(ninguna)}"

@@ -169,11 +169,18 @@ openssl rand -base64 24
 ```
 
 Ajusta también `APP_DOMAIN`, `ACME_EMAIL`, `APP_URL` e `IMAGE_REPOSITORY`
-(`ghcr.io/<owner>/<repo>` en minúsculas). Deja el archivo cerrado:
+(`ghcr.io/<owner>/<repo>` en minúsculas). Deja el archivo cerrado y **en manos
+del usuario `deploy`**:
 
 ```bash
-chmod 600 /opt/bdp-user-management/.env
+sudo chown deploy:deploy /opt/bdp-user-management/.env
+sudo chmod 600 /opt/bdp-user-management/.env
 ```
+
+El `chown` no es opcional: si editaste el archivo con `sudo` queda como
+`root:root`, y el despliegue falla al leerlo porque `deploy` no tiene sudo. El
+script guarda ahí la etiqueta desplegada (`IMAGE_TAG`), así que necesita
+escritura, no solo lectura.
 
 > `compose.prod.yaml` **no** se copia a mano: el workflow lo sube en cada
 > despliegue, de modo que el stack del servidor siempre coincide con lo
@@ -330,6 +337,8 @@ y puede topar con el rate limit de Let's Encrypt. No lo incluyas en un
 | El workflow falla en `Verificar el sitio publicado` | DNS sin propagar o Security List sin la regla de ingreso | `dig +short <dominio>`; reglas de la VCN (Paso 2) |
 | `502 Bad Gateway` | `app` no arrancó | `docker compose -f compose.prod.yaml logs app` |
 | Caddy no obtiene certificado | El dominio no apunta a la instancia, o el 80 está cerrado | Logs de `web`; ACME valida por HTTP en el puerto 80 |
+| `Could not resolve hostname :` en `scp`/`ssh` | Secretos o variables sin definir: se interpolan como cadena vacía | Paso 7. El job los valida antes de conectarse y nombra los que faltan |
+| `.env: Permission denied` en el servidor | El archivo se creó con `sudo` y quedó como `root:root` | `sudo chown deploy:deploy <DEPLOY_PATH>/.env` (Paso 5) |
 | `denied` al hacer `pull` en el servidor | Paquete privado sin `GHCR_READ_TOKEN` | Paso 8 |
 | `Permission denied (publickey)` | Clave incompleta en el secret | `DEPLOY_SSH_KEY` debe incluir las líneas `BEGIN`/`END` |
 | El sitio carga sin estilos | Etiquetas distintas en `app` y `web` | `docker compose -f compose.prod.yaml ps` — la misma etiqueta en ambos |
