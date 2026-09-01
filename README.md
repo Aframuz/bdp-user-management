@@ -20,7 +20,60 @@ Una live demo está disponible en <https://usuarios.aframuz.dev/usuarios>
 
 ## Puesta en marcha con Docker
 
-Solo es necesario tener Docker con Compose. PHP, Composer, Node, pnpm y PostgreSQL se ejecutan dentro de contenedores.
+Solo es necesario tener Docker con Compose y Git. PHP, Composer, Node, pnpm y PostgreSQL se ejecutan dentro de contenedores: no hace falta instalar nada de eso en el equipo.
+
+### Requisitos
+
+- **Windows**: Docker Desktop 4.25+ con el backend WSL 2 activado.
+- **macOS**: Docker Desktop 4.25+ (Apple Silicon o Intel).
+- **Linux**: Docker Engine 24.0+ y Docker Compose 2.20+ (plugin `docker compose`, no el `docker-compose` v1).
+- Git. `make` es opcional: cada paso está también disponible como comando suelto.
+- Puertos libres en el host: `8000` (Laravel), `5173` (Vite) y `5432` (PostgreSQL).
+- ~4 GB de RAM asignados a Docker y ~3 GB de disco para las imágenes.
+
+### 1. Preparar el entorno
+
+#### Windows
+
+1. Instalar Docker Desktop y, en *Settings → General*, dejar marcado **Use the WSL 2 based engine**.
+2. En *Settings → Resources → WSL Integration*, habilitar la distribución que se vaya a usar (por ejemplo Ubuntu).
+3. Abrir la terminal de esa distribución (`wsl` desde PowerShell, o la app de Ubuntu) y trabajar siempre desde ahí: es donde existen `make`, `cp` y el resto de los comandos de este README.
+4. Clonar el repositorio **dentro del sistema de archivos de WSL** (`~/...`), no en una ruta de Windows montada en `/mnt/c`:
+
+   ```bash
+   git clone https://github.com/Aframuz/bdp-user-management.git
+   cd bdp-user-management
+   ```
+
+   Todos los servicios montan el proyecto completo como bind mount. Sobre `/mnt/c` esos accesos cruzan la capa de traducción de WSL, y tanto `composer install` como el hot reload de Vite se vuelven notoriamente lentos.
+
+Los saltos de línea no requieren configuración adicional: `.gitattributes` fuerza `eol=lf` en todo el repositorio, así que los archivos se clonan con el formato que esperan los contenedores incluso con `core.autocrlf=true`.
+
+> Si se prefiere PowerShell en lugar de WSL, la única diferencia en los comandos es `cp .env.example .env` → `Copy-Item .env.example .env`. `make` no viene con Windows, así que en ese caso hay que instalarlo aparte (Chocolatey, Scoop o winget) o usar la secuencia manual del paso 2.
+
+#### macOS
+
+1. Instalar Docker Desktop y verificar en *Settings → General* que **VirtioFS** sea la *file sharing implementation* (es el valor por defecto desde 4.25 y el más rápido para bind mounts).
+2. Clonar el repositorio:
+
+   ```bash
+   git clone https://github.com/Aframuz/bdp-user-management.git
+   cd bdp-user-management
+   ```
+
+#### Linux
+
+1. Instalar Docker Engine y el plugin de Compose, y agregar el usuario al grupo `docker` (`sudo usermod -aG docker $USER` y volver a iniciar sesión) para no anteponer `sudo` a cada comando.
+2. Clonar el repositorio:
+
+   ```bash
+   git clone https://github.com/Aframuz/bdp-user-management.git
+   cd bdp-user-management
+   ```
+
+### 2. Levantar el proyecto
+
+Los mismos comandos sirven en WSL, macOS y Linux:
 
 ```bash
 cp .env.example .env
@@ -32,22 +85,42 @@ docker compose up -d db app vite
 docker compose exec app php artisan migrate --seed
 ```
 
-La aplicación queda disponible en <http://localhost:8000> y Vite en el puerto `5173`. El healthcheck de Laravel está disponible en <http://localhost:8000/up>.
-
-**También puede ejecutarse la preparación completa con:**
+**El equivalente completo con `make`:**
 
 ```bash
-make setup
-make up
+make setup   # .env, build, dependencias, APP_KEY y migraciones con seeders
+make up      # levanta db, app y vite en segundo plano
 ```
+
+La primera ejecución descarga las imágenes base y compila las extensiones de PHP, así que toma varios minutos; las siguientes reutilizan la caché de capas.
+
+### 3. Verificar
+
+La aplicación queda disponible en <http://localhost:8000> y Vite en el puerto `5173`. El healthcheck de Laravel está disponible en <http://localhost:8000/up>.
+
+```bash
+docker compose ps          # db, app y vite en estado running/healthy
+docker compose logs -f app vite
+```
+
+Los seeders crean 36 usuarios para comprobar paginación y filtros. `Ana Demo` contiene dirección y nota; `Bruno Sin Datos` permite verificar los estados vacíos de los tabs.
 
 Para reiniciar los datos de demostración:
 
 ```bash
-docker compose exec app php artisan migrate:fresh --seed
+docker compose exec app php artisan migrate:fresh --seed   # o: make reset-db
 ```
 
-Los seeders crean 36 usuarios para comprobar paginación y filtros. `Ana Demo` contiene dirección y nota; `Bruno Sin Datos` permite verificar los estados vacíos de los tabs.
+### Problemas frecuentes
+
+| Síntoma | Causa y solución |
+| --- | --- |
+| `bind: address already in use` en `5432` | Hay un PostgreSQL instalado en el host ocupando el puerto. Detener ese servicio, o quitar el mapeo `5432:5432` del servicio `db` en `compose.yaml` (los contenedores se comunican por la red interna de Compose). |
+| Windows: build y hot reload muy lentos | El repositorio está en `/mnt/c`. Volver a clonarlo dentro del sistema de archivos de WSL (`~/`). |
+| Linux: archivos generados en `storage/` o `bootstrap/cache` quedan como `root` | Los contenedores corren como `root` y en Linux el UID se propaga tal cual al bind mount. Recuperar la propiedad con `sudo chown -R $USER:$USER .`. En Docker Desktop (Windows/macOS) no ocurre, porque remapea la propiedad. |
+| Linux: `permission denied` sobre `/var/run/docker.sock` | El usuario no está en el grupo `docker`. Ver el paso 1 de Linux. |
+| `docker compose: 'compose' is not a docker command` | Compose v1. Instalar el plugin v2 (`docker-compose-plugin`) o actualizar Docker Desktop. |
+| `No application encryption key has been specified` | Falta el paso `php artisan key:generate`, o se creó el `.env` sin copiarlo desde `.env.example`. |
 
 ## Desarrollo y build
 
@@ -215,3 +288,4 @@ navegables por teclado, tablas con caption y soporte para `prefers-reduced-motio
 - No usé deferred props porque el payload inicial en index es pequeño, y la lista de usuarios se carga desde un endpoint separado `usuarios/data` que utiliza DataTables para cargar sus datos y manejar paginación, búsqueda, ordenamiento y filtrado en el servidor en vez de en el cliente. Si bien la demo contiene pocos datos, lo pensé en un entorno donde la cantidad de usuarios es considerable.
 - No usé ProvidesInertiaProperties para mantener legibilidad del código,  no existen props reutilizables a través de otros controladores que lo justifiquen.
 - Seguí las convenciones de Inertia para construir el formulario.
+- El color principal de la marca fue extraida de la página bolsadeproductos.cl, sin embargo no pasa tests de accesibilidad de contraste. Se deja deliberadamente el color y se omiten tests de accesibilidad de contraste en el flujo de CI/CD. Se recomienda cambiar el color a uno que cumpla con los estándares de accesibilidad.

@@ -52,6 +52,7 @@ RUN composer dump-autoload \
 FROM php:8.3-fpm-bookworm AS app
 
 RUN set -eux; \
+    sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources; \
     apt-get update; \
     apt-get install -y --no-install-recommends libpq-dev libzip-dev; \
     docker-php-ext-install -j"$(nproc)" bcmath opcache pdo_pgsql zip; \

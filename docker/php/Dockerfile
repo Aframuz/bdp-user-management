@@ -2,7 +2,8 @@ FROM composer:2 AS composer
 
 FROM php:8.3-cli-bookworm
 
-RUN apt-get update \
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get update \
     && apt-get install -y --no-install-recommends curl git libpq-dev libzip-dev unzip \
     && docker-php-ext-install bcmath opcache pdo_pgsql zip \
     && rm -rf /var/lib/apt/lists/*
