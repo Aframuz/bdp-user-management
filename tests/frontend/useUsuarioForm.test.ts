@@ -79,10 +79,27 @@ describe('validateUsuarioForm', () => {
     });
 
     expect(errors).toMatchObject({
-      nombre: 'Solo se permiten letras y espacios.',
-      apellido: 'Solo se permiten letras y espacios.',
-      ciudad: 'Solo se permiten letras y espacios.',
+      nombre: 'Solo se permiten letras, espacios, guiones y apóstrofos.',
+      apellido: 'Solo se permiten letras, espacios, guiones y apóstrofos.',
+      ciudad: 'Solo se permiten letras, espacios, guiones y apóstrofos.',
       codigo_postal: 'El código postal solo puede contener números.',
+    });
+  });
+
+  it('accepts real names with apostrophes, hyphens and periods', () => {
+    expect(
+      validateUsuarioForm({
+        ...validForm,
+        nombre: 'Ana María',
+        apellido: "O'Higgins-García",
+        ciudad: 'St. John',
+      }),
+    ).toEqual({});
+  });
+
+  it('rejects a name that starts with a separator', () => {
+    expect(validateUsuarioForm({ ...validForm, apellido: "-Soto" })).toMatchObject({
+      apellido: 'Solo se permiten letras, espacios, guiones y apóstrofos.',
     });
   });
 });
