@@ -104,6 +104,19 @@ class UsuarioCrudTest extends TestCase
             'apellido con símbolos' => ['apellido', 'Soto!'],
             'ciudad con símbolos' => ['ciudad', 'Santiago_1'],
             'código postal con letras' => ['codigo_postal', '7500A00'],
+            'apellido que empieza por separador' => ['apellido', '-Soto'],
+        ];
+    }
+
+    /** @return array<string, array{string, string}> */
+    public static function nombresPropiosConSeparadores(): array
+    {
+        return [
+            'apóstrofo' => ['apellido', "O'Higgins"],
+            'apóstrofo tipográfico' => ['apellido', 'O’Higgins'],
+            'guion' => ['apellido', 'García-López'],
+            'punto' => ['ciudad', 'St. John'],
+            'espacios y tildes' => ['nombre', 'Ana María'],
         ];
     }
 
@@ -115,6 +128,25 @@ class UsuarioCrudTest extends TestCase
             'apellido' => ['apellido', 100],
             'nota' => ['nota', 1000],
         ];
+    }
+
+    /**
+     * Un apellido real puede llevar apóstrofo, guion o punto: la regla de
+     * "solo letras" no debe rechazar O'Higgins ni García-López.
+     */
+    #[DataProvider('nombresPropiosConSeparadores')]
+    public function test_store_accepts_proper_names_with_separators(string $campo, string $valor): void
+    {
+        $rol = Rol::factory()->create();
+        $payload = array_merge($this->validPayload($rol), [$campo => $valor]);
+
+        $this->post(route('usuarios.store'), $payload)
+            ->assertRedirect(route('usuarios.index'))
+            ->assertSessionHasNoErrors();
+
+        // `ciudad` vive en `direcciones` y el resto en `usuarios`: basta con
+        // comprobar que la petición no fue rechazada y el alta se completó.
+        $this->assertDatabaseCount('usuarios', 1);
     }
 
     #[DataProvider('valoresConCaracteresNoPermitidos')]

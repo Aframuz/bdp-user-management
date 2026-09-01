@@ -2,10 +2,15 @@ import type { UsuarioFormData } from '@Types/usuario';
 import type { ValidationRules } from '@Utils/validation';
 import type { UsuarioCampo } from './usuarioFormSecciones';
 
-export const SOLO_LETRAS_Y_ESPACIOS = /^[\p{L}\p{M} ]+$/u;
+/**
+ * Nombres propios: letras (con sus marcas diacríticas) más los separadores que
+ * aparecen en apellidos reales —O'Higgins, García-López, St. John—. El primer
+ * carácter debe ser una letra para que el campo no empiece por un separador.
+ */
+export const NOMBRE_PROPIO = /^[\p{L}\p{M}][\p{L}\p{M}'’.\- ]*$/u;
 export const SOLO_DIGITOS = /^\d+$/;
 
-const MENSAJE_SOLO_LETRAS = 'Solo se permiten letras y espacios.';
+const MENSAJE_NOMBRE_PROPIO = 'Solo se permiten letras, espacios, guiones y apóstrofos.';
 
 /**
  * Espejo de App\Http\Requests\StoreUsuarioRequest::rules().
@@ -17,15 +22,15 @@ export const usuarioFormRules: ValidationRules<UsuarioFormData> = {
     label: 'El nombre',
     required: true,
     maxLength: 100,
-    pattern: SOLO_LETRAS_Y_ESPACIOS,
-    patternMessage: MENSAJE_SOLO_LETRAS,
+    pattern: NOMBRE_PROPIO,
+    patternMessage: MENSAJE_NOMBRE_PROPIO,
   },
   apellido: {
     label: 'El apellido',
     required: true,
     maxLength: 100,
-    pattern: SOLO_LETRAS_Y_ESPACIOS,
-    patternMessage: MENSAJE_SOLO_LETRAS,
+    pattern: NOMBRE_PROPIO,
+    patternMessage: MENSAJE_NOMBRE_PROPIO,
   },
   email: {
     label: 'El email',
@@ -52,8 +57,8 @@ export const usuarioFormRules: ValidationRules<UsuarioFormData> = {
     label: 'La ciudad',
     required: true,
     maxLength: 100,
-    pattern: SOLO_LETRAS_Y_ESPACIOS,
-    patternMessage: MENSAJE_SOLO_LETRAS,
+    pattern: NOMBRE_PROPIO,
+    patternMessage: MENSAJE_NOMBRE_PROPIO,
   },
   codigo_postal: {
     label: 'El código postal',
