@@ -64,7 +64,7 @@ test('validates and creates a complete user', async ({ page }) => {
     await expect(page.getByLabel('Nombre')).toBeFocused();
 
     await page.getByLabel('Nombre').fill('Elena');
-    await page.getByLabel('Apellido').fill('E2E');
+    await page.getByLabel('Apellido').fill("O'Higgins");
     await page.getByLabel('Email').fill(createdEmail);
     await page.getByLabel('RUT/RUN').fill('17.111.111-0');
     await page.getByLabel('Teléfono').fill('+56987654321');
@@ -141,11 +141,11 @@ test('cancels and confirms deletion', async ({ page }) => {
         has: page.getByRole('cell', { exact: true, name: createdEmail }),
     });
     await expect(createdUserRow).toBeVisible();
-    await createdUserRow.getByRole('button', { name: /Eliminar a Elena E2E/ }).click();
+    await createdUserRow.getByRole('button', { name: /Eliminar a Elena O'Higgins/ }).click();
     await page.getByRole('button', { name: 'Cancelar' }).click();
     await expect(createdUserRow).toBeVisible();
 
-    await createdUserRow.getByRole('button', { name: /Eliminar a Elena E2E/ }).click();
+    await createdUserRow.getByRole('button', { name: /Eliminar a Elena O'Higgins/ }).click();
     await page.getByRole('button', { name: 'Eliminar', exact: true }).click();
     await expect(page.getByText('Usuario eliminado correctamente.')).toBeVisible();
 });
@@ -155,16 +155,18 @@ test('keeps search and filters after deleting, and toasts every deletion', async
     // prueba no dependa de los datos que dejen otras ejecuciones.
     const stamp = String(Date.now());
     // El RUT lleva dígito verificador real: el formulario lo comprueba antes de enviar.
+    // Los apellidos van sin dígitos: el formulario solo admite letras y los
+    // separadores de un nombre propio.
     const desechables = [
-        { email: `temporal0+${stamp}@example.test`, rut: '20.111.111-0' },
-        { email: `temporal1+${stamp}@example.test`, rut: '21.111.111-9' },
+        { email: `temporal0+${stamp}@example.test`, rut: '20.111.111-0', apellido: 'Borrable Uno' },
+        { email: `temporal1+${stamp}@example.test`, rut: '21.111.111-9', apellido: 'Borrable Dos' },
     ];
     const emails = desechables.map((usuario) => usuario.email);
 
-    for (const [index, { email, rut }] of desechables.entries()) {
+    for (const { email, rut, apellido } of desechables) {
         await page.goto('/usuarios/create');
         await page.getByLabel('Nombre').fill('Temporal');
-        await page.getByLabel('Apellido').fill(`Borrable${index}`);
+        await page.getByLabel('Apellido').fill(apellido);
         await page.getByLabel('Email').fill(email);
         await page.getByLabel('RUT/RUN').fill(rut);
         await page.getByLabel('Rol').selectOption({ label: 'Editor' });

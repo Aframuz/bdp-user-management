@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { UsuarioFormBody } from '@Components/Usuarios/UsuarioFormBody';
+import { NOMBRE_PROPIO, SOLO_DIGITOS } from '@Hooks/usuarioFormRules';
 
 describe('UsuarioFormBody', () => {
   function renderForm() {
@@ -36,14 +37,16 @@ describe('UsuarioFormBody', () => {
   it('exposes only the configured character restrictions', () => {
     renderForm();
 
-    const lettersPattern = String.raw`^[\p{L}\p{M} ]+$`;
+    // Se toma del esquema en vez de repetirlo: el test comprueba que el patrón
+    // llega al input, no cuál es.
+    const lettersPattern = NOMBRE_PROPIO.source;
     expect(screen.getByLabelText(/Nombre/)).toHaveAttribute('pattern', lettersPattern);
     expect(screen.getByLabelText(/Apellido/)).toHaveAttribute('pattern', lettersPattern);
     expect(screen.getByLabelText(/Calle/)).not.toHaveAttribute('pattern');
     expect(screen.getByLabelText(/Ciudad/)).toHaveAttribute('pattern', lettersPattern);
 
     const postalCode = screen.getByLabelText(/Código postal/);
-    expect(postalCode).toHaveAttribute('pattern', String.raw`^\d+$`);
+    expect(postalCode).toHaveAttribute('pattern', SOLO_DIGITOS.source);
     expect(postalCode).toHaveAttribute('inputmode', 'numeric');
   });
 });
